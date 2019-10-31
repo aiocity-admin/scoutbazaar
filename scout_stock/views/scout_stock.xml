@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
-		
+        
+		<record id="nso_location_form_view" model="ir.ui.view">
+            <field name="name">nso.location.form.view</field>
+            <field name="model">stock.location</field>
+            <field name="inherit_id" ref="stock.view_location_form"/>
+            <field name="arch" type="xml">
+                <xpath  expr="//group//field[@name='barcode']" position="after">
+                    <field name="nso_location_id" string="NSO Location"/>
+                </xpath>
+            </field>
+        </record>
+        
 		<record id="scout_stock_tree_view" model="ir.ui.view">
 			<field name="name">scout.tree.view</field>
 			<field name="model">scout.stock</field>
@@ -29,7 +40,7 @@
                 </form>
             </field>
         </record>
-
+        
 		<record id="scout_stock_search_view" model="ir.ui.view">
 			<field name="name">scout.stock.search.view</field>
 			<field name="model">scout.stock</field>
@@ -56,12 +67,12 @@
                 </footer>
             </field>
         </record>  
- 
+        
 		<menuitem id="stock_warehouser_id"
-              name="Stock Warehouse"
+              name="NSO Stock Locations"
               action="action_scout_stock_action"
               sequence = "7"
               parent="stock.menu_stock_root"/>
-
+        
 	</data>
 </odoo>

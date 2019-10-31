@@ -18,35 +18,20 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
-
-from odoo import fields,models,_,api
+from odoo import api, models, fields, _
+from odoo.exceptions import UserError
+from odoo.tools import pdf
+from odoo.osv import expression
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from odoo.exceptions import ValidationError, UserError
-
 
 class StockLocation(models.Model):
     
-    
     _inherit = 'stock.location'
-    
     
     state_id = fields.Many2one('res.country.state',string='State')
 
-# class SaleOrderDeliveryCarrier(models.Model):
-#     _inherit = 'sale.order'
-#  
-#     def _get_delivery_methods(self):
-#         address = self.partner_shipping_id
-#         country_id = self.env.context.get('delicvery_carrier_current_country')
-#         # searching on website_published will also search for available website (_search method on computed field)
-#         if country_id:
-#             return self.env['delivery.carrier'].sudo().search([('website_published', '=', True),('country_id','=',int(country_id))]).available_carriers(address)
-#         else:
-#             return self.env['delivery.carrier'].sudo().search([('website_published', '=', True)]).available_carriers(address)
-
-
-class DeliveryCarrier(models.Model):
-    
+class JTDeliveryCarrier(models.Model):
     
     _inherit = 'delivery.carrier'
     
@@ -56,34 +41,10 @@ class DeliveryCarrier(models.Model):
     
     country_code = fields.Char(string='Country Code',related='country_id.code')
     
-    
     delivery_type = fields.Selection(selection_add=[('base_on_jt_configuration', 'J&T')])
     
     big_size_price = fields.Float('Big Product Box Price')
     
-    def base_on_jt_configuration_rate_shipment(self, order):
-        carrier = self._match_address(order.partner_shipping_id)
-        if not carrier:
-            return {'success': False,
-                    'price': 0.0,
-                    'error_message': _('Error: no matching grid.'),
-                    'warning_message': False}
-
-        try:
-            price_unit = self._get_jt_price_available(order)
-        except UserError as e:
-            return {'success': False,
-                    'price': 0.0,
-                    'error_message': e.name,
-                    'warning_message': False}
-        if order.company_id.currency_id.id != order.pricelist_id.currency_id.id:
-            price_unit = order.company_id.currency_id.with_context(date=order.date_order).compute(price_unit, order.pricelist_id.currency_id)
-
-        return {'success': True,
-                'price': price_unit,
-                'error_message': False,
-                'warning_message': False}
-        
     
     
     def get_maximum_shipping_rate(self,origin_id,destination_id,total_weight_remaining):
@@ -99,8 +60,6 @@ class DeliveryCarrier(models.Model):
 #                                                                         ('min_weight','<',total_weight_remaining),
 #                                                                         ('max_weight','>=',total_weight_remaining),
 #                                                                         ])
-            
-        
         
         shipping_rate_list = []
         shipping_rate_list2 = []
@@ -157,8 +116,7 @@ class DeliveryCarrier(models.Model):
                     rate = max_shipping_rate.rate
                     return {'rate':rate,'remain':total_weight_remain}
     
-    
-    def _get_jt_price_available(self,order):
+    def _get_jt_price_available(self,order,line):
         self.ensure_one()
         destination_id = order.partner_shipping_id.state_id
         origin_id = False
@@ -168,7 +126,7 @@ class DeliveryCarrier(models.Model):
         total_delivery_cost = 0.0
         total_rate =0.0
         big_product_price = order.carrier_id.big_size_price
-        for line in order.order_line:
+        for line in line:
             if line.location_id.state_id:
                 origin_id = line.location_id.state_id
             total_weight += (line.product_id.weight * line.product_uom_qty)
@@ -190,10 +148,35 @@ class DeliveryCarrier(models.Model):
             elif total_weight_remain > 0:
                 while total_weight_remain > 0:
                     data = self.get_maximum_shipping_rate(origin_id,destination_id,total_weight_remain)
-                    total_weight_remain = data['remain']
-                    total_delivery_cost += data['rate']
+                    if data['remain']:
+                        total_weight_remain = data['remain']
+                    if data['rate']:
+                        total_delivery_cost += data['rate']
                     
             if big_product_count > 0:
                 total_delivery_cost += (big_product_count * big_product_price)
             
         return total_delivery_cost
+    
+    def base_on_jt_configuration_rate_shipment(self, order, line):
+        carrier = self._match_address(order.partner_shipping_id)
+        if not carrier:
+            return {'success': False,
+                    'price': 0.0,
+                    'error_message': _('Error: no matching grid.'),
+                    'warning_message': False}
+
+        try:
+            price_unit = self._get_jt_price_available(order,line)
+        except UserError as e:
+            return {'success': False,
+                    'price': 0.0,
+                    'error_message': e.name,
+                    'warning_message': False}
+        if order.company_id.currency_id.id != order.pricelist_id.currency_id.id:
+            price_unit = order.company_id.currency_id.with_context(date=order.date_order).compute(price_unit, order.pricelist_id.currency_id)
+
+        return {'success': True,
+                'price': price_unit,
+                'error_message': False,
+                'warning_message': False}

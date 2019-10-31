@@ -21,6 +21,6 @@
 from . import jt_servicable_area
 from . import jt_shipping_rates
 from . import product_template
-from . import delivery_carrier
 from . import res_partner
+from . import delivery_carrier
 # from . import sale_order

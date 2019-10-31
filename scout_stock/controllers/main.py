@@ -122,62 +122,18 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                     line_list.append(line.location_id.id)
             if line_list:
                 ids = sale_order_line_obj.send_sale_order_email(order,line_list)
-                
-#             if order.is_settled and not order.is_paid_to_warehouse:
-#                  
-#                 self.create_warehouse_account_move_line(order)
-                    
+        
         return views
     
-# class WebsiteSaleDelivery(WebsiteSaleDelivery):
+class MyWebsiteSaleDelivery(WebsiteSale):
     
-#     def _update_website_sale_delivery_return(self, order, **post):
-#         carrier_id = int(post['carrier_id'])
-#         currency = order.currency_id
-#         line_amount_delivery = 0.0
-#         for line in order.order_line:
-#             line_amount_delivery += line.delivery_charge
-#         if order:
-#             return {'status': order.delivery_rating_success,
-#                     'error_message': order.delivery_message,
-#                     'carrier_id': carrier_id,
-#                     'new_amount_delivery': self._format_amount(line_amount_delivery, currency),
-#                     'new_amount_untaxed': self._format_amount(order.amount_untaxed, currency),
-#                     'new_amount_tax': self._format_amount(order.amount_tax, currency),
-#                     'new_amount_total': self._format_amount(order.amount_total, currency),
-#             }
-#         return {}
-    
-    
-    
-#     def _get_shop_payment_values(self, order, **kwargs):
-#         values = super(WebsiteSaleDelivery, self)._get_shop_payment_values(order, **kwargs)
-#         has_storable_products = any(line.product_id.type in ['consu', 'product'] for line in order.order_line)
-#         print('===============_get_shop_payment_values=============',values)
-#         if not order._get_delivery_methods() and has_storable_products:
-#             values['errors'].append(
-#                 (_('Sorry, we are unable to ship your order'),
-#                  _('No shipping method is available for your current order and shipping address. '
-#                    'Please contact us for more information.')))
-# 
-#         if has_storable_products:
-#             if order.carrier_id and not order.delivery_rating_success:
-#                 order._remove_delivery_line()
-# 
-#             delivery_carriers = order._get_delivery_methods()
-#             values['deliveries'] = delivery_carriers.sudo()
-# #             values['deliveries'] = False
-#         values['delivery_has_storable'] = has_storable_products
-#         values['delivery_action_id'] = request.env.ref('delivery.action_delivery_carrier_form').id
-#         return values
-    
-#     @http.route(['/shop/payment'], type='http', auth="public", website=True)
-#     def payment(self, **post):
-#         order = request.website.sale_get_order()
-#         if order:
-#             order._check_order_line_carrier(order)
-#         return super(WebsiteSaleDelivery, self).payment(**post)
-    
+    @http.route(['/shop/payment'], type='http', auth="public", website=True)
+    def payment(self, **post):
+        res = super(MyWebsiteSaleDelivery, self).payment(**post)
+        order = request.website.sale_get_order()
+        if order:
+            order._check_order_line_carrier(order)
+        return res
     
     
 #     #Storefront Cart Filters======================================

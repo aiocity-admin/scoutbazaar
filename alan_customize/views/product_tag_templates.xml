@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="products_tag" inherit_id="alan_customize.product_items" active="True" customize_show="True" name="Product Tag" priority="25">
+        <xpath expr="//div[hasclass('product_price')]" position="after">
+            <div class="pro-tags">
+                <t t-foreach="product.tag_ids" t-as="tag">
+                    <label class="product-tag" >
+                        <span t-field="tag.name"/>
+                    </label>
+                </t>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="website_product_tags" 
+        inherit_id="website_sale.products_attributes"  
+        name="Product Tags's Filter"
+        customize_show="True" active="False">
+        <xpath expr="//form[hasclass('js_attributes')]//ul[hasclass('nav')]" position="inside">
+            <t t-if="tags">
+                <li class="pro_clear">
+                <div id="tag_name">
+                <strong>Tags</strong>
+                </div>
+                <ul class="nav nav-pills flex-column pro_tag">
+                    <t t-foreach="tags" t-as="tag">
+                        <li class="nav-item">
+                            <label style="margin: 0 20px;" t-attf-class="nav-link#{' active' if tag.id in tag_set else ''}">
+                                <input type="checkbox"
+                                name="tags"
+                                t-att-value="'%s-%s' % (tag.name,tag.id)"
+                                t-att-checked="'checked' if tag.id in tag_set else None"/>
+
+                                <span style="font-weight: normal" t-field="tag.name" />
+                            </label>
+                        </li>
+                    </t>
+                </ul>
+                </li>
+            </t>
+        </xpath>
+    </template>
+
+
+    <template id="tag_collapsible_filters" name="Tag's Collapsible Filters" inherit_id="alan_customize.website_product_tags" active="False" customize_show="True">
+        <xpath expr="//ul[hasclass('pro_tag')]" position="replace">
+
+                <t t-set="tag_clear_attribute_filter" 
+                t-value="request.env['ir.ui.view'].search([('key','=','alan_customize.tag_clear_attribute_filter'),('website_id','=',request.website.id)]).active"/>
+
+                <t t-set="attr_section_open" t-value="False"/>
+                <t t-foreach="tags" t-as="tag">
+                    <t t-if="tag.id in tag_set">
+                        <t t-set="attr_section_open" t-value="True"/>   </t>
+                </t>
+                <div t-att-class="'collapsible_attr_name%s' %(' section_open' if attr_section_open else '',)">
+                <a>
+                    <strong>Tags</strong>
+                    <span class="icon"></span>
+                </a>
+                <t t-if="tag_clear_attribute_filter and attr_section_open">
+                    <span class="clear_attr_filter">
+                        <i class="fa fa-times"/>Clear
+                    </span>
+                </t>
+                </div>
+                <div class="collapsible_attr_value">
+                    <ul class="nav nav-pills flex-column">
+                        <li>
+                            <ul class="nav nav-pills flex-column">
+                                <t t-foreach="tags" t-as="tag">
+                                    <li class="nav-item">
+                                        <label style="margin: 0 20px;" t-attf-class="nav-link#{' active' if tag.id in tag_set else ''}">
+                                            <input type="checkbox" 
+                                            name="tags"
+                                            t-att-data-attr_id ="tag.id"
+                                            t-att-value="'%s-%s' % (tag.name,tag.id)"
+                                            t-att-checked="'checked' if tag.id in tag_set else None"/>
+                                            <span style="font-weight: normal" 
+                                                t-field="tag.name" />
+                                        </label>
+                                    </li>
+                                </t>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+        </xpath>
+    </template>
+
+    <template id="tag_clear_attribute_filter" name="Tag's Clear Filter Option" inherit_id="alan_customize.website_product_tags" active="False" customize_show="True">
+        <xpath expr="//li[hasclass('pro_clear')]" position="before">
+        <t t-set="tag_collapsible_filters_active" 
+            t-value="request.env['ir.ui.view'].search([('key','=','alan_customize.tag_collapsible_filters'),('website_id','=',request.website.id)]).active"/>
+
+            <t t-if="not tag_collapsible_filters_active">
+                <t t-set="attr_section_open" t-value="False"/>
+                <t t-foreach="tags" t-as="tag">
+                    <t t-if="tag.id in tag_set">
+                        <t t-set="attr_section_open" t-value="True"/>
+                    </t>   
+                </t>
+            </t>
+        </xpath>
+        <xpath expr="//li[hasclass('pro_clear')]/div//strong" position="after">
+            <t t-if="not tag_collapsible_filters_active and attr_section_open">
+                <span class="clear_attr_filter">
+                    <i class="fa fa-times"/>Clear
+                </span>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

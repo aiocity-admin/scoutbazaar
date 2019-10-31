@@ -25,7 +25,7 @@
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
     'category': 'Sales',
-    'depends': ['website_sale_delivery','scout_stock'],
+    'depends': ['website_sale_delivery'],
     'license': 'AGPL-3',
     'data': [
             'data/res_country_states.xml',
