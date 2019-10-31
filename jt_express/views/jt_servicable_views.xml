@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+	<record id="res_partner_district_tree_view" model="ir.ui.view">
+		<field name="name">res.partner.district.tree</field>
+		<field name="model">res.partner.district</field>
+		<field name="arch" type="xml">
+			<tree string="City/Municiplality" editable="bottom">
+				<field name="name"/>
+				<field name="country_id"/>
+			</tree>
+		</field>
+	</record>
+	
+	<record id="res_partner_city_tree_view" model="ir.ui.view">
+		<field name="name">res.partner.city.tree</field>
+		<field name="model">res.partner.city</field>
+		<field name="arch" type="xml">
+			<tree string="Province" editable="bottom">
+				<field name="name"/>
+				<field name="country_id"/>
+			</tree>
+		</field>
+	</record>
+	
+	
+	<record id="res_partner_town_tree_view" model="ir.ui.view">
+		<field name="name">res.partner.town.tree</field>
+		<field name="model">res.partner.town</field>
+		<field name="arch" type="xml">
+			<tree string="Barangay" editable="bottom">
+				<field name="name"/>
+				<field name="country_id"/>
+			</tree>
+		</field>
+	</record>
+	
+<!-- 	<record id="res_partner_territories_tree_view" model="ir.ui.view"> -->
+<!-- 		<field name="name">res.partner.territories.tree</field> -->
+<!-- 		<field name="model">res.partner.territories</field> -->
+<!-- 		<field name="arch" type="xml"> -->
+<!-- 			<tree string="Territories" editable="bottom"> -->
+<!-- 				<field name="name"/> -->
+<!-- 				<field name="country_id"/> -->
+<!-- 			</tree> -->
+<!-- 		</field> -->
+<!-- 	</record> -->
+	
+	<record id="jt_servicable_areas_tree_view" model="ir.ui.view">
+		<field name="name">jt.servicable.areas.tree</field>
+		<field name="model">jt.servicable.areas</field>
+		<field name="arch" type="xml">
+			<tree string="Jt Servicable Areas" editable="bottom">
+				<field name="town_id"/>
+				<field name="district_id"/>
+				<field name="city_id"/>
+				<field name="state_id"/>
+			</tree>
+		</field>
+	</record>
+	
+	
+	<record id="res_partner_district_action_view" model="ir.actions.act_window">
+		<field name="name">City/Municiplality</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner.district</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="res_partner_district_tree_view"/> 
+	</record>
+	
+	
+	<record id="res_partner_city_action_view" model="ir.actions.act_window">
+		<field name="name">Province</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner.city</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="res_partner_city_tree_view"/> 
+	</record>
+	
+	<record id="res_partner_town_action_view" model="ir.actions.act_window">
+		<field name="name">Barangay</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner.town</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="res_partner_town_tree_view"/> 
+	</record>
+	
+	
+<!-- 	<record id="res_partner_territories_action_view" model="ir.actions.act_window"> -->
+<!-- 		<field name="name">Territories</field> -->
+<!--         <field name="type">ir.actions.act_window</field> -->
+<!--         <field name="res_model">res.partner.territories</field> -->
+<!--         <field name="view_type">form</field> -->
+<!--         <field name="view_mode">tree,form</field> -->
+<!--         <field name="view_id" ref="res_partner_territories_tree_view"/>  -->
+<!-- 	</record> -->
+	
+	<record id="jt_servicable_areas_action_view" model="ir.actions.act_window">
+		<field name="name">JT Servicable Areas</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">jt.servicable.areas</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="jt_servicable_areas_tree_view"/> 
+	</record>
+    
+<!--     <menuitem id="webshop_menu_root" -->
+<!--         name="Web Shop" -->
+<!--         web_icon="sale,static/description/icon.png" -->
+<!--         sequence="10" -->
+<!--         groups="base.group_user" -->
+<!--         /> -->
+    <menuitem id="menu_jt_config" parent="sale.sale_menu_root" sequence="3" name="JT Express"/>
+	<menuitem id="web_jt_config_menu"
+              name="JT Configuration"
+              sequence ="10"
+              parent="menu_jt_config"
+              />
+              
+    <menuitem id="web_addresses_menu"
+              name="Addresses"
+              sequence ="10"
+              parent="menu_jt_config"
+              />
+              
+	<menuitem id="res_partner_district_menu" name="City/Municiplality" parent="web_addresses_menu" action="res_partner_district_action_view"/>
+	<menuitem id="res_partner_city_menu" name="Provinces" parent="web_addresses_menu" action="res_partner_city_action_view"/>
+	<menuitem id="res_partner_town_menu" name="Barangay" parent="web_addresses_menu" action="res_partner_town_action_view"/>
+<!-- 	<menuitem id="res_partner_territories_menu" name="Territories" parent="web_addresses_menu" action="res_partner_territories_action_view"/> -->
+	<menuitem id="servicable_areas_menu" name="JT Servicable Areas" parent="web_jt_config_menu" action="jt_servicable_areas_action_view"/>
+	
+	
+</odoo>

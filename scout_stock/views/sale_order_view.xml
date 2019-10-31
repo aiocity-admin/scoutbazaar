@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <record id="sale_order_line_view_extends_location_id" model="ir.ui.view">
+            <field name="name">sale.order.form.jt</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+                    <field name="location_id"/>
+                    <field name="delivery_charge"/>
+                    <field name="delivery_method"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
+                    <field name="location_id" options="{'no_create':True}"/>
+                    <field name="delivery_charge"/>
+                    <field name="delivery_method" options="{'no_create':True}"/>
+                </xpath>
+            </field>
+        </record>
+        
+<!--         <template id="cart_lines" name="Scout" inherit_id="website_sale.cart_lines"> -->
+<!--             <xpath expr="//thead/tr" position="inside"> -->
+<!--                 <th class="text-center td-terms">Terms &amp; Conditions</th> -->
+<!--             </xpath> -->
+<!--             <xpath expr="//tbody//td[@class='td-action']" position="after"> -->
+<!--                     <td> -->
+<!--                         <span class="text-primary" t-att-data-id="line.location_id.id" style="cursor: pointer;" t-esc="line.location_id.name"/> -->
+<!--                     </td> -->
+<!--             </xpath> -->
+<!--         </template> -->
+
+
+            <template id="cart_summary" name="Scout" inherit_id="website_sale.cart_summary">
+                <xpath expr="//thead/tr" position="inside">
+                    <th class="border-top-0 td-terms" id="term_conditions">Terms &amp; Conditions</th>
+                </xpath>
+        
+                <xpath expr="//tbody//td[@class='text-center td-price']" position="after">
+                            <td>
+                                <span class="text-primary" t-att-data-id="line.location_id.id" style="cursor: pointer;" id="location_terms_conditions" t-esc="line.location_id.name"/>
+                            </td>
+                </xpath>
+            </template>
+        
+  </data>
+</odoo>
