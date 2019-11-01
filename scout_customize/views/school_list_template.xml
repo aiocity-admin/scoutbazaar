@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="scout_baazar_backend" inherit_id="web.assets_frontend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/scout_customize/static/src/js/scout.js"></script>
+        </xpath>
+    </template>
+ 
+    <template id="portal_id" name="Scout" inherit_id="portal.portal_my_details" >
+        <xpath expr="//div[@class='row']" position="inside">     
+            <div t-attf-class="form-group #{error.get('school_list_ids') and 'o_has_error' or ''} col-xl-6">
+                <label class="col-form-label" for='school_ids'>School</label>
+                <select id='school_id' name="school_list_ids" multiple= 'multiple' t-attf-class="form-control select2 #{error.get('school_list_ids') and 'is-invalid' or ''}">
+                    <t t-foreach="school_ids or []" t-as="scout">   
+                        <option t-att-selected="scout.id in select_school_ids" t-att-value="scout.id">
+                           <t t-esc="scout.name"/>
+                        </option>
+                    </t>
+                </select> 
+            </div>
+        </xpath>
+    </template>
+</odoo>    

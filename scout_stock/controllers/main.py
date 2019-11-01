@@ -49,7 +49,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         if categ_id.parent_id:
             return self.get_stock_country(categ_id.parent_id)
         elif not categ_id.parent_id:
-            c_id = request.env['res.country'].sudo().search([('name','=',categ_id.name)],limit=1)
+            c_id = request.env['res.country'].sudo().search([('name','=',categ_id.name.capitalize())],limit=1)
 #             return categ_id.name
             if c_id:
                 return c_id
