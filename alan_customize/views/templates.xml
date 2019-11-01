@@ -823,7 +823,7 @@
             </div>
         </xpath>
     </template>
-    <!--template id="website_sale_comparison.product_attributes_body" inherit_id="website_sale.product" customize_show="False" active="False" name="Product attributes table">
+    <template id="website_sale_comparison.product_attributes_body" inherit_id="website_sale.product" customize_show="False" active="False" name="Product attributes table">
         <xpath expr="//hr[@id='hr_product_attributes_simple']" position="replace"/>
         <xpath expr="//p[@id='product_attributes_simple']" position="replace"/>
         <xpath expr="//div[@id='product_full_description']" position="after">
@@ -858,7 +858,7 @@
                 </t>
             </section>
         </xpath>
-    </template-->
+    </template>
     <template id="product_comment" inherit_id="alan_customize.product_details" name="Discussion and Rating" active="False" customize_show="True">
         <xpath expr="//div[@id='product_more_info']//ul" position="inside">
             <li role="presentation">
