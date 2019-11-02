@@ -4,6 +4,7 @@
 		<xpath expr="." position="inside">
 			<script type="text/javascript" src="/scout_customize/static/src/js/check_gift_product.js"/>
 			<script type="text/javascript" src="/scout_customize/static/src/js/product_attachment.js"/>
+			 <script type="text/javascript" src="/scout_customize/static/src/js/return_order_js.js"/>
 		</xpath>
 	</template>
 </odoo>

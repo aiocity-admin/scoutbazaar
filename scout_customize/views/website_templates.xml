@@ -17,7 +17,7 @@
 	</template>
 	
 	<template id="footer" inherit_id="alan_customize.footer_layout_1" name="footer">
-    	<xpath expr="//div[@class='middle-footer']" position="replace">
+    	<xpath expr="//div[hasclass('middle-footer')]" position="replace">
     		<div class="middle-footer">
                 <div class="container">
                     <div class="row">
@@ -72,7 +72,7 @@
 	
 	
 	<template id="tracking_order" inherit_id="sale.portal_my_orders" name="track">
-		<xpath expr="//th[@class='text-center']" position="inside">
+		<xpath expr="//th[hasclass('text-center')]" position="inside">
 				<span>Track Order</span>
 		</xpath>
 

@@ -1,0 +1,354 @@
+<odoo>
+    <record id="return_order_view_tree" model="ir.ui.view">
+          <field name="name">return.order.tree</field>
+          <field name="model">return.order</field>
+          <field name="arch" type="xml">
+            <tree string="Return Order" decoration-muted="state=='cancel'">
+                  <field name="name"/>
+                  <field name="sale_order_id"/>
+                  <field name="order_customer"/>
+                  <field name="create_order_date"/>
+                  <field name="state"/>
+            </tree>
+          </field>
+    </record>
+    
+    <record id="return_order_form_view" model="ir.ui.view">
+    <field name="name">return.order.form</field>
+    <field name="model">return.order</field>
+    <field name="arch" type="xml">
+        <form string="Return Order" class="o_sale_order">
+        <header>
+            <button name="rmo_action_confirm" string="Confirm" type="object" attrs="{'invisible': [('state', 'not in', ['draft','cancel'])]}"/>
+            <button name="rmo_action_return" states="confirmed" type="object" string="Return"/>
+            <button name="rmo_action_cancel" states="draft,confirmed,return" type="object" string="Cancel"/>
+            <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,return,cancel"/>
+        </header>
+        <sheet>
+            <div class="oe_button_box" name="button_box">
+                <button type="object"
+                        name="action_view_delivery_order"
+                    class="oe_stat_button"
+                    icon="fa-truck"
+                    attrs="{'invisible': ['|',('delivery_count', '=', 0)]}" groups="base.group_user">
+                    <field name="delivery_count" widget="statinfo" string="Delivery Order"/>
+                </button>
+                <button type="object"
+                        name="action_view_delivery_picking"
+                    class="oe_stat_button"
+                    icon="fa-truck"
+                    attrs="{'invisible': ['|',('Picking_count', '=', 0)]}" groups="base.group_user">
+                    <field name="Picking_count" widget="statinfo" string="Return Picking"/>
+                </button>
+            </div>
+            
+            <div class="oe_title">
+                <h1>
+                    <field name="name" readonly="1"/>
+                </h1>
+            </div>
+            <group>
+                <group>
+                    <field name="sale_order_id" options="{'no_create': True}" attrs="{'readonly': [('state', 'in', ('confirmed','return','cancel'))]}"/>
+                </group>
+                <group>
+                    <field name="create_order_date" attrs="{'readonly': [('state', 'in', ('confirmed','return','cancel'))]}"/>
+                    <field name="order_customer"/>
+                    <field name="sale_order_line" options="{'no_create': True}" attrs="{'readonly': [('state', 'in', ('confirmed','return','cancel'))]}"/>
+                </group>
+            </group>
+            <group>
+                <group>
+                    <field name="return_product" options="{'no_create': True}" attrs="{'readonly': [('state', 'in', ('confirmed','return','cancel'))]}"/>
+                </group>
+                <group>
+                    <label for="return_qty" string="Return Quantity"/>
+                    <div>
+                        <field name="return_qty" class="oe_inline" attrs="{'readonly': [('state', 'in', ('confirmed','return','cancel'))]}"/>
+                        <field
+                            name="product_uom"
+                            force_save="1"
+                            groups="uom.group_uom"
+                            class="oe_inline oe_no_button"/>
+                    </div>
+                </group>
+            </group>
+            <group>
+                <group>
+                    <field name="user_id" attrs="{'readonly': [('state', 'in', ('confirmed','return','cancel'))]}"/>
+                    <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company" attrs="{'readonly': [('state', 'in', ('confirmed','return','cancel'))]}"/>
+                </group>
+                <group>
+                    <field name="team_id" options="{'no_create': True}" attrs="{'readonly': [('state', 'in', ('confirmed','return','cancel'))]}"/>
+                </group>
+            </group>
+             <notebook>
+                <page string="Reason of Return" name="reason_of_return">
+                    <field name="note" class="oe_inline" attrs="{'readonly': [('state', 'in', ('confirmed','return','cancel'))]}" placeholder="Reason of Return... (note: you can setup default ones in the return menu)"/>
+                </page>
+                
+                <page string="Delivery Orders" name="delivery_orders_return">
+                    <field name="delivery_order_lines" decoration-muted="state=='cancel'">
+                    </field>
+                </page>
+                
+                <page string="Return Picking" name="return_picking">
+                    <field name="return_picking_line" decoration-muted="state=='cancel'">
+                    </field>
+                </page>
+                <page string="Other Info" name="other_info_return">
+                
+                </page>
+             </notebook>
+        </sheet>
+        </form>
+    </field>
+   </record>
+   
+   <record id="return_order_action" model="ir.actions.act_window">
+          <field name="name">Return Order</field>
+          <field name="res_model">return.order</field>
+          <field name="view_type">form</field>
+          <field name="view_mode">tree,form</field>
+          <field name="view_id" eval="False"/>
+              <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                  Create customer return order.
+                </p>
+              </field>
+    </record>
+    
+    <menuitem id="menu_return_order" action="return_order_action" parent="sale.sale_order_menu" groups="sales_team.group_sale_salesman"/>
+    
+    <record id="inherit_stck_picking_me" model="ir.ui.view">
+      <field name="name">stock.picking.form.inherit</field>
+      <field name="model">stock.picking</field>
+      <field name="inherit_id" ref="stock.view_picking_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='picking_type_id']" position="after">
+           <field string="RMA Order" name="rma_order_ref" widget="many2many_tags" readonly="1"/>
+        </xpath>
+      </field>
+    </record>
+   
+   
+    <template id="website_sale_return_form" inherit_id="sale.sale_order_portal_content" name="Shopping Cart Lines">
+        <xpath expr="//div[@id='introduction']/h2" position="after">
+          <div class="modal fade" id="return_order_model" role="dialog">
+            <div class="modal-dialog">
+              <!-- Modal content-->
+              
+              <form action="/submit/return-form" method="post" class="set_qtys">
+              <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Return Product</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                
+                <div class="modal fade" data-backdrop="static" aria-hidden="false" id="qty_up_modal" role="dialog" tabindex="-1">
+                   <div class="modal-dialog modal-lg" style="width:50%">
+                      <div class=" modal-content">
+                      <div class="modal-header" style ="border-radius:0;background: #e476c3;">
+                      <button type="button" class="close" data-dismiss="modal" style="color:black;margin-top: -25px;">×</button>
+                      <h4 class="modal-title" style="color: white;margin-top:-10px;position:absolute;" id="dy-title">WARNING!</h4>
+                      </div>
+                          <div class="modal-body alert alert-danger alert-dismissible fade show" style="text-transform: none;margin-bottom:0px;border-radius:0;white-space: pre-line;line-height: normal;text-align:left;">
+                              <span> Invalid return quantity, it should be more than 0. </span>
+                          </div>
+                      </div>
+                      </div>
+                </div>
+                
+                <div class="modal fade" data-backdrop="static" aria-hidden="false" id="qty_down_modal" role="dialog" tabindex="-1">
+                   <div class="modal-dialog modal-lg" style="width:50%">
+                      <div class=" modal-content">
+                      <div class="modal-header" style ="border-radius:0;background: #e476c3;">
+                      <button type="button" class="close" data-dismiss="modal" style="color:black;margin-top: -25px;">×</button>
+                      <h4 class="modal-title" style="color: white;margin-top:-10px;position:absolute;" id="dy-title">WARNING!</h4>
+                      </div>
+                          <div class="modal-body alert alert-danger alert-dismissible fade show" style="text-transform: none;margin-bottom:0px;border-radius:0;white-space: pre-line;line-height: normal;text-align:left;">
+                              <span> Invalid return quantity, it should be equal or less than ordered quantity. </span>
+                          </div>
+                      </div>
+                      </div>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="form-group" style="" id="group_customer">
+                        <div class="container-fluid">
+                            <div class="row">
+                                    <div class="col-6">
+                                        <label>Customer</label><br/>
+                                        <input class="form-control" type="text" t-att-value="sale_order.partner_id.name" name="return_customer" readonly="readonly" style="border:0px;"/><br/><br/>
+                                    </div>
+                                    
+                                     <div class="col-6">
+                                        <label>Sale Order</label><br/>
+                                        <input class="form-control" type="text" t-att-value="sale_order.name" name="return_sale_order" readonly="readonly" style="border:0px;"/><br/><br/>
+                                    </div>
+                                    
+                                    <br/>
+                                    
+                                    <div class="col-6">
+                                        <t t-set="select_order_lines" t-value="[]"/>
+                                        <label>Product to Return</label><br/>
+                                        <input class="form-control" type="hidden" name="input_return_product" id="input_return_product" required="required"/>
+                                        <select style="" class="cut_p browser-default custom-select" onchange="myFunction_prodcut()">
+                                            <option value=""></option>
+                                            <t t-foreach="sale_order.order_line" t-as="line">
+                                                <t t-foreach="sale_order.picking_ids" t-as="pick_id">
+                                                    <t t-if="pick_id.state == 'done'">
+                                                        <t t-foreach="pick_id.move_ids_without_package" t-as="pick_line_id">
+                                                            <t t-if="pick_line_id.product_id == line.product_id and line.location_id == pick_id.location_id and line.id not in select_order_lines">
+                                                                <option name="get_line_id" t-att-value="line.id"><span t-esc="line.name"/></option>
+                                                                <t t-set="select_order_lines" t-value="select_order_lines + [line.id]"/>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                 </t>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-6">
+                                        <label>Return Quantity</label><br/>
+                                        <input type="number" onchange="myFunction_prodcut_qty()" class="return_quantity form-control" name="return_quantity" min="1" value="" required="required"/>
+                                    </div>
+                                    <br/>
+                                <br/>
+                                <div class="col-12">
+                                      <label>Return Reason</label>
+                                      <textarea class="form-control" rows="5" name="return_reason" required="required"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-danger than_zero d-none">
+                    <strong>Warning!</strong> Invalid return quantity, it should be more than 0.
+                </div>
+                <div class="alert alert-danger than_less d-none">
+                    <strong>Warning!</strong> Invalid return quantity, it should be equal or less than ordered quantity.
+                </div>
+                <div class="modal-footer">
+                  <button style="color:white;" type="submit" class="btn btn-primary my_button">Submit</button>
+                  <button type="button" class="btn btn-default return_submit" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+              </form>
+              
+            </div>
+          </div>
+         <div t-if="len(sale_order.picking_ids) > 0" style="float: right;margin-top: -37px;" id="set_return_button">
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#return_order_model">Return</button>
+         </div>
+        </xpath>
+    </template>
+    
+    <template id="return_portal_my_home_sale" name="Portal My Home : Return sales entries" inherit_id="portal.portal_my_home" priority="20">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-if="return_order_count" t-call="portal.portal_docs_entry">
+                <t t-set="title">Return Orders</t>
+                <t t-set="url" t-value="'/return/orders'"/>
+                <t t-set="count" t-value="return_order_count"/>
+            </t>
+        </xpath>
+    </template>
+    
+    <template id="return_portal_my_orders" name="My Return Orders">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Return Orders</t>
+            </t>
+            <t t-if="returnorders">
+                <h2>Your Return Orders</h2>
+            </t>
+            <t t-if="not returnorders">
+                <h2>There are currently no return order for your account.</h2>
+            </t>
+            <t t-if="returnorders" t-call="portal.portal_table">
+                <thead>
+<!--                     <tr class="active"> -->
+<!--                         <th> -->
+<!--                             <span class='d-none d-md-inline'>Number</span> -->
+<!--                         </th> -->
+<!--                         <th class="text-right">Return Date</th> -->
+<!--                         <th class="text-right">Sale Order</th> -->
+<!--                         <th class="text-right">Stage</th> -->
+<!--                     </tr> -->
+                    <tr class="active">
+                        <th>
+                            <span class='d-none d-md-inline'>Number</span>
+                        </th>
+                        <th class="text-right">Sale Order</th>
+                        <th class="text-right">Products</th>
+                        <th class="text-right">Quantity</th>
+                        <th class="text-right">Return Date</th>
+                        <th class="text-right">Status</th>
+                    </tr>
+                </thead>
+                <t t-foreach="returnorders" t-as="order">
+<!--                     <tr> -->
+<!--                         <td><t t-esc="order.name"/></td> -->
+<!--                         <td class="text-right"> -->
+<!--                             <span t-field="order.create_order_date" t-options="{'widget': 'date'}"/>&amp;nbsp; -->
+<!--                             <span class='d-none d-md-inline' t-field="order.create_order_date" t-options="{'time_only': True}"/> -->
+<!--                         </td> -->
+<!--                         <td class="text-right"> -->
+<!--                             <span t-field="order.sale_order_id"/> -->
+<!--                         </td> -->
+<!--                         <td class="text-right"> -->
+<!--                             <span t-field="order.state"/> -->
+<!--                         </td> -->
+<!--                     </tr> -->
+                    <tr>
+                        <td><t t-esc="order.name"/></td>
+                        <td class="text-right">
+                            <span t-field="order.sale_order_id"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-field="order.return_product"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-field="order.return_qty"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-field="order.create_order_date" t-options="{'widget': 'date'}"/>&amp;nbsp;
+                            <span class='d-none d-md-inline' t-field="order.create_order_date" t-options="{'time_only': True}"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-field="order.state"/>
+                        </td>
+                    </tr>
+                </t>
+            </t>
+        </t>
+    </template>
+    
+    <template id="return_error_details" name="Return Details">
+        <div class="modal fade" data-backdrop="static" aria-hidden="false" id="me_r_model_id" role="dialog" tabindex="-1">
+            <div class="modal-dialog modal-lg" style="width:50%">
+                <div class="modal-content">
+                    <div class="modal-header" style ="border-radius:0;background: #e476c3;">
+                        <button type="button" class="close" data-dismiss="modal" style="color:black;margin-top: -25px;">×</button>
+                        <h4 class="modal-title" style="color: white;margin-top:-10px;position:absolute;" id="me_dy-title">WARNING!</h4>
+                    </div>
+                    <div class="modal-body alert alert-danger alert-dismissible fade show" style="text-transform: none;margin-bottom:0px;margin-top: -6px;border-radius:0;white-space: pre-line;line-height: normal;text-align:left;">
+                        Sorry for inconvience, your Product line not selected
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="return_portal_my_home_menu_sale" name="return_Portal layout : sales menu entries" inherit_id="portal.portal_breadcrumbs" priority="20">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'returnorder'" t-attf-class="breadcrumb-item #{'active ' if not returnorders else ''}">
+                <a t-if="returnorders">Return Orders</a>
+                <t t-else="">Return Orders</t>
+            </li>
+        </xpath>
+    </template>
+    
+</odoo>

@@ -2,3 +2,5 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_school_list,school.list,model_school_list,base.group_user,1,1,1,1
 access_troop_event,troop.event,model_troop_event,base.group_user,1,1,1,1
 access_scout_program,scout.program,model_scout_program,base.group_user,1,1,1,1
+access_return_order,return.order,model_return_order,scout_customize.group_return_order_manager,1,1,1,1
+access_return_order_user,return.order,model_return_order,scout_customize.group_return_order_user,1,0,1,0

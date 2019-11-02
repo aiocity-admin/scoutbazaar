@@ -7,7 +7,7 @@
     </template>
  
     <template id="portal_id" name="Scout" inherit_id="portal.portal_my_details" >
-        <xpath expr="//div[@class='row']" position="inside">     
+        <xpath expr="//div[hasclass('row')]" position="inside">     
             <div t-attf-class="form-group #{error.get('school_list_ids') and 'o_has_error' or ''} col-xl-6">
                 <label class="col-form-label" for='school_ids'>School</label>
                 <select id='school_id' name="school_list_ids" multiple= 'multiple' t-attf-class="form-control select2 #{error.get('school_list_ids') and 'is-invalid' or ''}">

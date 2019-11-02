@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<template id="auth_signup_fields_inherit" inherit_id="auth_signup.fields">
-		<xpath expr="//div[@class='form-group field-confirm_password']" position="after">
+		<xpath expr="//div[hasclass('field-confirm_password')]" position="after">
             <div class="form-group">
                 <label style="word-wrap:break-word">
                     <input type="checkbox" name="privacy" required="required" style="vertical-align:middle;"/>
