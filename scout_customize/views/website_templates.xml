@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<template id="product_comment" inherit_id="alan_customize.product_details" name="Discussion and Rating">
+	        <xpath expr="//div[@id='product_more_info']//ul" position="inside">
+	            <li role="presentation">
+	                <a href="#document" aria-controls="more_info" role="tab" data-toggle="tab">Document</a>
+	            </li>
+	        </xpath>
+	
+	        <xpath expr="//div[hasclass('tab-content')]" position="inside">
+	            <div role="tabpanel" class="tab-pane" id="document">
+	               <div class="document_row row attachment_document" style="width:120%;">
+	               </div>
+	            </div>
+	        </xpath>
+	</template>
+	
+	<template id="footer" inherit_id="alan_customize.footer_layout_1" name="footer">
+    	<xpath expr="//div[@class='middle-footer']" position="replace">
+    		<div class="middle-footer">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-lg-2 fot-col">
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-4 fot-col">
+                            <h3>Information</h3>
+                            <ul>
+                            	<li>
+                                    <a href="/shipping_policy" target="new">Shipping Policy</a>
+                                </li>
+                                <li>
+                                    <a href="/refund_policy" target="new">Refund Policy</a>
+                                </li>
+                                <li>
+                                    <a href="/aboutus" target="new">About Us</a>
+                                </li>
+                                <li>
+                                    <a href="/privacy" target="new">Privacy</a>
+                                </li>
+                                <li>
+                                    <a href="/term_of_use" target="new">Term of Use</a>
+                                </li>
+                            </ul>
+                        </div>
+                         
+                        <div class="col-12 col-sm-6 col-lg-3 fot-col">
+	                        <h3>Contact us</h3>
+	                        <address class="m-0px" itemscope="itemscope" itemtype="http://schema.org/Organization">
+	                            <div t-field="res_company.partner_id" t-options='{"widget": "contact","fields": ["name", "address", "phone", "mobile", "fax", "email"]}'/>
+	                        </address>
+                        </div>
+                    </div>
+                </div>
+	        </div>
+    		
+    	</xpath>
+    </template>
+    
+    
+    <template id="event_category_inherit" inherit_id="website_event.event_left_column">
+    	<xpath expr="//div[@id='middle_column']//t[@t-if='not event.is_online']" position="before">
+			   <div>
+		           <t t-if="event.troop_id">
+		               Troop Name: <span t-field="event.troop_id.name"> </span><br/>
+		               Troop Code : <span t-field="event.troop_id.code"></span><br/>
+		               Troop Leader : <span t-field="event.troop_id.user_id.name"></span><br/>
+		           </t>
+	           </div>
+		</xpath>
+	</template>
+	
+	
+	<template id="tracking_order" inherit_id="sale.portal_my_orders" name="track">
+		<xpath expr="//th[@class='text-center']" position="inside">
+				<span>Track Order</span>
+		</xpath>
+
+		<xpath expr="//td[2]" position="after">
+            <td class='text-center'>
+                <t t-if="order.picking_ids">
+              	    <t t-foreach="order.picking_ids" t-as="tracking">
+          				<t t-if="tracking.carrier_tracking_url">
+            				<a t-att-href="tracking.carrier_tracking_url" target="new">Track</a>
+          					<br/>
+    					</t>
+    				</t>
+    			</t>
+            </td>
+        </xpath>
+	</template>
+	
+	
+	 <template id="company_refund_policy" name="Refund Policy">
+        <t t-call="website.layout">
+            <div class="row">
+                <div class="col-lg-12">
+                    <span t-field="company.refund_policy"/>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <template id="company_shipping_policy" name="Shiping Policy">
+        <t t-call="website.layout">
+            <div class="row">
+                <div class="col-lg-12">
+                    <span t-field="company.shipping_policy"/>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <template id="company_privacy_policy" name="Privacy Policy">
+        <t t-call="website.layout">
+            <div class="row">
+                <div class="col-lg-12">
+                    <span t-field="company.privacy"/>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <template id="company_term_of_use" name="Term of use">
+        <t t-call="website.layout">
+            <div class="row">
+                <div class="col-lg-12">
+                    <span t-field="company.term_of_use"/>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

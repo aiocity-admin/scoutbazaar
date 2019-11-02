@@ -1,0 +1,77 @@
+<odoo>
+    <record id="product_template_only_form_view_inhert" model="ir.ui.view">
+        <field name="name">product.template.form.in</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='purchase_ok']" position="before">
+                <div>
+                    <field name="is_gift_product"/>
+                    <label for="is_gift_product" string="Is Gift Product"/>
+                </div>
+            </xpath>
+            <xpath expr="//page[@name='general_information']" position="after">
+                <page name="gift_config" string="Gift Config" attrs="{'invisible': [('is_gift_product','=',False)]}">
+                  <group name="conditions" string="Conditions">
+<!--                         <field name="is_rule_products_domain" placeholder="Select product" widget="domain" options="{'model': 'product.product'}"/> -->
+<!--                         <label string="Quantity" for="is_rule_min_quantity" attrs="{'invisible': [('is_rule_products_domain', '=', False)]}"/> -->
+<!--                         <div attrs="{'invisible': [('is_rule_products_domain', '=',False)]}"> -->
+<!--                             <field name="is_rule_min_quantity" class="oe_inline"/> -->
+<!--                         </div> -->
+<!--                         <label string="Minimum Purchase Of" for="is_rule_minimum_amount" /> -->
+<!--                         <div name="is_rule_minimum_amount" class="o_row"> -->
+<!--                             <field name="currency_id" invisible="1"/> -->
+<!--                             <field name="is_rule_minimum_amount" widget='monetary' options="{'currency_field': 'currency_id'}"/> -->
+<!--                             <field name="is_rule_minimum_amount_tax_inclusion"/> -->
+<!--                         </div> -->
+<!--                     </group> -->
+<!--                     <group> -->
+                        <label for="is_validity_duration" string="Validity Duration"/>
+                        <div>
+                            <field name="is_validity_duration" class="oe_inline"/>
+                            <span class="o_form_label oe_inline"> Days</span> <span class="oe_grey">if 0, infinite use</span>
+                        </div>
+                </group>
+                <group>
+<!--                     <group> -->
+<!--                         <field name="is_gift_type" string="Rewards" widget="radio"/> -->
+<!--                     </group> -->
+<!--                     <group> -->
+<!--                             <field name="is_reward_product_id" attrs="{'invisible': [('is_gift_type', 'in', ('discount', 'free_shipping'))], 'required': [('is_gift_type', '=', 'product')]}" placeholder="Select reward product"/> -->
+<!--                             <label string="Quantity" for="is_reward_product_quantity" attrs="{'invisible': ['|', ('is_gift_type', 'in', ('discount', 'free_shipping')), ('is_reward_product_id', '=',False)]}"/> -->
+<!--                             <div attrs="{'invisible': ['|', ('is_gift_type', 'in', ('discount', 'free_shipping')),('is_reward_product_id', '=',False)]}"> -->
+<!--                                 <field name="is_reward_product_quantity" class="oe_inline"/> -->
+<!--                                 <field name="is_reward_product_uom_id" class="oe_inline"/> -->
+<!--                             </div> -->
+                            <label string="Apply Discount" for="is_discount_type"/>
+                            <div>
+                                <field name="is_discount_type" class="oe_inline"/>
+<!--                                 <field name="is_discount_percentage" attrs="{'invisible': [('is_discount_type', '!=', 'percentage')],'required': [('is_discount_type', '=', 'percentage')]}" class="oe_inline"/> -->
+<!--                                 <span attrs="{'invisible': [('is_discount_type', '!=', 'percentage')],'required': [('is_discount_type', '=', 'percentage')]}" class="oe_inline">%</span> -->
+                            </div>
+                            
+                            
+                            <label string="Fixed Amount" for="is_discount_fixed_amount" attrs="{'invisible': ['|',('is_discount_type', '!=', 'fixed_amount')]}" />
+                            <div attrs="{'invisible': ['|',('is_discount_type', '!=', 'fixed_amount')]}">
+                                <field name="is_discount_fixed_amount" class="oe_inline" attrs="{'required':[('is_discount_type', '=', 'fixed_amount')]}" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                            </div>
+                            
+                            
+<!--                             <field name="is_discount_apply_on" attrs="{'invisible': -->
+<!--                             ['|', ('is_gift_type', 'in', ('product', 'free_shipping')), ('is_discount_type', '!=', 'percentage')]}" widget="radio"/> -->
+<!--                             <field name="is_discount_specific_product_id" attrs="{'invisible': ['|', '|', ('is_discount_apply_on', '!=', 'specific_product'),('is_discount_type', '!=', 'percentage'), ('is_gift_type', 'in', ('product', 'free_shipping'))], 'required': [('is_gift_type', '=', 'discount'),('is_discount_apply_on', '=', 'specific_product'),('is_discount_type', '=', 'percentage')]}" placeholder="Select product"/> -->
+                            
+<!--                             attrs="{'invisible': ['|',('is_discount_type', '!=', 'percentage')]}" -->
+<!--                             <label for="is_discount_max_amount" string="Max Discount Amount"/> -->
+<!--                             <div> -->
+<!--                                 <field name="is_discount_max_amount" class="oe_inline" widget='monetary' options="{'currency_field': 'currency_id'}"/> -->
+<!--                                 <span class="oe_grey">if 0, no limit</span> -->
+<!--                             </div> -->
+
+<!--                    </group> -->
+                </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

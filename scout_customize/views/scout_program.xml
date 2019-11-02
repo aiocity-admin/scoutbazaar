@@ -22,5 +22,5 @@
         </record>
 
       
-        <menuitem id="scout_program_list" name="Scout Program" parent="main_menu_scout" action="view_scout_program_action"/>
+<!--         <menuitem id="scout_program_list" name="Scout Program" parent="main_menu_scout" action="view_scout_program_action"/> -->
 </odoo> 

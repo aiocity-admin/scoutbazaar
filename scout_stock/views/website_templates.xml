@@ -14,7 +14,7 @@
                 </xpath>
                 <xpath expr="//tbody//td[@class='text-center td-price']" position="after">
                     <td>
-                        <span class="text-primary" t-att-data-id="line.location_id.id" style="cursor: pointer;" id="location_terms_conditions" t-esc="line.location_id.name"/>
+                        <span class="" t-att-data-id="line.location_id.id" style="cursor: pointer;" id="location_terms_conditions" t-esc="line.location_id.name"/>
                     </td>
                 </xpath>
             </template>

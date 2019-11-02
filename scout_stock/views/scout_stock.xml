@@ -68,11 +68,11 @@
             </field>
         </record>  
         
-		<menuitem id="stock_warehouser_id"
-              name="NSO Stock Locations"
-              action="action_scout_stock_action"
-              sequence = "7"
-              parent="stock.menu_stock_root"/>
+<!-- 		<menuitem id="stock_warehouser_id" -->
+<!--               name="NSO Stock Locations" -->
+<!--               action="action_scout_stock_action" -->
+<!--               sequence = "7" -->
+<!--               parent="stock.menu_stock_root"/> -->
         
 	</data>
 </odoo>

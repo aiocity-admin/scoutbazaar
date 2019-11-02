@@ -3,6 +3,6 @@ from odoo import fields,models,api,_
 
 class respartnernso(models.Model):
 
-	_inherit="res.partner"
+    _inherit="res.partner"
 
-	is_nso = fields.Boolean(string="IS NSO")
+    is_nso = fields.Boolean(string="IS NSO")

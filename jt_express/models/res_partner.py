@@ -43,7 +43,6 @@ class ResPartner(models.Model):
                 town_id = False
                 district_id = False
                 city_id = False
-                print('===========res values=======================',values)
                 if 'town_id' in values:
                     town_id = values.get('town_id')
                 else:
@@ -64,14 +63,12 @@ class ResPartner(models.Model):
                         city_id = res_id.city_id.id
                 
                 
-                print("Town id=============",town_id,district_id,city_id)
                 if town_id and district_id and city_id:
                     servicable_area = self.env['jt.servicable.areas'].sudo().search([
                                                                               ('town_id','=',int(town_id)),
                                                                               ('city_id','=',int(city_id)),
                                                                               ('district_id','=',int(district_id)),
                                                                               ],limit=1)
-                    print('=======servicable_area==================',servicable_area)
                     if servicable_area:
                         values.update({'state_id':servicable_area.state_id.id})
                     else:

@@ -40,7 +40,7 @@ class WebsiteEventController(WebsiteEventController):
 
         def dom_without(without):
             Event = request.env['event.event'].sudo()
-            domain = [('state', "in", ['draft', 'confirm', 'done']),('id' , 'in' ,events_new.ids),('troop_id','in',troop_events.ids)]
+            domain = [('state', "in", ['draft', 'confirm', 'done']),('id' , 'in' ,events_new.ids)]
             for key, search in domain_search.items():
                 if key != without:
                     domain += search
@@ -63,36 +63,30 @@ class WebsiteEventController(WebsiteEventController):
             order = 'is_published desc, ' + order
  
             events = Event.search([])
-             
+
             events_new = request.env['event.event'].sudo()
-            if res.qcontext.get('searches').get('filter_event') == 'my_events':
-                troop_events = request.env['troop.event'].sudo().search([('member_ids','in',[request.env.user.id])])
-                if troop_events:
-                    current_date_filter = False
-                    if 'date' in searches:
-                        current_date_filter = searches.get('date')
-                    date_filter = False
-                    
-                    if current_date_filter:
-                        for date in dates:
-                            if current_date_filter == date[0]:
-                                date_filter = date[2]                      
-                    if date_filter:
-                        date_filter.append(('troop_id','in',troop_events.ids))
-                        date_filter.append(('id','in',events.ids))
-                        events_new = Event.search(date_filter)
-                    else:
-                        events_new = Event.search([('troop_id','in',troop_events.ids),('id','in',events.ids)])
-                                                
-                    if events_new:
-                        for date in dates:
-                            if date[0] != 'old':
-                                date[3] = events.search_count(dom_without('date') + date[2])
-                        res.qcontext.update({'dates':dates})
-                else:
-                    for date in dates:
-                        if date[0] != 'old':
-                            date[3] = 0
-                    res.qcontext.update({'dates':dates})    
-            res.qcontext.update({'event_ids':events_new})
+            
+            normal_events = request.env['event.event'].sudo().search([('troop_id' ,'=', False)])
+            troop_events = request.env['event.event'].sudo().search([('troop_id' ,'!=', False)])
+            troop_ids = request.env['troop.event'].sudo().search([('member_ids','in',[request.env.user.id])])                            
+            troop_events_ids = Event.search([('troop_id','in',troop_ids.ids),('id','in',troop_events.ids)])
+            events_new = normal_events + troop_events_ids
+            current_date_filter = False
+            date_filter = False
+
+            for date in dates:
+                if date[0] != 'old':
+                    date[3] = Event.search_count(dom_without('date') + date[2] + [('id','in',events_new.ids)])
+            if 'date' in searches:
+                current_date_filter = searches.get('date')
+            
+            if current_date_filter:
+                for date in dates:
+                    if current_date_filter == date[0]:
+                        date_filter = date[2] 
+
+            if date_filter:
+                date_filter.append(('id','in',events_new.ids))
+                events_new = Event.search(date_filter)
+            res.qcontext.update({'event_ids':events_new,'dates':dates})
         return res

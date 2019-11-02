@@ -108,30 +108,23 @@
         <field name="view_id" ref="jt_servicable_areas_tree_view"/> 
 	</record>
     
-<!--     <menuitem id="webshop_menu_root" -->
-<!--         name="Web Shop" -->
-<!--         web_icon="sale,static/description/icon.png" -->
-<!--         sequence="10" -->
-<!--         groups="base.group_user" -->
-<!--         /> -->
-    <menuitem id="menu_jt_config" parent="sale.sale_menu_root" sequence="3" name="JT Express"/>
-	<menuitem id="web_jt_config_menu"
-              name="JT Configuration"
-              sequence ="10"
-              parent="menu_jt_config"
-              />
+<!--     <menuitem id="menu_jt_config" parent="sale.sale_menu_root" sequence="3" name="JT Express"/> -->
+<!-- 	<menuitem id="web_jt_config_menu" -->
+<!--               name="JT Configuration" -->
+<!--               sequence ="10" -->
+<!--               parent="menu_jt_config" -->
+<!--               /> -->
               
-    <menuitem id="web_addresses_menu"
-              name="Addresses"
-              sequence ="10"
-              parent="menu_jt_config"
-              />
+<!--     <menuitem id="web_addresses_menu" -->
+<!--               name="Addresses" -->
+<!--               sequence ="10" -->
+<!--               parent="menu_jt_config" -->
+<!--               /> -->
               
-	<menuitem id="res_partner_district_menu" name="City/Municiplality" parent="web_addresses_menu" action="res_partner_district_action_view"/>
-	<menuitem id="res_partner_city_menu" name="Provinces" parent="web_addresses_menu" action="res_partner_city_action_view"/>
-	<menuitem id="res_partner_town_menu" name="Barangay" parent="web_addresses_menu" action="res_partner_town_action_view"/>
-<!-- 	<menuitem id="res_partner_territories_menu" name="Territories" parent="web_addresses_menu" action="res_partner_territories_action_view"/> -->
-	<menuitem id="servicable_areas_menu" name="JT Servicable Areas" parent="web_jt_config_menu" action="jt_servicable_areas_action_view"/>
+<!-- 	<menuitem id="res_partner_district_menu" name="City/Municiplality" parent="web_addresses_menu" action="res_partner_district_action_view"/> -->
+<!-- 	<menuitem id="res_partner_city_menu" name="Provinces" parent="web_addresses_menu" action="res_partner_city_action_view"/> -->
+<!-- 	<menuitem id="res_partner_town_menu" name="Barangay" parent="web_addresses_menu" action="res_partner_town_action_view"/> -->
+<!-- 	<menuitem id="servicable_areas_menu" name="JT Servicable Areas" parent="web_jt_config_menu" action="jt_servicable_areas_action_view"/> -->
 	
 	
 </odoo>

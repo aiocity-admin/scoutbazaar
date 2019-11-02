@@ -43,7 +43,7 @@ PPR = 4   # Products Per Row
 class WebsiteSaleCountrySelect(WebsiteSale):
     
     
-    #ProductCountry Filters======================================
+    # Get ProductCountry======================================
     def get_stock_country(self,categ_id):
         catge_dup = categ_id
         if categ_id.parent_id:
@@ -58,7 +58,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         else:
             return False
     
-    #Storefront location Filters======================================
+    #Get Stock location======================================
     def get_storefront_location(self,categ_id):
         catge_dup = categ_id
         if categ_id.parent_id:
@@ -78,7 +78,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         else:
             return False
         
-    #Storefront Payment Filters======================================
+    #Set Location id on orderline and calculate delivery cost code===============================================================
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
         res = super(WebsiteSaleCountrySelect,self).payment(**post)
@@ -93,22 +93,29 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             if partner_shipping_id.state_id:
                                 ss_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id),('state_ids','in',partner_shipping_id.state_id.id)],limit=1)
                                 if ss_id:
-                                    line.location_id = ss_id.location_id
+                                    if not line.product_id.type == 'service':
+                                        line.location_id = ss_id.location_id
                                 else:
                                     sco_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id)],limit=1)
                                     if sco_id:
-                                        line.location_id = sco_id.location_id
+                                        if not line.product_id.type == 'service':
+                                            line.location_id = sco_id.location_id
                             else:
                                 scou_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id)],limit=1)
                                 if scou_id:
-                                    line.location_id = scou_id.location_id
+                                    if not line.product_id.type == 'service':
+                                        line.location_id = scou_id.location_id
                         else:
                             sc_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id)],limit=1)
                             if sc_id:
-                                line.location_id = sc_id.location_id
+                                if not line.product_id.type == 'service':
+                                    line.location_id = sc_id.location_id
+        order = request.website.sale_get_order()
+        if order:
+            order._check_order_line_carrier(order)
         return res
     
-    #Storefront Payment Filters======================================
+    #Send NSO Email code======================================
     @http.route(['/shop/confirmation'], type='http', auth="public", website=True)
     def payment_confirmation(self, **post):
         views = super(WebsiteSaleCountrySelect, self).payment_confirmation(**post)
@@ -131,51 +138,22 @@ class MyWebsiteSaleDelivery(WebsiteSale):
     def payment(self, **post):
         res = super(MyWebsiteSaleDelivery, self).payment(**post)
         order = request.website.sale_get_order()
-        if order:
-            order._check_order_line_carrier(order)
+        acquirers = res.qcontext.get('acquirers')
+        paymaya_visible = True
+        acquirers_new = []
+        # Paymaya Filter Code================================
+        for line in order.order_line:
+            if line.location_id:
+                if line.location_id.nso_location_id:
+                    if line.location_id.nso_location_id.country_id:
+                        if line.location_id.nso_location_id.country_id.code != 'PH':
+                            paymaya_visible = False
+        
+        if not paymaya_visible:
+            for acq_id in acquirers:
+                if not acq_id.provider == 'paymaya':
+                    acquirers_new.append(acq_id)
+            res.qcontext.update({'acquirers':acquirers_new})
+    
         return res
-    
-    
-#     #Storefront Cart Filters======================================
-#     @http.route(['/shop/cart'], type='http', auth="public", website=True)
-#     def cart(self, access_token=None, revive='', **post):
-#          
-#         res = super(WebsiteSaleCountrySelect, self).cart(access_token=None, revive='', **post)
-#         order = request.website.sale_get_order(force_create=True)
-#         country_ids = []
-#         for line in order.order_line:
-#             if line.product_id.public_categ_ids:
-#                 storefront_location = self.get_storefront_location(line.product_id.public_categ_ids)
-#                 stock_country = self.get_stock_country(line.product_id.public_categ_ids)
-#                 if stock_country:
-#                     country_ids.append(stock_country)
-#                 if storefront_location:
-#                     line.location_id = storefront_location
-#                     
-#         #======order line in storefront_location wise get groups======================
-#         storefront_list = []
-#         for line in order.order_line:
-#             if line.location_id:
-#                 if line.location_id not in storefront_list:
-#                     storefront_list.append(line.location_id)
-#         line_groups = []
-#         for st_id in storefront_list:
-#             order_lines = []
-#             for line in order.order_line:
-#                 if storefront_location:
-#                     if line.location_id.id == st_id.id:
-#                         order_lines.append(line)
-#             line_groups.append(order_lines)
-#             print('===========order_lines==============',order_lines)
-#         print('===========order_lines==============',line_groups)
-#         
-#         #======order line in product country wise get groups======================
-#         country_list = []
-#         for country in country_ids:
-#             if country:
-#                 if country not in country_list:
-#                     country_list.append(country)
-#         print('===========order_lines==============',country_list)
-#         
-#         return res
 

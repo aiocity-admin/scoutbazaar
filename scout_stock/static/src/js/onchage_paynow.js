@@ -8,9 +8,7 @@ odoo.define('scout_stock.checkout_paynow', function (require) {
 
     /* Handle interactive carrier choice + cart update */
     var $pay_button = $('#o_payment_form_pay');
-    console.log('=========$pay_button==================',$pay_button)
     var line_msg = $('#add_line_msg .delivery_msg');
-    console.log('=========line_msg==================',line_msg)
     if (line_msg){
     	$pay_button.addClass('d-none');
     }

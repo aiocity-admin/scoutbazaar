@@ -491,17 +491,50 @@ class WebsiteSale(WebsiteSale):
                 product_id=int(data.product_id.id), add_qty=float(1), set_qty=float(1))
         return True
 
+    #--------------------------------Gift Product COde=======================
     @http.route('/update_my_cart', type="http", auth="public", website=True)
     def qv_update_my_cart(self, set_qty=0, **kw):
+        sale_order = request.website.sale_get_order(force_create=True)
         if 'prod_id' in kw and 'qty_val' in kw:
-            request.website.sale_get_order(force_create=1)._cart_update(
-                product_id=int(kw['prod_id']),
-                add_qty=int(kw['qty_val']),
-                set_qty=set_qty,
-                attributes=request.httprequest.args.getlist('attributes[]'),
-            )
+            if 'order_line_email' in kw:
+                sale_order.with_context(is_gift = True,order_line_email=kw.get('order_line_email'))._cart_update(
+                    product_id=int(kw['prod_id']),
+                    add_qty=int(kw['qty_val']),
+                    set_qty=set_qty,
+                    attributes=request.httprequest.args.getlist('attributes[]'),
+                 )
+            else:
+                sale_order._cart_update(
+                        product_id=int(kw['prod_id']),
+                        add_qty=int(kw['qty_val']),
+                        set_qty=set_qty,
+                        attributes=request.httprequest.args.getlist('attributes[]'),
+                )
         return
-
+    
+    @http.route(['/check/order/gift'], type='json', auth="public", website=True,methods=['GET', 'POST'])
+    def add_order_gift(self,p_id, **post):
+        order = request.website.sale_get_order(force_create=True)
+        p_id = request.env['product.product'].sudo().search([('id','=',int(p_id))])
+        if p_id.product_tmpl_id:
+            if p_id.product_tmpl_id.is_gift_product:
+                return True
+            else:
+                return False
+        else:
+            return False
+         
+    @http.route(['/check/order/user'], type='json', auth="public", website=True)
+    def add_order_user(self, user_email, **post):
+        if user_email:
+            partner = request.env['res.users'].search([('partner_id.email','=',user_email)],limit=1)
+            if partner:
+                return True
+            else:
+                return False
+    #--------------------------------Gift Product COde=======================
+    
+    
     @http.route('/update_my_wishlist', type="http", auth="public", website=True)
     def qv_update_my_wishlist(self, **kw):
         if kw['prod_id']:
@@ -668,9 +701,9 @@ class WebsiteSale(WebsiteSale):
         else:
             return None
 
-    @http.route()
+    @http.route(['/shop/cart'], type='http', auth="public", website=True) 
     def cart(self, access_token=None, revive='', **post):
-        res = super(WebsiteSale, self).cart(access_token, revive, **post)
+        res = super(WebsiteSale, self).cart(**post)
         if post.get('type') == 'cart_lines_popup':
             return request.render('alan_customize.cart_lines_popup_content', res.qcontext)
         else:

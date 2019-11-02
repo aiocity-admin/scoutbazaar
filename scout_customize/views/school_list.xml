@@ -24,6 +24,6 @@
         </record>
         
       
-        <menuitem id="main_menu_scout" name="Scout Lists" parent='sale.menu_sale_config' />
-        <menuitem id="scout_list" name="School" parent="main_menu_scout" action="view_school_list_scout_action"/> 
+<!--         <menuitem id="main_menu_scout" name="Scout Lists" parent='sale.menu_sale_config' /> -->
+<!--         <menuitem id="scout_list" name="School" parent="main_menu_scout" action="view_school_list_scout_action"/>  -->
 </odoo> 

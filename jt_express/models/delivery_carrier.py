@@ -133,7 +133,6 @@ class JTDeliveryCarrier(models.Model):
             
             if line.product_id.is_big_size:
                 big_product_count += (line.product_uom_qty * 1)
-        print('============origin_id===destination_id=========================',origin_id,destination_id)
         if origin_id and destination_id:
             total_weight_remain = total_weight
             shipping_rates = self.env['jt.shipping.rates'].sudo().search([

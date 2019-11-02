@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<template id="assets_frontend_inherit_add_js_css" inherit_id="website.assets_frontend">
+		<xpath expr="." position="inside">
+			<script type="text/javascript" src="/scout_customize/static/src/js/check_gift_product.js"/>
+			<script type="text/javascript" src="/scout_customize/static/src/js/product_attachment.js"/>
+		</xpath>
+	</template>
+</odoo>

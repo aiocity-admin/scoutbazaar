@@ -13,7 +13,6 @@ require('web.dom_ready');
 	        var displayed_state = state_options.filter("[data-country_id="+($(this).val() || 0)+"]");
 	        var nb = displayed_state.appendTo(select).show().size();
 	        select.parent().toggle(nb>=1);
-	        console.log('======================ph  =================================',this)
 	        ajax.jsonRpc('/ph/country_infos','call',{'country': $(this).val()})
 	        	.then(function (data) {
 	        		if(data){

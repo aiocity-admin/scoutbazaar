@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<template id="auth_signup_fields_inherit" inherit_id="auth_signup.fields">
+		<xpath expr="//div[@class='form-group field-confirm_password']" position="after">
+            <div class="form-group">
+                <label style="word-wrap:break-word">
+                    <input type="checkbox" name="privacy" required="required" style="vertical-align:middle;"/>
+                    <span> Accept </span>
+                    <a class="btn btn-link btn-sm" role="button" href="/privacy">Use and Privacy Policy</a>
+                </label>
+            </div>
+            <div class="form-group">
+                 <label style="word-wrap:break-word">
+                    <input type="checkbox" name="special_offer_email" style="vertical-align:middle;"/> 
+                    Please send me AIOCity.com emails with special offers and other information.
+                 </label>
+            </div>
+        </xpath>
+    </template>
+    
+    <record id="view_mail_mass_mailing_list_form_inhert" model="ir.ui.view">
+        <field name="name">mail.mass_mailing.list.form.in</field>
+        <field name="model">mail.mass_mailing.list</field>
+        <field name="inherit_id" ref="mass_mailing.view_mail_mass_mailing_list_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group[1]" position="before">
+                <div>
+                    <label for="is_user_signup_mailing_list" style="margin-right: 36px;"/><field name="is_user_signup_mailing_list"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
