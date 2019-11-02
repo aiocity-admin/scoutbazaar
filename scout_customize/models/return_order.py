@@ -26,10 +26,10 @@ class ReturnSaleOrder(models.Model):
         ('cancel', 'Cancelled'),
         ], string='Status', readonly=True, copy=False, index=True, track_visibility='onchange', track_sequence=3, default='draft')
     picking_id = fields.Many2one('stock.picking', domain="[('sale_id', '=', sale_order_id)]", string="Delivery Order")
-    delivery_count = fields.Integer(string='Delivery Orders', compute='_compute_delivery_order')
+    delivery_count = fields.Integer(string='Delivery Orders Count', compute='_compute_delivery_order')
     Picking_count = fields.Integer(string='Order Picking', compute='_compute_return_picking')
 
-    partner_id = fields.Many2one('res.partner',string='Customer',help="You can find a customer by its Name, TIN, Email or Internal Reference.")
+    partner_id = fields.Many2one('res.partner',string='Partner',help="You can find a customer by its Name, TIN, Email or Internal Reference.")
     sale_order_id = fields.Many2one('sale.order',required=True , domain="[('picking_ids', '!=', False)]", string='Sale Order', help="sale for current sales order.")
     create_order_date = fields.Datetime(string='Create Date', default=fields.Datetime.now)
     order_customer = fields.Many2one(readonly=True,related='sale_order_id.partner_id', string='Customer',help="You can find a customer by its Name, TIN, Email or Internal Reference.")
@@ -41,8 +41,8 @@ class ReturnSaleOrder(models.Model):
     company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env['res.company']._company_default_get('sale.order'))
     team_id = fields.Many2one('crm.team', 'Sales Team', change_default=True, default=_get_default_team, oldname='section_id')
     note = fields.Text('Reason of Return')
-    delivery_order_lines = fields.One2many('stock.picking','rma_id', string='Delivery Order')
-    return_picking_line = fields.One2many('stock.picking','rma_id_picking', string='Picking Order')
+    delivery_order_lines = fields.One2many('stock.picking','rma_id', string='Delivery Order Lines')
+    return_picking_line = fields.One2many('stock.picking','rma_id_picking', string='Picking Order Lines')
     
     @api.onchange('sale_order_id')
     def onchange_order_id(self):

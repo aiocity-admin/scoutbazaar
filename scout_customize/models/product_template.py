@@ -40,13 +40,13 @@ class ProductTemplate(models.Model):
         "Specific product - Discount on selected specific product")
     
     
-    is_discount_specific_product_id = fields.Many2one('product.product', string="Product",
+    is_discount_specific_product_id = fields.Many2one('product.product', string="Discount Specific Product",
         help="Product that will be discounted if the discount is applied on a specific product")
     
     is_discount_max_amount = fields.Float(default=0,
         help="Maximum amount of discount that can be provided")
     is_reward_product_quantity = fields.Integer(string="Quantity", default=1, help="Reward product quantity")
-    is_reward_product_uom_id = fields.Many2one(related='is_reward_product_id.product_tmpl_id.uom_id', string='Unit of Measure', readonly=True)
+    is_reward_product_uom_id = fields.Many2one(related='is_reward_product_id.product_tmpl_id.uom_id', string='Reward product unit of measure', readonly=True)
     is_validity_duration = fields.Integer(default=1,
         help="Validity duration for a coupon after its generation")
     is_rule_minimum_amount = fields.Float(default=0.0, help="Minimum required amount to get the reward")
