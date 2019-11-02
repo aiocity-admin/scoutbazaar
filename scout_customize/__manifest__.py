@@ -20,7 +20,7 @@
              'views/sale_order_views.xml',
              'views/website_templates.xml',
              'views/auth_signup_views.xml',
-            #'views/event_views.xml',
+             'views/event_views.xml',
              'views/res_company_views.xml',
              ],
     'installable': True,
