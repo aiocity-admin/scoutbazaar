@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name" : "Scout Customize",
-    "summary": 'Scout Customization - Backend and Frontend',
+    "summary": 'Scout Customization - Backend and Frontend Extension',
     "description":"""
         """,
     "version" : "12.0.0.1",
