@@ -25,7 +25,7 @@
 
 		<menuitem parent="event.event_main_menu" id="menu_troops" sequence="100" groups="event.group_event_manager" name="Troops" action="view_troop_event_action"/>
 		
-		<record id="view_event_form_inherit" model="ir.ui.view">
+		<record id="view_troop_event_form_inherit" model="ir.ui.view">
 			<field name="name">event.event.form.inherit</field>
 			<field name="model">event.event</field>
 			<field name="inherit_id" ref="event.view_event_form"/>
