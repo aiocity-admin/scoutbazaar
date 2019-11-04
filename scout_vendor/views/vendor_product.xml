@@ -7,7 +7,7 @@
 	        <field name="arch" type="xml">
 	        <xpath expr="//field[@name='categ_id']" position="after">
                 <field name="vendor_user_product"/>
-                <field name="is_vendor_product"/>
+                <!-- <field name="is_vendor_product"/> -->
            </xpath>
 	        </field>
     	</record>
@@ -18,7 +18,7 @@
             <field name="groups_id" eval="[(6,0,[ref('scout_vendor.group_vendor_product')])]"/>
             <field name="inherit_id" ref="product_template_only_form_view_vendor_users"/>
             <field name="arch" type="xml">
-            <xpath expr="//field[@name='is_vendor_product']" position="after">
+            <xpath expr="//field[@name='vendor_user_product']" position="after">
                 <field name="weight"/>
             </xpath>
             </field>
@@ -101,7 +101,7 @@
             </field>
         </record>
 
-        <record id="product_template_only_form_view_in_alternative_product_ids" model="ir.ui.view">
+        <!-- <record id="product_template_only_form_view_in_alternative_product_ids" model="ir.ui.view">
             <field name="name">product.template.form.alternative.ids</field>
             <field name="model">product.template</field>
             <field name="groups_id" eval="[(6,0,[ref('scout_vendor.group_vendor_product')])]"/>
@@ -114,7 +114,7 @@
                 <attribute name="options">{'no_create': True}</attribute>
             </xpath>
             </field>
-        </record>
+        </record> -->
 
         <record id="my_view_product_supplier_inherit" model="ir.ui.view">
             <field name="name">product.template.supplier.my.form.inherit</field>
