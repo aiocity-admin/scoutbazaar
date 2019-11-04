@@ -15,7 +15,7 @@
                 <select id="town_id" name="town_id" t-attf-class="form-control #{error.get('town_id') and 'is-invalid' or ''}" data-init="1">
                     <option value="">Barangay...</option>
                     <t t-foreach="town_id or []" t-as="s">
-                        <option t-att-value="s.id">
+                        <option t-att-value="s.id" t-att-selected="s.id == ('town_id' in checkout and checkout['town_id'] != '' and int(checkout['town_id']))">
                             <t t-esc="s.name"/>
                         </option>
                     </t>
@@ -27,7 +27,7 @@
                 <select id="district_id" name="district_id" t-attf-class="form-control #{error.get('district_id') and 'is-invalid' or ''}" data-init="1">
                     <option value="">City / Municipality...</option>
                     <t t-foreach="district_id or []" t-as="s">
-                        <option t-att-value="s.id">
+                        <option t-att-value="s.id" t-att-selected="s.id == ('district_id' in checkout and checkout['district_id'] != '' and int(checkout['district_id']))">
                             <t t-esc="s.name"/>
                         </option>
                     </t>
@@ -39,7 +39,7 @@
                 <select id="city_id" name="city_id" t-attf-class="form-control #{error.get('city_id') and 'is-invalid' or ''}" data-init="1">
                     <option value="">Province...</option>
                     <t t-foreach="city_id or []" t-as="s">
-                        <option t-att-value="s.id">
+                        <option t-att-value="s.id" t-att-selected="s.id == ('city_id' in checkout and checkout['city_id'] != '' and int(checkout['city_id']))">
                             <t t-esc="s.name"/>
                         </option>
                     </t>
@@ -54,7 +54,7 @@
             
             <div t-attf-class="form-group #{error.get('town_id') and 'o_has_error' or ''} col-xl-6 div_town d-none">
                 <label class="col-form-label" for="town_id">Barangay</label>
-                <select id="town_id" name="town_id" t-attf-class="form-control #{error.get('town_id') and 'is-invalid' or ''}">
+                <select id="town_id" name="town_id" t-attf-class="form-control #{error.get('town_id') and 'is-invalid' or ''}" data-init="1">
                     <option value="">Barangay...</option>
                     <t t-foreach="town_id or []" t-as="s">
                         <option t-att-value="s.id" t-att-selected="s.id == partner.town_id.id">

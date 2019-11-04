@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding='utf-8'?>
+<odoo>
+<data>
+	<record id="res_partner_hong_kong_form_view_inhert_jt_servicable_area" model="ir.ui.view">
+	        <field name="name">res.partner.form.jt.servicable.area</field>
+	        <field name="model">res.partner</field>
+	        <field name="inherit_id" ref="base.view_partner_form"/>
+	        <field name="arch" type="xml">
+	            <xpath expr="//field[@name='street']" position="before">
+	            	<span attrs="{'invisible': [('country_code', '!=', 'HK')], 'required': [('country_code', '=', 'HK')]}">Flat and Floor numbers
+                     </span> 
+	            </xpath>
+	            <xpath expr="//field[@name='street2']" position="before">
+	           		<span attrs="{'invisible': [('country_code', '!=', 'HK')], 'required': [('country_code', '=', 'HK')]}">Number of building and name of street
+                     </span>
+	            </xpath>
+	            <xpath expr="//field[@name='street2']" position="after">
+	            	<field name="name_building" placeholder="Name of building"
+	            		attrs="{'invisible': [('country_code', '!=', 'HK')], 'required': [('country_code', '=', 'HK')]}"/>
+	            </xpath>
+	            <xpath expr="//field[@name='name_building']" position="after">
+	            	<field name="territories_id" placeholder="Territories"
+	            		attrs="{'invisible': [('country_code', '!=', 'HK')]}"/>
+	            </xpath>	
+	            <xpath expr="//field[@name='child_ids']/form/sheet/group/group//field[@name='street']" position="before">
+	            	<span attrs="{'invisible': [('country_code', '!=', 'HK')], 'required': [('country_code', '=', 'HK')]}">Flat and Floor numbers
+                     </span>
+	            </xpath>
+	            <xpath expr="//field[@name='child_ids']/form/sheet/group/group//field[@name='street2']" position="before">
+	            	<span attrs="{'invisible': [('country_code', '!=', 'HK')], 'required': [('country_code', '=', 'HK')]}">Number of building and name of street
+                     </span>
+	            </xpath>
+	            <xpath expr="//field[@name='child_ids']/form/sheet/group/group//field[@name='street2']" position="after">
+	            	<field name="name_building" placeholder="Name of building"
+	            		attrs="{'invisible': [('country_code', '!=', 'HK')], 'required': [('country_code', '=', 'HK')]}"/>
+	            </xpath>
+	            <xpath expr="//field[@name='child_ids']/form/sheet/group/group//field[@name='name_building']" position="after">
+	            	<field name="territories_id" placeholder="Territories"
+	            		attrs="{'invisible': [('country_code', '!=', 'HK')]}"/>
+	            </xpath>			
+	        </field>
+	</record>
+    
+    <record id="res_partner_territories_tree_view" model="ir.ui.view">
+        <field name="name">res.partner.territories.tree</field>
+        <field name="model">res.partner.territories</field>
+        <field name="arch" type="xml">
+            <tree string="Territories" editable="bottom">
+                <field name="name"/>
+                <field name="country_id"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="res_partner_territories_action_view" model="ir.actions.act_window">
+        <field name="name">Territories</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner.territories</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="res_partner_territories_tree_view"/> 
+    </record>
+    <menuitem id="web_hk_config_menu"
+          name="HK Configuration"
+          sequence ="6"
+          parent="scout_stock.scout_bazaar_config_menu"/>
+    
+    <menuitem id="hk_res_partner_territories_menu" name="Territories" parent="web_hk_config_menu" action="res_partner_territories_action_view"/>
+</data>
+</odoo>

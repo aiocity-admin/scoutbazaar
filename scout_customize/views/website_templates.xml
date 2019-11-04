@@ -57,6 +57,11 @@
     	</xpath>
     </template>
     
+    <template id="alan_customize_header_inherit" inherit_id = "alan_customize.header_layout_1">
+    	<xpath expr="//ul[hasclass('htl-social')]" position="replace">
+    	</xpath>
+    </template>
+    
     
     <template id="event_category_inherit" inherit_id="website_event.event_left_column">
     	<xpath expr="//div[@id='middle_column']//t[@t-if='not event.is_online']" position="before">
@@ -70,25 +75,21 @@
 		</xpath>
 	</template>
 	
-	
-	<template id="tracking_order" inherit_id="sale.portal_my_orders" name="track">
-		<xpath expr="//th[hasclass('text-center')]" position="inside">
-				<span>Track Order</span>
-		</xpath>
-
-		<xpath expr="//td[2]" position="after">
-            <td class='text-center'>
-                <t t-if="order.picking_ids">
-              	    <t t-foreach="order.picking_ids" t-as="tracking">
-          				<t t-if="tracking.carrier_tracking_url">
-            				<a t-att-href="tracking.carrier_tracking_url" target="new">Track</a>
-          					<br/>
-    					</t>
-    				</t>
-    			</t>
-            </td>
+    <template id="my_tracking_order" inherit_id="sale.sale_order_portal_content" name="Track Order">
+        <xpath expr="//div/section[@id='details']" position="after">
+            <section id="tracking_order" style="page-break-inside: auto;" class="mt32">
+                <h3 id="tracking">Track Order</h3>
+                    <t t-if="sale_order.picking_ids">
+                        <t t-foreach="sale_order.picking_ids" t-as="tracking">
+                            <t t-if="tracking.carrier_tracking_url">
+                                <a t-att-href="tracking.carrier_tracking_url" target="new" t-esc="tracking.name"></a>
+                                <br/>
+                            </t>
+                        </t>
+                    </t>
+            </section>
         </xpath>
-	</template>
+    </template>
 	
 	
 	 <template id="company_refund_policy" name="Refund Policy">
