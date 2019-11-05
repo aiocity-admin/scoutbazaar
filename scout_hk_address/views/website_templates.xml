@@ -9,7 +9,7 @@
     </template>
     
     <template id="website_sale_hk_address_inherit" name="HK Address Managements" inherit_id="website_sale.address">
-        <xpath expr="//form[@class='checkout_autoformat']/div/div[@class='w-100'][4]" position="after">
+        <xpath expr="//form[hasclass('checkout_autoformat')]/div/div[hasclass('w-100')][4]" position="after">
             <div t-attf-class="form-group #{error.get('name_building') and 'o_has_error' or ''} col-lg-6 div_name_building d-none">
                 <label class="col-form-label" for="name_building">Building Name</label>
                 <input type="text" name="name_building" t-attf-class="form-control #{error.get('name_building') and 'is-invalid' or ''}" t-att-value="'name_building' in checkout and checkout['name_building']"/>
@@ -29,7 +29,7 @@
     </template>
     
     <template id="hk_portal_id" name="HK Address" inherit_id="portal.portal_my_details" >
-        <xpath expr="//form/div/div/div[@class='row']/div[9]" position="after">
+        <xpath expr="//form/div/div/div[hasclass('row')]/div[9]" position="after">
             <div t-attf-class="form-group #{error.get('street2') and 'o_has_error' or ''} col-xl-6 my_street2 d-none">
                 <label class="col-form-label" for="street2">Number of building and name of street</label>
                 <input type="text" name="street2" t-attf-class="form-control #{error.get('street2') and 'is-invalid' or ''}" t-att-value="street2 or partner.street2"/>
