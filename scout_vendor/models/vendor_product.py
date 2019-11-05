@@ -58,7 +58,7 @@ class VendorSaleOrder(models.Model):
                 if template_id:
                     template_id.sudo().write({
                         'email_to': str(vendor.email),
-                        'email_from': self.env.user.company_id.email   
+                        'email_from': self.env.user.company_id.email  
                     })
                     mail_id = template_id.with_context({'vendor_name':vendor.name}).send_mail(self.id, force_send=True, raise_exception=False)
         return res
