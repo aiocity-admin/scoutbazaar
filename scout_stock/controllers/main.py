@@ -49,7 +49,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         if categ_id.parent_id:
             return self.get_stock_country(categ_id.parent_id)
         elif not categ_id.parent_id:
-            c_id = request.env['res.country'].sudo().search([('name','=',categ_id.name.capitalize())],limit=1)
+            c_id = request.env['res.country'].sudo().search([('code','=',categ_id.code)],limit=1)
 #             return categ_id.name
             if c_id:
                 return c_id
@@ -65,7 +65,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
             return self.get_storefront_location(categ_id.parent_id)
         elif not categ_id.parent_id:
             if categ_id.name:
-                ss_id = request.env['scout.stock'].sudo().search([('country_id.name','=',categ_id.name)],limit=1)
+                ss_id = request.env['scout.stock'].sudo().search([('country_id.code','=',categ_id.code)],limit=1)
                 if ss_id:
                     if ss_id.location_id:
                         return ss_id.location_id.id
@@ -84,12 +84,18 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         res = super(WebsiteSaleCountrySelect,self).payment(**post)
         order = request.website.sale_get_order()
         partner_shipping_id = order.partner_shipping_id
+        orderlines_country_grouping = {}
+        international_shipping_methods = {}
+        domestic_price = 0.0
+        is_domestic_products = False
+        domestic_carrier = False
         if partner_shipping_id:
             for line in order.order_line:
                 if line.product_id.public_categ_ids:
                     stock_country = self.get_stock_country(line.product_id.public_categ_ids)
                     if stock_country:
                         if stock_country == partner_shipping_id.country_id:
+                            orderlines_country_grouping.update({stock_country:False})
                             if partner_shipping_id.state_id:
                                 ss_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id),('state_ids','in',partner_shipping_id.state_id.id)],limit=1)
                                 if ss_id:
@@ -106,13 +112,86 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                     if not line.product_id.type == 'service':
                                         line.location_id = scou_id.location_id
                         else:
+                            orderlines_country_grouping.update({stock_country:True})
                             sc_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id)],limit=1)
                             if sc_id:
                                 if not line.product_id.type == 'service':
                                     line.location_id = sc_id.location_id
+                                    
+                        
         order = request.website.sale_get_order()
-        if order:
-            order._check_order_line_carrier(order)
+        
+#         if order:
+#             order._check_order_line_carrier(order)
+        
+        for line_group in orderlines_country_grouping:
+            
+            if orderlines_country_grouping[line_group]:
+                delivery_methods = request.env['delivery.carrier'].sudo().search([('country_ids','in',[line_group.id]),('shipping_range','=','international')])
+                if delivery_methods:
+                    international_shipping_methods.update({line_group.code:delivery_methods})
+            else:
+                for o_line in order.order_line:
+                    if o_line.location_id:
+                        if o_line.location_id.nso_location_id.country_id == order.partner_shipping_id.country_id:
+                            if order.partner_shipping_id.country_id.code == 'PH':
+                                delivery_carrier = request.env['delivery.carrier'].search([('delivery_type','=','base_on_jt_configuration')],limit=1)
+                                if delivery_carrier:
+                                    res_price = delivery_carrier.base_on_jt_configuration_rate_shipment(order,o_line)
+                                    if not res_price.get('error_message'):
+                                        is_domestic_products = True
+                                        domestic_carrier = delivery_carrier
+                                        domestic_price += res_price.get('price')
+                                        o_line.write({
+                                                    'delivery_method':delivery_carrier.id,
+                                                    'delivery_charge':res_price.get('price')
+                                                    })
+                                        order.calculate_nso_lines(order)
+                            elif order.partner_shipping_id.country_id.code == 'HK':
+                                delivery_carrier = request.env['delivery.carrier'].sudo().search([('country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
+                                if delivery_carrier:
+                                    res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,o_line)
+                                    if not res_price.get('error_message'):
+                                        domestic_carrier = delivery_carrier
+                                        is_domestic_products = True
+                                        domestic_price += res_price.get('price')
+                                        o_line.write({
+                                                    'delivery_method':delivery_carrier.id,
+                                                    'delivery_charge':res_price.get('price')
+                                                    })
+                                        order.calculate_nso_lines(order)
+        
+        if is_domestic_products:
+            delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
+                                                                                        ('country_id','=',order.partner_shipping_id.country_id.id),
+                                                                                        ('order_id','=',order.id),
+                                                                                        ],limit=1)
+            if delivery_line_track_ids:
+                delivery_line_track_ids.update({'delivery_price': domestic_price})
+            else:
+                request.env['delivery.line.track'].sudo().create({
+                                                                  'country_id':order.partner_shipping_id.country_id.id,
+                                                                  'order_id' : order.id,
+                                                                  'carrier_id': domestic_carrier.id,
+                                                                  'delivery_price':domestic_price,
+                                                                  })
+            res.qcontext.update({'domestic_fees': domestic_price})
+        
+        
+        order_delivery_track_lines_dict = {}
+        order_delivery_track_lines = request.env['delivery.line.track'].search([('order_id','=',order.id)])
+        
+        if order_delivery_track_lines:
+            for track_line in order_delivery_track_lines:
+                order_delivery_track_lines_dict.update({track_line.country_id.code:track_line.carrier_id})
+        
+        order = request.website.sale_get_order()
+        res.qcontext.update({
+                             'order':order,
+                             'is_domestic_products':is_domestic_products,
+                             'international_shipping_methods':international_shipping_methods,
+                             'order_delivery_track_lines_dict':order_delivery_track_lines_dict,
+                             })
         return res
     
     #Send NSO Email code======================================
@@ -132,8 +211,56 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         
         return views
     
-class MyWebsiteSaleDelivery(WebsiteSale):
     
+    @http.route(['/calculate/international_shipping'], type='json', auth="public", website=True)
+    def calculate_international_shipping(self,**post):
+        order = request.website.sale_get_order()
+        country_code = post.get('country_code')
+        carrier_id = int(post.get('delivery_id'))
+        carrier = request.env['delivery.carrier'].sudo().browse(carrier_id)
+        country_id = request.env['res.country'].sudo().search([('code','=',country_code)],limit=1)
+        delivery_price = 0.0
+        lines_to_change = {}
+        
+        
+        for line in order.order_line:
+            if line.location_id:
+                if line.location_id.nso_location_id.country_id.code == country_code:
+                    res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,line)
+                    if res.get('error_message'):
+                        return res.get("error_message")
+                    else:
+                        lines_to_change.update({line:res.get('price')})
+                        delivery_price += res.get('price')
+                        
+        if lines_to_change:
+            for change_line in lines_to_change:
+                line_id = request.env['sale.order.line'].sudo().browse(change_line.id)
+                if line_id:
+                    line_id.write({
+                                    'delivery_method':carrier.id,
+                                    'delivery_charge':lines_to_change[change_line]
+                                    })
+                    order.calculate_nso_lines(order)
+            delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
+                                                                                        ('country_id','=',country_id.id),
+                                                                                        ('order_id','=',order.id),
+                                                                                        ],limit=1)
+            if delivery_line_track_ids:
+                delivery_line_track_ids.update({
+                                                'carrier_id':carrier.id,
+                                                'delivery_price': delivery_price})
+            else:
+                request.env['delivery.line.track'].sudo().create({
+                                                                  'country_id':country_id.id,
+                                                                  'order_id' : order.id,
+                                                                  'carrier_id': carrier.id,
+                                                                  'delivery_price':delivery_price,
+                                                                  })
+        return {'delivery_price':delivery_price}
+    
+class MyWebsiteSaleDelivery(WebsiteSale):
+     
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
         res = super(MyWebsiteSaleDelivery, self).payment(**post)
@@ -148,12 +275,12 @@ class MyWebsiteSaleDelivery(WebsiteSale):
                     if line.location_id.nso_location_id.country_id:
                         if line.location_id.nso_location_id.country_id.code != 'PH':
                             paymaya_visible = False
-        
+         
         if not paymaya_visible:
             for acq_id in acquirers:
                 if not acq_id.provider == 'paymaya':
                     acquirers_new.append(acq_id)
             res.qcontext.update({'acquirers':acquirers_new})
-    
+     
         return res
 

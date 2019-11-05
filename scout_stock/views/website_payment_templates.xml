@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    	<template id="website_payment_templates_inherit" inherit_id="website_sale.payment">
+    		<xpath expr="//div[@id='payment_method']" position="before">
+    			<t t-if="international_shipping_methods">
+    				<t t-if="is_domestic_products">
+	    				<div class="col-sm-12">
+	    					<span>
+		    					<b>Domestic Shipping and Handling Fees</b>
+		    				</span>
+	    					<span t-esc="domestic_fees" style="float:right;"/>
+	    				</div>
+	    				<br/>
+	    				<br/>
+    				</t>
+	    			<span><b> Delivery Methods for International Shipments</b></span>
+	    			<div class="card">
+	    				<t t-foreach="international_shipping_methods" t-as="shipping">
+	    					<div class="card_body">
+	    						<h4>Shipping From <t t-esc="shipping"/></h4>
+    							<t t-foreach="international_shipping_methods[shipping]" t-as="delivery_method">
+    								<div class="col-sm-12">
+    									<input type="radio" class="int_shippping" t-att-name="'int_ship_' + shipping" t-att-id="delivery_method.id" 
+    									t-att-checked="'checked' if order_delivery_track_lines_dict[shipping] == delivery_method else None"/>
+    									<span t-esc="delivery_method.name"/>
+    									<span style="float:right;" class="delivery_price"></span>
+    								</div>
+    							</t>
+	    					</div>
+	    					<br/>
+	    				</t>
+	    			</div>
+    			</t>
+    		</xpath>
+    		
+    	</template>
+    
+    </data>
+</odoo>

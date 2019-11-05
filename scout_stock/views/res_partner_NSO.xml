@@ -12,5 +12,17 @@
                 </xpath>
             </field>
         </record>
+        
+        
+        <record id="product_public_category_view_inherit" model="ir.ui.view">
+            <field name="name">product.public.category.form.inherit</field>
+            <field name="model">product.public.category</field>
+            <field name="inherit_id" ref="website_sale.product_public_category_form_view"/>
+            <field name="arch" type="xml">
+                <xpath  expr="//field[@name='parent_id']" position="after">
+                    <field name="code" attrs="{'invisible' : [('parent_id','!=',False)]}"/>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>

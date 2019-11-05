@@ -5,3 +5,4 @@ from . import delivery_carrier
 from . import procurement_group
 from . import sale_order
 from . import stock_move
+from . import delivery_line_track

@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 scout_stock_access,scout.stock.access,model_scout_stock,,1,1,1,1
+delivery_line_track_access,delivery.line.track,model_delivery_line_track,,1,1,1,1

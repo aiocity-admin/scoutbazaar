@@ -5,6 +5,7 @@
             <template id="assets_frontend_inherit_paynow_button" inherit_id="website.assets_frontend">
                 <xpath expr="." position="inside">
                     <script type="text/javascript" src="/scout_stock/static/src/js/onchage_paynow.js"/>
+                    <script type="text/javascript" src="/scout_stock/static/src/js/int_shipping_method.js"/>
                 </xpath>
             </template>
             
@@ -12,11 +13,17 @@
                 <xpath expr="//thead/tr" position="inside">
                     <th class="border-top-0 td-terms" id="term_conditions">Terms &amp; Conditions</th>
                 </xpath>
+                
                 <xpath expr="//tbody//td[hasclass('td-price')]" position="after">
                     <td>
                         <span class="" t-att-data-id="line.location_id.id" style="cursor: pointer;" id="location_terms_conditions" t-esc="line.location_id.name"/>
                     </td>
                 </xpath>
+                
+                 <xpath expr="//td[hasclass('td-product_name')]/div/strong" position="replace">
+					<strong t-if="line.is_nso_delivery_line" t-field="line.name"/>
+					<strong t-if="not line.is_nso_delivery_line" t-field="line.name_short"/>
+			    </xpath>
             </template>
             
             <template id="my_payment_delivery_inherit" name="Delivery Costs" inherit_id="website_sale_delivery.payment_delivery">
