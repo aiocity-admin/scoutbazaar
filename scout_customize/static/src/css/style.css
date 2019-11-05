@@ -3,6 +3,7 @@
     margin-bottom: 0px !important;
     border-bottom: 0px !important;
     padding-bottom: 0px !important;
+    display: none !important;
 }
 
 #products_grid_before > ul.nav {
