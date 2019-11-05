@@ -74,24 +74,106 @@
 	           </div>
 		</xpath>
 	</template>
-	
-    <template id="my_tracking_order" inherit_id="sale.sale_order_portal_content" name="Track Order">
-        <xpath expr="//div/section[@id='details']" position="after">
-            <section id="tracking_order" style="page-break-inside: auto;" class="mt32">
-                <h3 id="tracking">Track Order</h3>
-                    <t t-if="sale_order.picking_ids">
-                        <t t-foreach="sale_order.picking_ids" t-as="tracking">
-                            <t t-if="tracking.carrier_tracking_url">
-                                <a t-att-href="tracking.carrier_tracking_url" target="new" t-esc="tracking.name"></a>
-                                <br/>
+    
+<!-- 	<template id="tracking_order" inherit_id="sale.portal_my_orders" name="track"> -->
+<!-- 		<xpath expr="//th[hasclass('text-center')]" position="inside"> -->
+<!-- 				<span>Track Order</span> -->
+<!-- 		</xpath> -->
+
+<!-- 		<xpath expr="//td[2]" position="after"> -->
+<!--             <td class='text-center'> -->
+<!--                 <t t-if="order.picking_ids"> -->
+<!--               	    <t t-foreach="order.picking_ids" t-as="tracking"> -->
+<!--           				<t t-if="tracking.carrier_tracking_url"> -->
+<!--             				<a t-att-href="tracking.carrier_tracking_url" target="new">Track</a> -->
+<!--           					<br/> -->
+<!--     					</t> -->
+<!--     				</t> -->
+<!--     			</t> -->
+<!--             </td> -->
+<!--         </xpath> -->
+<!-- 	</template> -->
+    
+<!--         <template id="my_tracking_order" inherit_id="sale.sale_order_portal_content" name="Track Order"> -->
+<!--             <xpath expr="//div/section[@id='details']" position="after"> -->
+<!--                 <section id="tracking_order" style="page-break-inside: auto;" class="mt32"> -->
+<!--                     <h3 id="tracking">Track Order</h3> -->
+<!--                         <t t-if="sale_order.picking_ids"> -->
+<!--                             <t t-foreach="sale_order.picking_ids" t-as="tracking"> -->
+<!--                                 <t t-if="tracking.carrier_tracking_url"> -->
+<!--                                     <a t-att-href="tracking.carrier_tracking_url" target="new" t-esc="tracking.name"></a> -->
+<!--                                     <br/> -->
+<!--                                 </t> -->
+<!--                             </t> -->
+<!--                         </t> -->
+<!--                 </section> -->
+<!--             </xpath> -->
+<!--         </template> -->
+    
+    <template id="my_sale_order_portal_content_inherit_sale_stock" name="Orders Shipping Followups" inherit_id="sale_stock.sale_order_portal_content_inherit_sale_stock">
+        <xpath expr="//t[@t-if='sale_order.picking_ids']" position="replace">
+            <t t-if="sale_order.picking_ids">
+                <div>
+                    <h3>Track Order</h3>
+                </div>
+                <div>
+                    <table class="table table-sm" id="track_order_table">
+                            <thead class="bg-200">
+                                <tr>
+                                      <th class="text-left">Shipping Method</th>
+                                      <th class="text-right">Delivery Date</th>
+                                      <th class="text-right">Track Order</th>
+                                      <th class="text-right">Picking Name</th>
+                                      <th class="text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <t t-foreach="sale_order.picking_ids.filtered(lambda picking: picking.picking_type_id.code != 'internal')" t-as="i">
+                            <t t-set="delivery_report_url" t-value="'/my/picking/pdf/%s?%s' % (i.id, keep_query())"/>
+                            <tbody class="delivery_method_tbody">
+                                <tr id="my_picking_info" class="bg-100">
+                                    <td>
+                                        <t t-if="i.carrier_id">
+                                            <span t-field="i.carrier_id.name"/>
+                                        </t>
+                                    </td>
+                                    <td class="text-right">
+                                        <span class="text-muted" t-field="i.date" t-options='{"widget": "date"}'/>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-if="i.carrier_tracking_url">
+                                            <a t-att-href="i.carrier_tracking_url" target="_blank"><span t-field="i.carrier_tracking_ref"/></a>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-field="i.carrier_tracking_ref"/>
+                                        </t>
+                                    </td>
+                                    <td class="text-right">
+                                        <a t-att-href="delivery_report_url"><span class="fa fa-download" role="img" aria-label="Download" title="Download"/></a>
+                                        <a t-att-href="delivery_report_url"><span t-field="i.name"/></a>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-if="i.state == 'done'">
+                                            <span class="badge badge-success label-text-align"><i class="fa fa-fw fa-truck"/> Shipped</span>
+                                        </t>
+                                        <t t-if="i.state == 'partially_available'">
+                                            <span class="badge badge-warning label-text-align"><i class="fa fa-fw fa-clock-o"/> Partially Available</span>
+                                        </t>
+                                        <t t-if="i.state == 'cancel'">
+                                            <span class="badge badge-danger label-text-align"><i class="fa fa-fw fa-times"/> Cancelled</span>
+                                        </t>
+                                        <t t-if="i.state in ['draft', 'waiting', 'confirmed', 'assigned']">
+                                            <span class="badge badge-info label-text-align"><i class="fa fa-fw fa-clock-o"/> Preparation</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </tbody>
                             </t>
-                        </t>
-                    </t>
-            </section>
+                    </table>
+                </div>
+            </t>
         </xpath>
     </template>
-	
-	
+    
 	 <template id="company_refund_policy" name="Refund Policy">
         <t t-call="website.layout">
             <div class="row">
@@ -130,5 +212,111 @@
                 </div>
             </div>
         </t>
+    </template>
+    
+    <!--   Product Category inherit================ -->
+    <template id="option_collapse_categories_recursive_inherit" name="Collapse Category Recursive" inherit_id = "website_sale.option_collapse_categories_recursive">
+        <xpath expr="//li[@class='nav-item']" position="replace">
+            <li class="">
+                <i t-if="categ.child_id" t-attf-class="text-primary fa #{'fa-chevron-down' if categ.id in parent_category_ids else 'fa-chevron-right'}"
+                   t-attf-title="#{'Unfold' if categ.id in parent_category_ids else 'Fold'}"
+                   t-attf-aria-label="#{'Unfold' if categ.id in parent_category_ids else 'Fold'}" role="img"/>
+                <a t-att-href="keep('/shop/category/' + slug(categ), category=0)" t-attf-class="nav-link#{' active' if categ.id == int(category or 0) else ''}" t-field="categ.name"></a>
+                <ul t-if="categ.child_id" class="nav nav-pills flex-column nav-hierarchy" t-att-style="'display:block;' if categ.id in parent_category_ids else 'display:none;'">
+                    <t t-foreach="categ.child_id" t-as="categ">
+                        <t t-if="not search or categ.id in search_categories_ids">
+                            <t t-call="website_sale.option_collapse_categories_recursive" />
+                        </t>
+                    </t>
+                </ul>
+            </li>
+        </xpath>
+    </template>
+    
+    <!--   Product Category inherit================ -->
+    <template id="option_collapse_products_categories_inherit" inherit_id = "website_sale.option_collapse_products_categories" name="Collapse Category Recursive">
+        <xpath expr="//ul[@id='o_shop_collapse_category']" position="replace">
+            <ul class="nav nav-pills flex-column mt16" id="my_o_shop_collapse_category">
+                <li class="">
+                    <a t-att-href="keep('/shop',category=0)" t-attf-class="nav-link#{'' if category else ' active'} o_not_editable">All Products</a>
+                </li>
+                <t t-foreach="categories" t-as="categ">
+                    <t t-call="website_sale.option_collapse_categories_recursive" />
+                </t>
+            </ul>
+        </xpath>
+    </template>
+    
+    <!--   Product Price Filter Inherit================ -->
+    <template id="my_products_attributes" inherit_id="website_sale.products_attributes" active="False" customize_show="True" name="Product Attribute's Filters">
+        <xpath expr="//form[@class='js_attributes']" position="replace">
+            <form class="js_attributes d-none" method="get">
+                <input type="hidden" name="search" t-att-value="search" />
+                <ul class="nav nav-pills flex-column mt16">
+                    <t t-foreach="attributes" t-as="a">
+                        <li t-if="a.value_ids and len(a.value_ids) &gt; 1" class="nav-item">
+                            <div>
+                                <strong t-field="a.name" />
+                            </div>
+                            <t t-if="a.type == 'select'">
+                                <select class="form-control" name="attrib">
+                                    <option value="" />
+                                    <t t-foreach="a.value_ids" t-as="v">
+                                        <option t-att-value="'%s-%s' % (a.id,v.id)" t-esc="v.name" t-att-selected="v.id in attrib_set" />
+                                    </t>
+                                </select>
+                            </t>
+                            <t t-if="a.type == 'radio'">
+                                <ul class="nav nav-pills flex-column">
+                                    <t t-foreach="a.value_ids" t-as="v">
+                                        <li class="nav-item">
+                                            <label style="margin: 0 20px;" t-attf-class="nav-link#{' active' if v.id in attrib_set else ''}">
+                                                <input type="checkbox" name="attrib" t-att-value="'%s-%s' % (a.id,v.id)" t-att-checked="'checked' if v.id in attrib_set else None" />
+                                                <span style="font-weight: normal" t-field="v.name" />
+                                            </label>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </t>
+                            <t t-if="a.type == 'color'">
+                                <t t-foreach="a.value_ids" t-as="v">
+                                    <label t-attf-style="background-color:#{v.html_color or v.name}" t-attf-class="css_attribute_color #{'active' if v.id in attrib_set else ''}">
+                                        <input type="checkbox" name="attrib" t-att-value="'%s-%s' % (a.id,v.id)" t-att-checked="'checked' if v.id in attrib_set else None" t-att-title="v.name" />
+                                    </label>
+                                </t>
+                            </t>
+                        </li>
+                    </t>
+                </ul>
+            </form>
+        </xpath>
+    </template>
+    
+    <!--   Product Price Filter Inherit================ -->
+    <template id="my_pricefilter_product" name="Price Filter" inherit_id="alan_customize.pricefilter_product">
+        <xpath expr="//div[@class='slider-price-filter']" position="replace">
+            <div class="slider-price-filter d-none">
+                <div class="div_class_price_filter_heading spf-title">
+                    <h2 class="refined-by-attr">Price</h2>
+                </div>
+                <div class="form_class price_filter_main spf-box">
+                    <div data-role="rangeslider">
+                        <t t-set="custom_min_val" t-value="custom_min_val or min_val"/>
+                        <t t-set="custom_max_val" t-value="custom_max_val or max_val"/>
+                        <div id="slider-range">
+                            <input name="price_filter" id="price_filter_input" type="text" class="span2" value="" t-att-data-slider-min="floor(min_val)" t-att-data-slider-max="ceil(max_val)" data-slider-step="1" t-att-data-slider-value="[custom_min_val,custom_max_val]" t-att-data-value="custom_min_val,custom_max_val" data-provide="slider"/>
+                        </div>
+                        <div id="priceform" class="spf-action">
+                            <div class="price_filter_details">
+                                <span class="text_min_val" t-esc="round(custom_min_val)"/>
+                                <span>&amp;nbsp;-&amp;nbsp;</span>
+                                <span class="text_max_val" t-esc="round(custom_max_val)"/>
+                            </div>
+                            <button class="apply_price_filter">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
     </template>
 </odoo>

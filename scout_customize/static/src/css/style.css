@@ -1,0 +1,12 @@
+
+#products_grid_before .js_attributes {
+    margin-bottom: 0px !important;
+    border-bottom: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+#products_grid_before > ul.nav {
+    margin: 0 0 0px !important;
+    padding: 0 0 0px !important;
+    border-bottom: 0px !important;
+}
