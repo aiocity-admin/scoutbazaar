@@ -37,10 +37,32 @@ class VendorUsers(models.Model):
     	
     
 
-# class VendorSaleOrder(models.Model):
+class VendorSaleOrder(models.Model):
      
-#     _inherit='sale.order'
-     
+    _inherit='sale.order'
+
+    # User in Vendor mail Send ==================
+    @api.multi
+    def action_confirm(self):
+        res = super(VendorSaleOrder, self).action_confirm()
+        vendor_list = []
+        for line in self.order_line:
+            rule_location = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+            if line.route_id == rule_location:
+                if not line.product_id.vendor_user_product.id  in vendor_list:
+                    vendor_list.append(line.product_id.vendor_user_product.id)
+        for vendor_user in vendor_list:
+            if vendor_user:
+                vendor = self.env['res.users'].sudo().search([('id','=',int(vendor_user))])
+                template_id = self.env.ref('scout_vendor.mail_template_sale_order_line_dropship',False)
+                if template_id:
+                    template_id.sudo().write({
+                        'email_to': str(vendor.email),
+                        'email_from': self.env.user.company_id.email   
+                    })
+                    mail_id = template_id.with_context({'vendor_name':vendor.name}).send_mail(self.id, force_send=True, raise_exception=False)
+        return res
+
 #     @api.onchange('pre_country_id')
 #     def onchange_code(self):
 #         public_categ = self.env['product.public.category'].sudo()

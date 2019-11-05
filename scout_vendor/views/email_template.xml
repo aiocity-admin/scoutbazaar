@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+		
+		<record id="scout_vendor.mail_template_sale_order_line_dropship" 
+			model="mail.template">
+			<field name="name">Dropship - Send by mail vendor</field>
+			<field name="subject">Droship : Send by mail vendor</field>
+			<field name="model_id" ref="sale.model_sale_order"/>
+			<field name="auto_delete" eval="True"/>
+			<field name="body_html" type="html">
+				<div>
+					<p>Hello
+						% if ctx['vendor_name']
+							<strong>${ctx['vendor_name']}</strong>
+						% endif
+						,
+					</p>
+					<p>
+						we have received an Order <strong>${object.name}</strong> behalf of you from Customer <strong>${object.partner_id.name}</strong> dated  on <strong>${object.date_order}</strong>. please confirm below order details:
+					</p>
+					<p>
+						<strong>Order Reference :</strong>${object.name}
+					</p>
+					<p>
+						<strong>Customer Details :</strong>
+						<ul>
+							<li>Name : ${object.partner_id.name}</li>
+							<li>Address :
+								% if object.partner_id.street:
+									${object.partner_id.street},<br></br>
+								% endif
+								% if object.partner_id.street2:
+									${object.partner_id.street2},<br></br>
+								% endif
+								% if object.partner_id.city:
+									${object.partner_id.city}
+								% endif
+								% if object.partner_id.state_id.name:
+									${object.partner_id.state_id.name}
+								% endif
+								% if object.partner_id.zip:
+									${object.partner_id.zip},<br></br>
+								% endif 
+								% if object.partner_id.country_id.name:
+									${object.partner_id.country_id.name}
+								% endif
+							</li>
+						</ul>
+					</p>
+					<p>
+						<strong>Delivery Address :</strong>
+						<ul>
+							<li>Name : ${object.partner_shipping_id.name}</li>
+							<li>Address :
+								% if object.partner_shipping_id.street:
+									${object.partner_shipping_id.street},<br></br>
+								% endif
+								% if object.partner_shipping_id.street2:
+									${object.partner_shipping_id.street2},<br></br>
+								% endif
+								% if object.partner_shipping_id.city:
+									${object.partner_shipping_id.city}
+								% endif
+								% if object.partner_shipping_id.state_id.name:
+									${object.partner_shipping_id.state_id.name}
+								% endif
+								% if object.partner_shipping_id.zip:
+									${object.partner_shipping_id.zip},<br></br>
+								% endif
+								% if object.partner_shipping_id.country_id.name:
+									${object.partner_shipping_id.country_id.name}
+								% endif
+							</li>
+						</ul>
+					</p>
+					<p>
+						<strong>Contact Details :</strong>
+						<ul>
+							% if object.partner_id.phone:
+								<li>Phone : ${object.partner_id.phone}</li>
+							% endif
+							% if object.partner_id.email:
+								<li>Email : ${object.partner_id.emile}</li>
+							% endif
+						</ul>
+					</p>
+					<p>
+						<strong>Product Details :</strong>
+						<table class="table table-sm o_main_table" style="border: 1px solid black;margin-left:20px;">
+							<thead>
+								<tr>
+									<th style="border: 1px solid black;">Product</th>
+									<th style="border: 1px solid black;">Quantity</th>
+									<!-- <th style="border: 1px solid black;">Shipping Method</th> -->
+									<th style="border: 1px solid black;">Unit Price</th>
+									<th style="border: 1px solid black;">Total</th>
+								</tr>
+							</thead>
+							% for line in object.order_line:
+								% if ctx['vendor_name'] == line.product_id.vendor_user_product.name:
+								<tbody class="sale_tbody">
+									<tr>
+										<td style="border: 1px solid black;">
+											${line.product_id.name}</td>
+										<td style="border: 1px solid black;">
+											${line.product_uom_qty}</td>
+										<!-- <td style="border: 1px solid black;">
+											${line.delivery_method.name}</td> -->
+										<td style="border: 1px solid black;">
+											${line.price_unit}<span>
+											${object.pricelist_id.currency_id.symbol}</span></td>
+										<td style="border:1px solid black;">
+											${line.price_subtotal}<span>
+											${object.pricelist_id.currency_id.symbol}</span></td>
+									</tr>
+								% endif
+								</tbody>
+							% endfor
+						</table>
+					</p>
+					<br></br>
+					<br></br>
+					<br></br>
+					<p>
+						Please verify above order details and deliver it as soon as possible!
+					</p>
+					<p>
+						Thanks,<br></br>
+						<strong>${object.company_id.name}</strong>
+					</p>
+				</div>
+			</field> 
+		</record>
+
+	</data>
+</odoo>
