@@ -45,7 +45,7 @@ class ProductTemplate(models.Model):
     
     is_discount_max_amount = fields.Float(default=0,
         help="Maximum amount of discount that can be provided")
-    is_reward_product_quantity = fields.Integer(string="Quantity", default=1, help="Reward product quantity")
+    is_reward_product_quantity = fields.Integer(string="Reward Quantity", default=1, help="Reward product quantity")
     is_reward_product_uom_id = fields.Many2one(related='is_reward_product_id.product_tmpl_id.uom_id', string='Reward product unit of measure', readonly=True)
     is_validity_duration = fields.Integer(default=1,
         help="Validity duration for a coupon after its generation")
