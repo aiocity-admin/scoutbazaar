@@ -32,8 +32,7 @@ class WebsiteSaleScout(WebsiteSale):
             for view_id in ir_ui_view_ids:
                 view_id.toggle()
                 
-    
-    
+    #Return Category Filter===============================
     @http.route([
     '''/shop''',
     '''/shop/page/<int:page>''',
@@ -47,10 +46,26 @@ class WebsiteSaleScout(WebsiteSale):
                 page, category, search, ppg, **post)
         
         self.toggle_views()
+        if category:
+            request.session['my_current_category'] = category.id
         
+        if not category:
+            keep = res.qcontext.get('keep')
+            if 'my_current_category' in request.session:
+                if request.session['my_current_category']:
+                    sc_active_id = int(request.session['my_current_category'])
+                    current_sc_id = request.env['product.public.category'].sudo().search([('id','=',int(sc_active_id))],limit=1)
+                    if current_sc_id:
+                        return request.redirect(keep('/shop/category/%s' % slug(current_sc_id),category=0))
+                    else:
+                        return request.render('scout_customize.not_category_msg')
         return res
     
-    
+    #Check shop url======================================
+    @http.route(['/get/shop/url'], type='json', auth="public", website=True,methods=['GET', 'POST'])
+    def check_shop_url(self, **post):
+        request.session['my_current_category'] = False
+        return request.redirect('/shop')
     
     #Gift Product Code===============================
     @http.route(['/shop/cart/update'], type='http', auth="public", methods=['POST','GET'], website=True, csrf=False)

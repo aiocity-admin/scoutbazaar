@@ -5,7 +5,13 @@ var ajax = require('web.ajax')
 var check_warehouse  = require("website_sale_options.website_sale")
 	check_warehouse.include({
 	    _onClickAdd: function (ev) {
-				var self = this
+			var self = this
+			ajax.jsonRpc('/check/event','call',{}).then(function(sale_order1){
+				if(sale_order1){
+					var bs_modal1 = '<div class="modal fade" data-backdrop="static" aria-hidden="false" id="cart_event_me" role="dialog" tabindex="-1"><div class="modal-dialog modal-lg" style="width:50%"><div class="modal-content"><div class="modal-header" style ="border-radius:0;background: #e476c3;"><button type="button" class="close" data-dismiss="modal" style="color:black;margin-top: -25px;">×</button><h4 class="modal-title" style="color: white;margin-top:-10px;position:absolute;" id="me_dy-title">WARNING!</h4></div><div class="modal-body alert alert-danger alert-dismissible fade show" style="text-transform: none;margin-bottom:0px;margin-top: -6px;border-radius:0;white-space: pre-line;line-height: normal;text-align:left;">Sorry for inconvience, your cart having event product currently so you can not add any moveable product in same cart. please finish current order and try with new order for those product(s) </div></div></div></div>'
+					$('.product_price').append(bs_modal1)
+					$("#cart_event_me").modal("show");
+				}else{
 					var p_id = $(ev.currentTarget).parent().find("input").val()
 					if(p_id){
 						ajax.jsonRpc('/check/gift','call',{'p_id': p_id}).then(function(sale_order2){
@@ -46,6 +52,8 @@ var check_warehouse  = require("website_sale_options.website_sale")
 					}else{
 						return self._handleAdd($(ev.currentTarget).closest('form'));
 					}
+				}
+			})
 	    },
 	});
 });

@@ -512,6 +512,7 @@ class WebsiteSale(WebsiteSale):
                 )
         return
     
+    #--------------------------------Gift Product COde=======================
     @http.route(['/check/order/gift'], type='json', auth="public", website=True,methods=['GET', 'POST'])
     def add_order_gift(self,p_id, **post):
         order = request.website.sale_get_order(force_create=True)
@@ -523,7 +524,8 @@ class WebsiteSale(WebsiteSale):
                 return False
         else:
             return False
-         
+    
+    #--------------------------------Gift Product COde=======================
     @http.route(['/check/order/user'], type='json', auth="public", website=True)
     def add_order_user(self, user_email, **post):
         if user_email:
@@ -532,8 +534,19 @@ class WebsiteSale(WebsiteSale):
                 return True
             else:
                 return False
-    #--------------------------------Gift Product COde=======================
     
+    #---order line event code=======================
+    @http.route(['/check/order/event'], type='json', auth="public", website=True)
+    def add_order_event(self, **post):
+        order = request.website.sale_get_order(force_create=True)
+        if order and order.order_line:
+            for line in order.order_line:
+                if line.event_ok:
+                    return True
+                else:
+                    return False
+        else:
+            return False
     
     @http.route('/update_my_wishlist', type="http", auth="public", website=True)
     def qv_update_my_wishlist(self, **kw):

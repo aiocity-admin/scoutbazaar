@@ -75,25 +75,6 @@
 		</xpath>
 	</template>
     
-<!-- 	<template id="tracking_order" inherit_id="sale.portal_my_orders" name="track"> -->
-<!-- 		<xpath expr="//th[hasclass('text-center')]" position="inside"> -->
-<!-- 				<span>Track Order</span> -->
-<!-- 		</xpath> -->
-
-<!-- 		<xpath expr="//td[2]" position="after"> -->
-<!--             <td class='text-center'> -->
-<!--                 <t t-if="order.picking_ids"> -->
-<!--               	    <t t-foreach="order.picking_ids" t-as="tracking"> -->
-<!--           				<t t-if="tracking.carrier_tracking_url"> -->
-<!--             				<a t-att-href="tracking.carrier_tracking_url" target="new">Track</a> -->
-<!--           					<br/> -->
-<!--     					</t> -->
-<!--     				</t> -->
-<!--     			</t> -->
-<!--             </td> -->
-<!--         </xpath> -->
-<!-- 	</template> -->
-    
 <!--         <template id="my_tracking_order" inherit_id="sale.sale_order_portal_content" name="Track Order"> -->
 <!--             <xpath expr="//div/section[@id='details']" position="after"> -->
 <!--                 <section id="tracking_order" style="page-break-inside: auto;" class="mt32"> -->
@@ -238,12 +219,57 @@
         <xpath expr="//ul[@id='o_shop_collapse_category']" position="replace">
             <ul class="nav nav-pills flex-column mt16" id="my_o_shop_collapse_category">
                 <li class="">
-                    <a t-att-href="keep('/shop',category=0)" t-attf-class="nav-link#{'' if category else ' active'} o_not_editable">All Products</a>
+                    <a id="keep_shop_all_category" t-att-href="keep('/shop',category=0)" t-attf-class="nav-link#{'' if category else ' active'} o_not_editable">All Products</a>
                 </li>
                 <t t-foreach="categories" t-as="categ">
                     <t t-call="website_sale.option_collapse_categories_recursive" />
                 </t>
             </ul>
+        </xpath>
+    </template>
+    
+    <!--   Product Price Filter Inherit================ -->
+    <template id="my_products_attributes" inherit_id="website_sale.products_attributes" active="False" customize_show="True" name="Product Attribute's Filters">
+        <xpath expr="//form[@class='js_attributes']" position="replace">
+            <form class="js_attributes d-none" method="get">
+                <input type="hidden" name="search" t-att-value="search" />
+                <ul class="nav nav-pills flex-column mt16">
+                    <t t-foreach="attributes" t-as="a">
+                        <li t-if="a.value_ids and len(a.value_ids) &gt; 1" class="nav-item">
+                            <div>
+                                <strong t-field="a.name" />
+                            </div>
+                            <t t-if="a.type == 'select'">
+                                <select class="form-control" name="attrib">
+                                    <option value="" />
+                                    <t t-foreach="a.value_ids" t-as="v">
+                                        <option t-att-value="'%s-%s' % (a.id,v.id)" t-esc="v.name" t-att-selected="v.id in attrib_set" />
+                                    </t>
+                                </select>
+                            </t>
+                            <t t-if="a.type == 'radio'">
+                                <ul class="nav nav-pills flex-column">
+                                    <t t-foreach="a.value_ids" t-as="v">
+                                        <li class="nav-item">
+                                            <label style="margin: 0 20px;" t-attf-class="nav-link#{' active' if v.id in attrib_set else ''}">
+                                                <input type="checkbox" name="attrib" t-att-value="'%s-%s' % (a.id,v.id)" t-att-checked="'checked' if v.id in attrib_set else None" />
+                                                <span style="font-weight: normal" t-field="v.name" />
+                                            </label>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </t>
+                            <t t-if="a.type == 'color'">
+                                <t t-foreach="a.value_ids" t-as="v">
+                                    <label t-attf-style="background-color:#{v.html_color or v.name}" t-attf-class="css_attribute_color #{'active' if v.id in attrib_set else ''}">
+                                        <input type="checkbox" name="attrib" t-att-value="'%s-%s' % (a.id,v.id)" t-att-checked="'checked' if v.id in attrib_set else None" t-att-title="v.name" />
+                                    </label>
+                                </t>
+                            </t>
+                        </li>
+                    </t>
+                </ul>
+            </form>
         </xpath>
     </template>
     
@@ -274,4 +300,18 @@
             </div>
         </xpath>
     </template>
+    
+    <!--   Continue Shopping in Not Category msg================ -->
+    <template id="not_category_msg">
+        <t t-call="website.layout">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h1>
+                        No Category Available
+                    </h1>
+                </div>
+            </div>
+        </t>
+    </template>
+    
 </odoo>

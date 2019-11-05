@@ -8,6 +8,7 @@ from odoo import api, models, fields, _
 import logging
 from odoo.http import request
 from odoo.addons.website_event.controllers.main import WebsiteEventController
+from odoo.addons.website_sale.controllers.main import WebsiteSale
 
 PPG = 20  # Products Per Page
 PPR = 4   # Products Per Row
@@ -90,3 +91,18 @@ class WebsiteEventController(WebsiteEventController):
                 events_new = Event.search(date_filter)
             res.qcontext.update({'event_ids':events_new,'dates':dates})
         return res
+    
+class WebsiteSaleSelecteEventOrder(WebsiteSale):
+    
+    #Orderline Event Filters======================================
+    @http.route(['/check/event'], type='json', auth="public", website=True)
+    def add_event(self, **post):
+        order = request.website.sale_get_order()
+        if order and order.order_line:
+            for line in order.order_line:
+                if line.event_ok:
+                    return True
+                else:
+                    return False
+        else:
+            return False
