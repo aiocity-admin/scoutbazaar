@@ -7,6 +7,7 @@
 	        <field name="arch" type="xml">
 	        <xpath expr="//field[@name='categ_id']" position="after">
                 <field name="vendor_user_product"/>
+                <field name="international_ids" widget="many2many_tags"/>
                 <!-- <field name="is_vendor_product"/> -->
            </xpath>
 	        </field>

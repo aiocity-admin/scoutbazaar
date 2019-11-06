@@ -8,34 +8,34 @@ class VendorUsers(models.Model):
     _inherit='product.template'
     
     vendor_user_product = fields.Many2one('res.users',string='Vendor User', default=lambda self: self.env.user)
-    
+    international_ids = fields.Many2many('res.partner',string="International Domestick", domain=lambda self: [("id", "in", self.vendor_user_product.partner_id.child_ids.ids)])
     # is_vendor_product = fields.Boolean('Is Vendor Product')
 
     @api.model_create_multi
     def create(self,vals_list):
-    	res = super(VendorUsers, self).create(vals_list)
-    	user_id = self.env['res.users'].has_group('scout_vendor.group_vendor_product')
-    	if user_id:
-	    	rule_location = self.env['stock.location.route'].sudo()
-	    	for i in res.route_ids:
-	    		stage_ids = rule_location.search([('name','=','Dropship')])
-	    		if stage_ids:
-	    			res.write({'route_ids':[(6,0,stage_ids.ids)]})
-    	return res
+        res = super(VendorUsers, self).create(vals_list)
+        user_id = self.env['res.users'].has_group('scout_vendor.group_vendor_product')
+        if user_id:
+            rule_location = self.env['stock.location.route'].sudo()
+            for i in res.route_ids:
+                stage_ids = rule_location.search([('name','=','Dropship')])
+                if stage_ids:
+                    res.write({'route_ids':[(6,0,stage_ids.ids)]})
+        return res
+   
 
-    @api.multi
-    def write(self,vals):
-    	res = super(VendorUsers,self).write(vals)
-    	user_id = self.env['res.users'].has_group('scout_vendor.group_vendor_product')
-    	if user_id:
-    		rule_location = self.env['stock.location.route'].sudo()
-    		for i in res.route_ids:
-    			stage_ids = rule_location.search([('name','=','Dropship')])
-    			if stage_ids:
-    				res.write({'route_ids':[(6,0,stage_ids.id)]})
-    	return res
-    	
-    
+    # @api.multi
+    # def write(self,vals):
+    #     res = super(VendorUsers,self).write(vals)
+    #     user_id = self.env['res.users'].has_group('scout_vendor.group_vendor_product')
+    #     if user_id:
+    #         rule_location = self.env['stock.location.route'].sudo()
+    #         for i in res.route_ids:
+    #             stage_ids = rule_location.search([('name','=','Dropship')])
+    #             if stage_ids:
+    #                 res.write({'route_ids':[(6,0,stage_ids.ids)]})
+    #     return res
+
 
 class VendorSaleOrder(models.Model):
      
