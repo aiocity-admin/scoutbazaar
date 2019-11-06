@@ -4,10 +4,10 @@
     "summary": 'Scout Customization - Backend and Frontend',
     "description":"""
         """,
-    "version" : "12.0.0.4",
+    "version" : "12.0.0.3",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
-    "depends" : ['alan_customize',],
+    "depends" : ['alan_customize'],
     'data': [
              'security/return_order_security.xml',
              'security/ir.model.access.csv',
