@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from . import school_list
 from . import scout_program
 from . import troop_event
@@ -10,3 +9,4 @@ from . import mass_mailing
 from . import survey
 from . import res_company
 from . import return_order
+from . import vendor_account
