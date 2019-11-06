@@ -20,7 +20,7 @@
 ##############################################################################
 {
     "name" : "Scout Vendor",
-    "version" : "12.0.0.3",
+    "version" : "12.0.0.2",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
     "depends" : ['hr','hr_attendance','purchase','scout_stock'],
