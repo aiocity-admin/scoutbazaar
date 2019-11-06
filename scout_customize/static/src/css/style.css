@@ -11,3 +11,6 @@
     padding: 0 0 0px !important;
     border-bottom: 0px !important;
 }
+#products_grid_before > ul.nav li.nav-item a:after {
+    display: none !important;
+}

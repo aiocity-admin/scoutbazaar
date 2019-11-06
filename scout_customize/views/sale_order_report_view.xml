@@ -1,6 +1,6 @@
 <odoo>
 	<template id="my_product_comment" inherit_id="sale.report_saleorder_document">
-            <xpath expr="//t/div/table/tbody[@class='sale_tbody']" position="replace">
+            <xpath expr="//t/div/table/tbody[hasclass('sale_tbody')]" position="replace">
                 
                 <tbody class="sale_tbody">
 
