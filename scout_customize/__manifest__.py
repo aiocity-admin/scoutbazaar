@@ -25,7 +25,7 @@
              'views/event_views.xml',
              'views/res_company_views.xml',
              'views/return_order_view.xml',
-             'views/sale_order_report_view.xml'
+             'views/sale_order_report_view.xml',
              'views/vendor_account.xml'
              ],
     'installable': True,
