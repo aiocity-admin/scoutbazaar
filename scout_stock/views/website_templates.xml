@@ -45,6 +45,21 @@
                     </div>
                 </xpath>
             </template>
+            
+            
+             <template id="cart_delivery_inherit_nso" name="NSO Delivery Costs" inherit_id="website_sale.total">
+		        <xpath expr="//tr[@id='order_total_untaxed']" position="before">
+		            <tr id="order_nso_delivery" t-if="website_sale_order and website_sale_order.carrier_id">
+		              <td class="text-right noborder text-muted"  title="NSO Delivery will be updated on payment page if you changed quantities in cart">NSO Delivery:</td>
+		              <td class="text-xl-right noborder text-muted" >
+		                   <span t-field="website_sale_order.nso_amount_delivery" style="white-space: nowrap;" t-options='{
+		                      "widget": "monetary",
+		                      "display_currency": website_sale_order.currency_id,
+		                  }'/>
+		              </td>
+		            </tr>
+		        </xpath>
+		    </template>
            
   </data>
 </odoo>

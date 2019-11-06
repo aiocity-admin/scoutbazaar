@@ -86,6 +86,25 @@ class SaleOrderLine(models.Model):
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
     
+    nso_amount_delivery = fields.Monetary(
+        compute='_compute_nso_amount_delivery', digits=0,
+        string='NSO Delivery Amount',
+        help="The amount without tax.", store=True, track_visibility='always')
+    
+    
+    @api.depends('order_line.price_unit', 'order_line.tax_id', 'order_line.discount', 'order_line.product_uom_qty')
+    def _compute_nso_amount_delivery(self):
+        for order in self:
+            if self.env.user.has_group('account.group_show_line_subtotals_tax_excluded'):
+                order.nso_amount_delivery = sum(order.order_line.filtered('is_nso_delivery_line').mapped('price_subtotal'))
+            else:
+                order.nso_amount_delivery = sum(order.order_line.filtered('is_nso_delivery_line').mapped('price_total'))
+    
+    @api.one
+    def _compute_website_order_line(self):
+        super(SaleOrder, self)._compute_website_order_line()
+        self.website_order_line = self.website_order_line.filtered(lambda l: not l.is_delivery and not l.is_nso_delivery_line)
+    
     def _check_order_line_carrier(self, order):
         self.ensure_one()
         carrier = False
@@ -156,89 +175,78 @@ class SaleOrder(models.Model):
                         sale_order_line_obj.create(vals)
                         
                         
-    @api.depends('order_line.price_total')
-    def _amount_all(self):
-        for order in self:
-            if self._context.get('website_id'):
-#                 nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line)
-#                 nso_delivery_lines.unlink()
-                
-                for line in order.order_line:
-                    if line.location_id:
-                        if line.location_id.nso_location_id.country_id == order.partner_shipping_id.country_id:
-                            if order.partner_shipping_id.country_id.code == 'PH':
-                                    delivery_carrier = self.env['delivery.carrier'].search([('delivery_type','=','base_on_jt_configuration')],limit=1)
-                                    if delivery_carrier:
-                                        res_price = delivery_carrier.base_on_jt_configuration_rate_shipment(order,line)
-                                        if not res_price.get('error_message'):
-                                            line.write({
-                                                        'delivery_method':delivery_carrier.id,
-                                                        'delivery_charge':res_price.get('price')
-                                                        })
-                                            order.calculate_nso_lines(order)
-                            elif order.partner_shipping_id.country_id.code == 'HK':
-                                delivery_carrier = self.env['delivery.carrier'].sudo().search([('country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
-                                if delivery_carrier:
-                                    res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,line)
-                                    if not res_price.get('error_message'):
-                                        domestic_carrier = delivery_carrier
-                                        is_domestic_products = True
-                                        domestic_price += res_price.get('price')
-                                        line.write({
-                                                    'delivery_method':delivery_carrier.id,
-                                                    'delivery_charge':res_price.get('price')
-                                                    })
-                                        order.calculate_nso_lines(order)
-                                
-                        else:
-                            country_code = line.location_id.nso_location_id.country_id.code
-                            carrier = line.delivery_method if line.delivery_method else False  
-                            country_id = line.location_id.nso_location_id.country_id
-                            delivery_price = 0.0
-                            lines_to_change = {}
-                            
-                            if carrier:
-                                for so_line in order.order_line:
-                                    if so_line.location_id:
-                                        if so_line.location_id.nso_location_id.country_id.code == country_code:
-                                            res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,so_line)
-                                            if res.get('error_message'):
-                                                return res.get("error_message")
-                                            else:
-                                                lines_to_change.update({so_line:res.get('price')})
-                                                delivery_price += res.get('price')
-                                                
-                                if lines_to_change:
-                                    for change_line in lines_to_change:
-                                        line_id = self.env['sale.order.line'].sudo().browse(change_line.id)
-                                        if line_id:
-                                            line_id.write({
-                                                            'delivery_method':carrier.id,
-                                                            'delivery_charge':lines_to_change[change_line]
-                                                            })
-                                            order.calculate_nso_lines(order)
-                                    delivery_line_track_ids = self.env['delivery.line.track'].sudo().search([
-                                                                                                                ('country_id','=',country_id.id),
-                                                                                                                ('order_id','=',order.id),
-                                                                                                                ],limit=1)
-                                    if delivery_line_track_ids:
-                                        delivery_line_track_ids.update({
-                                                                        'carrier_id':carrier.id,
-                                                                        'delivery_price': delivery_price})
+    def recalculate_nso_lines(self,order):
+        nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line)
+        nso_delivery_lines.update({'delivery_charge':0.0})
+        for line in order.order_line:
+            if line.location_id:
+                if line.location_id.nso_location_id.country_id == order.partner_shipping_id.country_id:
+                    if order.partner_shipping_id.country_id.code == 'PH':
+                            delivery_carrier = self.env['delivery.carrier'].search([('delivery_type','=','base_on_jt_configuration')],limit=1)
+                            if delivery_carrier:
+                                res_price = delivery_carrier.base_on_jt_configuration_rate_shipment(order,line)
+                                if not res_price.get('error_message'):
+                                    line.write({
+                                                'delivery_method':delivery_carrier.id,
+                                                'delivery_charge':res_price.get('price')
+                                                })
+                                    order.calculate_nso_lines(order)
+                    elif order.partner_shipping_id.country_id.code == 'HK':
+                        delivery_carrier = self.env['delivery.carrier'].sudo().search([('country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
+                        if delivery_carrier:
+                            res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,line)
+                            if not res_price.get('error_message'):
+                                domestic_carrier = delivery_carrier
+                                line.write({
+                                            'delivery_method':delivery_carrier.id,
+                                            'delivery_charge':res_price.get('price')
+                                            })
+                                order.calculate_nso_lines(order)
+                         
+                else:
+                    country_code = line.location_id.nso_location_id.country_id.code
+                    carrier = line.delivery_method if line.delivery_method else False  
+                    country_id = line.location_id.nso_location_id.country_id
+                    delivery_price = 0.0
+                    lines_to_change = {}
+                     
+                    if carrier:
+                        for so_line in order.order_line:
+                            if so_line.location_id:
+                                if so_line.location_id.nso_location_id.country_id.code == country_code:
+                                    res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,so_line)
+                                    if res.get('error_message'):
+                                        return res.get("error_message")
                                     else:
-                                        self.env['delivery.line.track'].sudo().create({
-                                                                                          'country_id':country_id.id,
-                                                                                          'order_id' : order.id,
-                                                                                          'carrier_id': carrier.id,
-                                                                                          'delivery_price':delivery_price,
-                                                                                          })
-                            
-            amount_untaxed = amount_tax = 0.0
-            for line in order.order_line:
-                amount_untaxed += line.price_subtotal
-                amount_tax += line.price_tax
-            order.update({
-                'amount_untaxed': amount_untaxed,
-                'amount_tax': amount_tax,
-                'amount_total': amount_untaxed + amount_tax,
-            })        
+                                        lines_to_change.update({so_line:res.get('price')})
+                                        delivery_price += res.get('price')
+                                         
+                        if lines_to_change:
+                            for change_line in lines_to_change:
+                                line_id = self.env['sale.order.line'].sudo().browse(change_line.id)
+                                if line_id:
+                                    line_id.write({
+                                                    'delivery_method':carrier.id,
+                                                    'delivery_charge':lines_to_change[change_line]
+                                                    })
+                                    order.calculate_nso_lines(order)
+                            delivery_line_track_ids = self.env['delivery.line.track'].sudo().search([
+                                                                                                        ('country_id','=',country_id.id),
+                                                                                                        ('order_id','=',order.id),
+                                                                                                        ],limit=1)
+                            if delivery_line_track_ids:
+                                delivery_line_track_ids.update({
+                                                                'carrier_id':carrier.id,
+                                                                'delivery_price': delivery_price})
+                            else:
+                                self.env['delivery.line.track'].sudo().create({
+                                                                                  'country_id':country_id.id,
+                                                                                  'order_id' : order.id,
+                                                                                  'carrier_id': carrier.id,
+                                                                                  'delivery_price':delivery_price,
+                                                                                  })
+                             
+#             nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line and r.delivery_charge <= 0)
+#             if nso_delivery_lines:
+#                 nso_delivery_lines.unlink()      
+            

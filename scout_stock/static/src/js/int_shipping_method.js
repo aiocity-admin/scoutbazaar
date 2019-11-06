@@ -14,10 +14,12 @@ odoo.define('scout_stock.international_shipping', function (require) {
     			if(vals['error_message']){
     				$(self).parent().parent().find('.delivery_price').text(' ')
     				$(self).parent().find('.delivery_price').text(vals['error_message'])
+    				location.reload();
     			}
     			else{
     				$(self).parent().parent().find('.delivery_price').text(' ')
     				$(self).parent().find('.delivery_price').text(vals['delivery_price'])
+    				location.reload();
     			}
     				
     		})

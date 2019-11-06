@@ -78,6 +78,26 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         else:
             return False
         
+        
+    
+    def prepare_international_shipping_dict(self,order,order_delivery_track_lines_dict):
+        
+        print("Order==================",order)
+        print("Delivery Track Lines------",order_delivery_track_lines_dict)
+        order_delivery_track_lines_dict_new = {}
+        for t_line in order_delivery_track_lines_dict:
+            
+            nso_delivery_line = order.order_line.filtered(lambda r:r.is_nso_delivery_line and r.name == t_line + ' NSO')
+            if nso_delivery_line:
+                order_delivery_track_lines_dict_new.update({
+                                                            t_line : [order_delivery_track_lines_dict[t_line],nso_delivery_line.price_total]
+                                                            })
+            else:
+                order_delivery_track_lines_dict_new.update({
+                                                            t_line : [order_delivery_track_lines_dict[t_line],False]
+                                                            })
+        return order_delivery_track_lines_dict_new
+        
     #Set Location id on orderline and calculate delivery cost code===============================================================
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
@@ -89,6 +109,9 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         domestic_price = 0.0
         is_domestic_products = False
         domestic_carrier = False
+        
+        nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line)
+        nso_delivery_lines.update({'delivery_charge':0.0})
         if partner_shipping_id:
             for line in order.order_line:
                 if line.product_id.public_categ_ids:
@@ -120,10 +143,6 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                     
                         
         order = request.website.sale_get_order()
-        
-#         if order:
-#             order._check_order_line_carrier(order)
-        
         for line_group in orderlines_country_grouping:
             
             if orderlines_country_grouping[line_group]:
@@ -167,7 +186,9 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                                         ('order_id','=',order.id),
                                                                                         ],limit=1)
             if delivery_line_track_ids:
-                delivery_line_track_ids.update({'delivery_price': domestic_price})
+                delivery_line_track_ids.update({
+                                                'delivery_price': domestic_price
+                                                })
             else:
                 request.env['delivery.line.track'].sudo().create({
                                                                   'country_id':order.partner_shipping_id.country_id.id,
@@ -178,20 +199,31 @@ class WebsiteSaleCountrySelect(WebsiteSale):
             res.qcontext.update({'domestic_fees': domestic_price})
         
         
+        
+        
         order_delivery_track_lines_dict = {}
         order_delivery_track_lines = request.env['delivery.line.track'].search([('order_id','=',order.id)])
         
         if order_delivery_track_lines:
             for track_line in order_delivery_track_lines:
                 order_delivery_track_lines_dict.update({track_line.country_id.code:track_line.carrier_id})
+            
+            for t_line in order_delivery_track_lines:
+                country_id = t_line.country_id
+                shipping_lines = order.order_line.filtered(lambda r: r.location_id and r.location_id.nso_location_id.country_id == country_id)
+                if shipping_lines:
+                    shipping_lines.update({'delivery_method':t_line.carrier_id})
         
         order = request.website.sale_get_order()
+        order.recalculate_nso_lines(order)
+        order_new = request.website.sale_get_order()
+        order._compute_website_order_line()
+        order_delivery_track_lines_dict = self.prepare_international_shipping_dict(order,order_delivery_track_lines_dict)
         res.qcontext.update({
-                             'order':order,
                              'is_domestic_products':is_domestic_products,
                              'international_shipping_methods':international_shipping_methods,
                              'order_delivery_track_lines_dict':order_delivery_track_lines_dict,
-                             })
+                             })  
         return res
     
     #Send NSO Email code======================================
@@ -259,8 +291,18 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                   })
         return {'delivery_price':delivery_price}
     
+    
+    def _get_shop_payment_values(self, order, **kwargs):
+        values = super(WebsiteSaleCountrySelect, self)._get_shop_payment_values(order, **kwargs)
+        order.recalculate_nso_lines(order)
+        order = request.website.sale_get_order()
+        values.update({'website_sale_order':order})
+        return values
+    
+    
+    
 class MyWebsiteSaleDelivery(WebsiteSale):
-     
+       
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
         res = super(MyWebsiteSaleDelivery, self).payment(**post)
@@ -275,12 +317,11 @@ class MyWebsiteSaleDelivery(WebsiteSale):
                     if line.location_id.nso_location_id.country_id:
                         if line.location_id.nso_location_id.country_id.code != 'PH':
                             paymaya_visible = False
-         
+          
         if not paymaya_visible:
             for acq_id in acquirers:
                 if not acq_id.provider == 'paymaya':
                     acquirers_new.append(acq_id)
             res.qcontext.update({'acquirers':acquirers_new})
-     
         return res
 

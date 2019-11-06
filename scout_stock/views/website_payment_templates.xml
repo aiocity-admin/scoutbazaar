@@ -9,7 +9,7 @@
 	    					<span>
 		    					<b>Domestic Shipping and Handling Fees</b>
 		    				</span>
-	    					<span t-esc="domestic_fees" style="float:right;"/>
+	    					<span t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(domestic_fees)" style="float:right;"/>
 	    				</div>
 	    				<br/>
 	    				<br/>
@@ -21,10 +21,22 @@
 	    						<h4>Shipping From <t t-esc="shipping"/></h4>
     							<t t-foreach="international_shipping_methods[shipping]" t-as="delivery_method">
     								<div class="col-sm-12">
-    									<input type="radio" class="int_shippping" t-att-name="'int_ship_' + shipping" t-att-id="delivery_method.id" 
-    									t-att-checked="'checked' if order_delivery_track_lines_dict[shipping] == delivery_method else None"/>
-    									<span t-esc="delivery_method.name"/>
-    									<span style="float:right;" class="delivery_price"></span>
+    									<t t-if="shipping in order_delivery_track_lines_dict">
+	    									<input type="radio" class="int_shippping" t-att-name="'int_ship_' + shipping" t-att-id="delivery_method.id" 
+	    									t-att-checked="'checked' if order_delivery_track_lines_dict[shipping][0] == delivery_method else None"/>
+	    									<span t-esc="delivery_method.name"/>
+	    									<span style="float:right;" class="delivery_price">
+	    									<t t-if="order_delivery_track_lines_dict[shipping][0] == delivery_method">
+	    										<t t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(order_delivery_track_lines_dict[shipping][1])"/>
+	    									</t>
+	    									</span>
+    									</t>
+    									
+    									<t t-else="">
+	    									<input type="radio" class="int_shippping" t-att-name="'int_ship_' + shipping" t-att-id="delivery_method.id"/>
+	    									<span t-esc="delivery_method.name"/>
+	    									<span style="float:right;" class="delivery_price"></span>
+    									</t>
     								</div>
     							</t>
 	    					</div>
