@@ -8,7 +8,8 @@ class VendorUsers(models.Model):
     _inherit='product.template'
     
     vendor_user_product = fields.Many2one('res.users',string='Vendor User', default=lambda self: self.env.user)
-    international_ids = fields.Many2many('res.partner',string="International Domestick", domain=lambda self: [("id", "in", self.vendor_user_product.partner_id.child_ids.ids)])
+    vendor_user_partner_id = fields.Many2one('res.partner',related="vendor_user_product.partner_id")
+    international_ids = fields.Many2many('res.partner',string="International Domestic") 
     # is_vendor_product = fields.Boolean('Is Vendor Product')
 
     @api.model_create_multi
@@ -22,8 +23,7 @@ class VendorUsers(models.Model):
                 if stage_ids:
                     res.write({'route_ids':[(6,0,stage_ids.ids)]})
         return res
-   
-
+        
     # @api.multi
     # def write(self,vals):
     #     res = super(VendorUsers,self).write(vals)
