@@ -60,6 +60,34 @@
 		            </tr>
 		        </xpath>
 		    </template>
+		    
+		    
+		    <template id="cart_summary_nso_inherit" name="Nso Cart Summary" inherit_id="website_sale.cart_summary">
+		    	<xpath expr="//tbody" position="inside">
+	    		 	
+	                   <tr t-foreach="website_sale_order.order_line" t-as="o_line">
+	                   		<t t-if="o_line.is_nso_delivery_line">
+	                               <td class='' colspan="2" t-if="not o_line.product_id.product_tmpl_id"></td>
+	                               <td class='td-img' t-if="o_line.product_id.product_tmpl_id">
+	                                   <span t-field="o_line.product_id.image_small" t-options="{'widget': 'image', 'class': 'rounded'}" />
+	                               </td>
+	                               <td class='td-product_name' t-if="o_line.product_id.product_tmpl_id">
+	                                   <div>
+	                                       <strong t-field="o_line.name" />
+	                                   </div>
+	                               </td>
+	                               <td class='td-qty'>
+	                                   <div t-esc="o_line.product_uom_qty" />
+	                               </td>
+	                               <td class="text-center td-price">
+	                                   <span t-field="o_line.price_reduce_taxexcl" style="white-space: nowrap;" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}" groups="account.group_show_line_subtotals_tax_excluded" />
+	                                   <span t-field="o_line.price_reduce_taxinc" style="white-space: nowrap;" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}" groups="account.group_show_line_subtotals_tax_included" />
+	                               </td>
+                            </t>
+                      </tr>
+               		
+		    	</xpath>
+		    </template>
            
   </data>
 </odoo>

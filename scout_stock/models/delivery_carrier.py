@@ -1,16 +1,22 @@
 from odoo import api, models, fields, _
+from odoo import _
 from odoo.exceptions import UserError
 from odoo.tools import pdf
 from odoo.osv import expression
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from odoo.addons.delivery_ups.models.ups_request import UPSRequest, Package
 from odoo.addons.delivery_easypost.models.easypost_request import EasypostRequest
+import json
+import requests
+from werkzeug.urls import url_join
+from odoo.tools.float_utils import float_round, float_is_zero
 
 class UPSDeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'
     
     
     shipping_range = fields.Selection([('local','Local'),('international','International')],string="Shipping Range")
+    source_country_ids = fields.Many2many('res.country', string='Source Countries')
     
     def ups_rate_line_shipment(self, order,line):
         superself = self.sudo()
@@ -82,7 +88,7 @@ class UPSDeliveryCarrier(models.Model):
                 'price': price,
                 'error_message': False,
                 'warning_message': False}
-        
+    
     def ups_send_shipping(self, pickings):
         res = []
         superself = self.sudo()
@@ -170,7 +176,6 @@ class UPSDeliveryCarrier(models.Model):
             res = res + [shipping_data]
         return res 
     
-    
     def easypost_rate_line_shipment(self, order,line):
         """ Return the rates for a quotation/SO."""
         ep = EasypostRequest(self.easypost_production_api_key if self.prod_environment else self.easypost_test_api_key, self.log_xml)
@@ -198,10 +203,52 @@ class UPSDeliveryCarrier(models.Model):
             'error_message': False,
             'warning_message': response.get('warning_message', False)
         }
-        
-        
-class EasypostRequest(EasypostRequest):
     
+    def easypost_send_shipping(self, pickings):
+        """ It creates an easypost order and buy it with the selected rate on
+        delivery method or cheapest rate if it is not set. It will use the
+        packages used with the put in pack functionality or a single package if
+        the user didn't use packages.
+        Once the order is purchased. It will post as message the tracking
+        links and the shipping labels.
+        """
+        res = []
+        ep = EasypostRequest(self.easypost_production_api_key if self.prod_environment else self.easypost_test_api_key, self.log_xml)
+        for picking in pickings:
+            result = ep.send_shipping(self, picking.partner_id, picking.location_id.nso_location_id, picking=picking)
+            if result.get('error_message'):
+                raise UserError(_(result['error_message']))
+            rate = result.get('rate')
+            if rate['currency'] == picking.company_id.currency_id.name:
+                price = rate['rate']
+            else:
+                quote_currency = self.env['res.currency'].search([('name', '=', rate['currency'])], limit=1)
+                price = quote_currency._convert(float(rate['rate']), picking.company_id.currency_id, self.env['res.users']._get_company(), fields.Date.today())
+                
+            # return tracking information
+            carrier_tracking_link = ""
+            for track_number, tracker_url in result.get('track_shipments_url').items():
+                carrier_tracking_link += '<a href=' + tracker_url + '>' + track_number + '</a><br/>'
+                
+            carrier_tracking_ref = ' + '.join(result.get('track_shipments_url').keys())
+            
+            labels = []
+            for track_number, label_url in result.get('track_label_data').items():
+                label = requests.get(label_url)
+                labels.append(('LabelEasypost-%s.%s' % (track_number, self.easypost_label_file_type), label.content))
+            
+            logmessage = (_("Shipping label for packages"))
+            picking.message_post(body=logmessage, attachments=labels)
+            picking.message_post(body=carrier_tracking_link)
+            
+            shipping_data = {'exact_price': price,
+                             'tracking_number': carrier_tracking_ref}
+            res = res + [shipping_data]
+            # store order reference on picking
+            picking.ep_order_ref = result.get('id')
+        return res
+    
+class EasypostRequest(EasypostRequest):
     
     def _prepare_order_shipments(self, carrier, order,line):
         """ Method used in order to estimate delivery
@@ -233,53 +280,52 @@ class EasypostRequest(EasypostRequest):
             shipments.update(self._prepare_parcel(0, carrier.easypost_default_packaging_id, total_weight, carrier.easypost_label_file_type))
         return shipments
     
-    
-    
     def rate_request(self, carrier, recipient, shipper, order=False, picking=False,line=False):
         
         self._check_required_value(carrier, recipient, shipper, order=order, picking=picking)
-
+        
         order_payload = {}
-
+        
         # Add current carrier type
         order_payload['order[carrier_accounts][id]'] = carrier.easypost_delivery_type_id
-
         order_payload.update(self._prepare_address('to_address', recipient))
         order_payload.update(self._prepare_address('from_address', shipper))
-
+        
         if picking:
             order_payload.update(self._prepare_picking_shipments(carrier, picking))
         else:
             order_payload.update(self._prepare_order_shipments(carrier, order,line))
-
+            
         response = self._make_api_request("orders", "post", data=order_payload)
         error_message = False
         warning_message = False
         rate = False
         if response.get('messages'):
             warning_message = ('\n'.join([x['carrier'] + ': ' + x['type'] + ' -- ' + x['message'] for x in response['messages']]))
+            
             response.update({'warning_message': warning_message})
-
+            
         rates = response.get('rates')
         if not rates:
             error_message = _("It seems Easypost do not provide shipments for this order.\
                 We advise you to try with another package type or service level.")
         elif rates and not carrier.easypost_default_service_id:
             rate = self._sort_rates(rates)[0]
-            carrier._generate_services(rates)
+            a = carrier._generate_services(rates)
         elif rates and carrier.easypost_default_service_id:
             rate = [rate for rate in rates if rate['service'] == carrier.easypost_default_service_id.name]
             if not rate:
                 error_message = _("There is no rate available for the selected service level for one of your package. Please choose another service level.")
             else:
                 rate = rate[0]
-
+                
         if error_message and warning_message:
             error_message += warning_message
-
         response.update({
             'error_message': error_message,
             'rate': rate,
         })
-
+        
         return response
+    
+    

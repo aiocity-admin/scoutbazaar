@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-    	<record id="delivery_carrier_from_view_shipping_inherit" model="ir.ui.view">
-    	
-    		<field name="name">delivery.carrier.shipping.form</field>
-    		<field name="model">delivery.carrier</field>
-    		<field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
-    		<field name="arch" type="xml">
-				<xpath expr="//field[@name='company_id']" position="after">
-					<field name="shipping_range"/>
-				</xpath>    		
-    		</field>
-    	</record>
-    
+        <record id="delivery_carrier_from_view_shipping_inherit" model="ir.ui.view">
+            <field name="name">delivery.carrier.shipping.form</field>
+            <field name="model">delivery.carrier</field>
+            <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="shipping_range"/>
+                </xpath>
+                <xpath expr="//field[@name='country_ids']" position="before">
+                    <field name="source_country_ids" widget="many2many_tags"/>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>

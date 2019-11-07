@@ -146,7 +146,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         for line_group in orderlines_country_grouping:
             
             if orderlines_country_grouping[line_group]:
-                delivery_methods = request.env['delivery.carrier'].sudo().search([('country_ids','in',[line_group.id]),('shipping_range','=','international')])
+                delivery_methods = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[line_group.id]),('shipping_range','=','international')])
                 if delivery_methods:
                     international_shipping_methods.update({line_group.code:delivery_methods})
             else:
@@ -167,7 +167,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                     })
                                         order.calculate_nso_lines(order)
                             elif order.partner_shipping_id.country_id.code == 'HK':
-                                delivery_carrier = request.env['delivery.carrier'].sudo().search([('country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
+                                delivery_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
                                 if delivery_carrier:
                                     res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,o_line)
                                     if not res_price.get('error_message'):

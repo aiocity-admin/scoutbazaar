@@ -134,7 +134,7 @@ class SaleOrder(models.Model):
 #                             line.delivery_method = carrier.id
                     else:
                         line.delivery_method = False
-                        carrier = self.env['delivery.carrier'].sudo().search([('name','=','UPS International'),('country_ids','in',[line.location_id.nso_location_id.country_id.id])],limit=1)
+                        carrier = self.env['delivery.carrier'].sudo().search([('name','=','UPS International'),('source_country_ids','in',[line.location_id.nso_location_id.country_id.id])],limit=1)
                         line.delivery_method = carrier.id
                         line.delivery_charge = False
                         res = line.delivery_method.ups_rate_line_shipment(order,line)
@@ -192,7 +192,7 @@ class SaleOrder(models.Model):
                                                 })
                                     order.calculate_nso_lines(order)
                     elif order.partner_shipping_id.country_id.code == 'HK':
-                        delivery_carrier = self.env['delivery.carrier'].sudo().search([('country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
+                        delivery_carrier = self.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
                         if delivery_carrier:
                             res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,line)
                             if not res_price.get('error_message'):

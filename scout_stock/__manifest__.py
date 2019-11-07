@@ -18,6 +18,7 @@
              'views/website_templates.xml',
              'views/scout_bazaar_menu.xml',
              'views/website_payment_templates.xml',
+	     'views/shipping_address_view.xml',
              ],
     'installable': True,
     'auto_install': False,
