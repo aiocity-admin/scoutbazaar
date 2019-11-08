@@ -173,7 +173,7 @@ class JTDeliveryCarrier(models.Model):
                     'price': 0.0,
                     'error_message': e.name,
                     'warning_message': False}
-        price_unit = currency._compute(currency,order.currency_id,price_unit)
+        price_unit = currency._convert(price_unit,order.currency_id,order.company_id,fields.Date.today())
 #         if order.company_id.currency_id.id != order.pricelist_id.currency_id.id:
 #             price_unit = order.company_id.currency_id.with_context(date=order.date_order).compute(price_unit, order.pricelist_id.currency_id)
 
