@@ -165,7 +165,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                         currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
                                         if currency:
                                             if order.currency_id != order.company_id.currency_id:
-                                                payment_processing_fee = currency._compute(currency,order.currency_id,payment_processing_fee)
+                                                payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
                                         handling_price = (res_price.get('price') *handling_charge)/100
                                         temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
                                         domestic_price += (res_price.get('price') + temp_price)
@@ -184,7 +184,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                         currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
                                         if currency:
                                             if order.currency_id != order.company_id.currency_id:
-                                                payment_processing_fee = currency._compute(currency,order.currency_id,payment_processing_fee)
+                                                payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
                                         handling_price = (res_price.get('price') *handling_charge)/100
                                         
                                         temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
@@ -286,7 +286,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                         currency = request.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
                         if currency:
                             if order.currency_id != order.company_id.currency_id:
-                                payment_processing_fee = currency._compute(currency,order.currency_id,payment_processing_fee)
+                                payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
                         handling_price = (res.get('price') *handling_charge)/100
                         temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res.get('price') + handling_price))
                         lines_to_change.update({line:res.get('price') + temp_price})
