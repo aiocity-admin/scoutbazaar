@@ -19,7 +19,6 @@ class SaleOrderLine(models.Model):
         for location_id in line_list:
             if location_id:
                 location = self.env['stock.location'].sudo().search([('id','=',int(location_id))])
-#                 partner = self.env['res.partner'].sudo().search([('storefront_location_id','=',location_id)])
                 partner = location.nso_location_id
                 if partner:
                     template_id = self.env.ref('scout_stock.email_template_edi_sale_line', False)
@@ -55,8 +54,6 @@ class SaleOrderLine(models.Model):
                 })
                 line.order_id.procurement_group_id = group_id
             else:
-                # In case the procurement group is already created and the order was
-                # cancelled, we need to update certain values of the group.
                 updated_vals = {}
                 if group_id.partner_id != line.order_id.partner_shipping_id:
                     updated_vals.update({'partner_id': line.order_id.partner_shipping_id.id})
@@ -157,14 +154,14 @@ class SaleOrder(models.Model):
                     delivery_charge = 0.0
                     for n_line in nso_location_lines:
                        delivery_charge += n_line.delivery_charge
-                nso_line = order.order_line.filtered(lambda r: r.name == line.location_id.nso_location_id.name)
+                nso_line = order.order_line.filtered(lambda r: r.name == line.location_id.nso_location_id.country_id.code + " NSO")
                  
                 if nso_line:
                     nso_line.write({'price_unit':delivery_charge})
                 else:
                     vals = {
                             'order_id':order.id,
-                            'name':line.location_id.nso_location_id.name,
+                            'name':line.location_id.nso_location_id.country_id.code + " NSO",
                             'product_id':delivery_product.id,
                             'product_uom': delivery_product.sudo().uom_id.id,
                             'price_unit':delivery_charge,
@@ -178,6 +175,11 @@ class SaleOrder(models.Model):
     def recalculate_nso_lines(self,order):
         nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line)
         nso_delivery_lines.update({'delivery_charge':0.0})
+        res_config = self.env['payment.handling.config'].sudo().search([],limit=1)
+        handling_charge = res_config.handling_charge
+        payment_processing_fee = res_config.payment_processing_fee
+        transaction_value = res_config.transaction_value
+        
         for line in order.order_line:
             if line.location_id:
                 if line.location_id.nso_location_id.country_id == order.partner_shipping_id.country_id:
@@ -186,9 +188,16 @@ class SaleOrder(models.Model):
                             if delivery_carrier:
                                 res_price = delivery_carrier.base_on_jt_configuration_rate_shipment(order,line)
                                 if not res_price.get('error_message'):
+                                    
+                                    currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
+                                    if currency:
+                                        if order.currency_id != order.company_id.currency_id:
+                                            payment_processing_fee = currency._compute(currency,order.currency_id,payment_processing_fee)
+                                    handling_price = (res_price.get('price') *handling_charge)/100
+                                    temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
                                     line.write({
                                                 'delivery_method':delivery_carrier.id,
-                                                'delivery_charge':res_price.get('price')
+                                                'delivery_charge':res_price.get('price') + temp_price
                                                 })
                                     order.calculate_nso_lines(order)
                     elif order.partner_shipping_id.country_id.code == 'HK':
@@ -197,9 +206,15 @@ class SaleOrder(models.Model):
                             res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,line)
                             if not res_price.get('error_message'):
                                 domestic_carrier = delivery_carrier
+                                currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
+                                if currency:
+                                    if order.currency_id != order.company_id.currency_id:
+                                        payment_processing_fee = currency._compute(currency,order.currency_id,payment_processing_fee)
+                                handling_price = (res_price.get('price') *handling_charge)/100
+                                temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
                                 line.write({
                                             'delivery_method':delivery_carrier.id,
-                                            'delivery_charge':res_price.get('price')
+                                            'delivery_charge':res_price.get('price') + temp_price
                                             })
                                 order.calculate_nso_lines(order)
                          
@@ -218,8 +233,14 @@ class SaleOrder(models.Model):
                                     if res.get('error_message'):
                                         return res.get("error_message")
                                     else:
-                                        lines_to_change.update({so_line:res.get('price')})
-                                        delivery_price += res.get('price')
+                                        currency = self.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
+                                        if currency:
+                                            if order.currency_id != order.company_id.currency_id:
+                                                payment_processing_fee = currency._compute(currency,order.currency_id,payment_processing_fee)
+                                        handling_price = (res.get('price') *handling_charge)/100
+                                        temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res.get('price') + handling_price))
+                                        lines_to_change.update({so_line:res.get('price') + temp_price})
+                                        delivery_price += (res.get('price') + temp_price)
                                          
                         if lines_to_change:
                             for change_line in lines_to_change:
@@ -246,7 +267,11 @@ class SaleOrder(models.Model):
                                                                                   'delivery_price':delivery_price,
                                                                                   })
                              
-#             nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line and r.delivery_charge <= 0)
-#             if nso_delivery_lines:
-#                 nso_delivery_lines.unlink()      
+    
+    
+    def check_blank_nso_delivery_lines(self): 
+        for line in self.order_line:
+            if line.is_nso_delivery_line and line.delivery_charge <= 0:
+                line.unlink()
+                self.recalculate_nso_lines(self)
             

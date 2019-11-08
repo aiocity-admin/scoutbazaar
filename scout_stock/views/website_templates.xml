@@ -4,27 +4,33 @@
             
             <template id="assets_frontend_inherit_paynow_button" inherit_id="website.assets_frontend">
                 <xpath expr="." position="inside">
-                    <script type="text/javascript" src="/scout_stock/static/src/js/onchage_paynow.js"/>
+                    
                     <script type="text/javascript" src="/scout_stock/static/src/js/int_shipping_method.js"/>
+                	<link rel='stylesheet' href='/scout_stock/static/src/css/jquery-confirm.min.css'/>
+					<link rel='stylesheet' href='/scout_stock/static/src/css/jquery-ui.min.css'/>
+					<script type="text/javascript" src="/scout_stock/static/src/js/jquery.form.js"/>
+					<script type="text/javascript" src="/scout_stock/static/src/js/jquery-confirm.min.js"/>
+					<script type="text/javascript" src="/scout_stock/static/src/js/onchage_paynow.js"/>
+					<script type="text/javascript" src="/scout_stock/static/src/js/website_payment_button.js"></script>
                 </xpath>
             </template>
             
-            <template id="cart_summary" name="Scout" inherit_id="website_sale.cart_summary">
-                <xpath expr="//thead/tr" position="inside">
-                    <th class="border-top-0 td-terms" id="term_conditions">Terms &amp; Conditions</th>
-                </xpath>
+<!--             <template id="cart_summary" name="Scout" inherit_id="website_sale.cart_summary"> -->
+<!--                 <xpath expr="//thead/tr" position="inside"> -->
+<!--                     <th class="border-top-0 td-terms" id="term_conditions">Terms &amp; Conditions</th> -->
+<!--                 </xpath> -->
                 
-                <xpath expr="//tbody//td[hasclass('td-price')]" position="after">
-                    <td>
-                        <span class="" t-att-data-id="line.location_id.id" style="cursor: pointer;" id="location_terms_conditions" t-esc="line.location_id.name"/>
-                    </td>
-                </xpath>
+<!--                 <xpath expr="//tbody//td[hasclass('td-price')]" position="after"> -->
+<!--                     <td> -->
+<!--                         <span class="" t-att-data-id="line.location_id.id" style="cursor: pointer;" id="location_terms_conditions" t-esc="line.location_id.name"/> -->
+<!--                     </td> -->
+<!--                 </xpath> -->
                 
-                 <xpath expr="//td[hasclass('td-product_name')]/div/strong" position="replace">
-					<strong t-if="line.is_nso_delivery_line" t-field="line.name"/>
-					<strong t-if="not line.is_nso_delivery_line" t-field="line.name_short"/>
-			    </xpath>
-            </template>
+<!--                  <xpath expr="//td[hasclass('td-product_name')]/div/strong" position="replace"> -->
+<!-- 					<strong t-if="line.is_nso_delivery_line" t-field="line.name"/> -->
+<!-- 					<strong t-if="not line.is_nso_delivery_line" t-field="line.name_short"/> -->
+<!-- 			    </xpath> -->
+<!--             </template> -->
             
             <template id="my_payment_delivery_inherit" name="Delivery Costs" inherit_id="website_sale_delivery.payment_delivery">
                 <xpath expr="//div[@id='delivery_carrier']" position="attributes">
@@ -47,17 +53,8 @@
             </template>
             
             
-             <template id="cart_delivery_inherit_nso" name="NSO Delivery Costs" inherit_id="website_sale.total">
-		        <xpath expr="//tr[@id='order_total_untaxed']" position="before">
-		            <tr id="order_nso_delivery" t-if="website_sale_order and website_sale_order.carrier_id">
-		              <td class="text-right noborder text-muted"  title="NSO Delivery will be updated on payment page if you changed quantities in cart">NSO Delivery:</td>
-		              <td class="text-xl-right noborder text-muted" >
-		                   <span t-field="website_sale_order.nso_amount_delivery" style="white-space: nowrap;" t-options='{
-		                      "widget": "monetary",
-		                      "display_currency": website_sale_order.currency_id,
-		                  }'/>
-		              </td>
-		            </tr>
+             <template id="cart_delivery_inherit_nso" name="NSO Delivery Costs" inherit_id="website_sale_delivery.cart_delivery">
+		        <xpath expr="//tr[@id='order_delivery']" position="replace">
 		        </xpath>
 		    </template>
 		    
@@ -88,6 +85,11 @@
                		
 		    	</xpath>
 		    </template>
-           
+		    
+		    <template id="short_cart_summary_inherit" inherit_id="website_sale.short_cart_summary">
+		    	<xpath expr="//div[hasclass('card-body')]/h4" position="after">
+		    		<span style="color:red"><i>* Delivery Charges will be re-calculated after "Process Checkout" if you have made any changes in the cart.</i></span>
+		    	</xpath>
+		    </template>
   </data>
 </odoo>

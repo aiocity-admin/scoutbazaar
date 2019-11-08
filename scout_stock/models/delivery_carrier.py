@@ -87,7 +87,8 @@ class UPSDeliveryCarrier(models.Model):
         return {'success': True,
                 'price': price,
                 'error_message': False,
-                'warning_message': False}
+                'warning_message': False,
+                'currency_code':result.get('currency_code')}
     
     def ups_send_shipping(self, pickings):
         res = []
@@ -201,7 +202,8 @@ class UPSDeliveryCarrier(models.Model):
             'success': True,
             'price': price,
             'error_message': False,
-            'warning_message': response.get('warning_message', False)
+            'warning_message': response.get('warning_message', False),
+            'currency_code':rate.get('currency')
         }
     
     def easypost_send_shipping(self, pickings):

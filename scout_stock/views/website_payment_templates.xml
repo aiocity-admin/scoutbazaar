@@ -3,8 +3,7 @@
     <data>
     	<template id="website_payment_templates_inherit" inherit_id="website_sale.payment">
     		<xpath expr="//div[@id='payment_method']" position="before">
-    			<t t-if="international_shipping_methods">
-    				<t t-if="is_domestic_products">
+    			<t t-if="is_domestic_products">
 	    				<div class="col-sm-12">
 	    					<span>
 		    					<b>Domestic Shipping and Handling Fees</b>
@@ -13,7 +12,8 @@
 	    				</div>
 	    				<br/>
 	    				<br/>
-    				</t>
+   				</t>
+    			<t t-if="international_shipping_methods">
 	    			<span><b> Delivery Methods for International Shipments</b></span>
 	    			<div class="card">
 	    				<t t-foreach="international_shipping_methods" t-as="shipping">
@@ -43,6 +43,17 @@
 	    					<br/>
 	    				</t>
 	    			</div>
+	    			<br/>
+	    			<br/>
+    			</t>
+    			
+    			<t t-if="international_shipping_methods or is_domestic_products">
+    				<div class="col-sm-12">
+    					<span>
+	    					<b>Total Shipping and Handling Fees</b>
+	    				</span>
+    					<span t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(website_sale_order.nso_amount_delivery)" style="float:right;"/>
+    				</div>
     			</t>
     		</xpath>
     		

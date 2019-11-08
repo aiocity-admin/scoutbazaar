@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from . import res_config_settings
 from . import res_partner_NSO
 from . import scout_stock
 from . import delivery_carrier

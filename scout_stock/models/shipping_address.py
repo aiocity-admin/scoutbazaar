@@ -7,9 +7,7 @@ class SaleOrderShipping(models.Model):
 	def partner_shipping_onchange(self):
 		for order in self.order_line:
 			if order.location_id:
-				print("-------------------")
 				if order.location_id.nso_location_id.country_id == self.partner_shipping_id.country_id:
-					print("++++++++++++")
 					# record = delivery_carr.search([('source_country_ids','=',self.partner_shipping_id.country_id.id)])
 					# print('\n\n----------record--------',record)
 					# return [('id','in',record)]

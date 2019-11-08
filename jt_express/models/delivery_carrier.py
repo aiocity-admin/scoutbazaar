@@ -159,6 +159,7 @@ class JTDeliveryCarrier(models.Model):
     
     def base_on_jt_configuration_rate_shipment(self, order, line):
         carrier = self._match_address(order.partner_shipping_id)
+        currency = self.env['res.currency'].sudo().search([('name','=','PHP')])
         if not carrier:
             return {'success': False,
                     'price': 0.0,
@@ -172,10 +173,12 @@ class JTDeliveryCarrier(models.Model):
                     'price': 0.0,
                     'error_message': e.name,
                     'warning_message': False}
-        if order.company_id.currency_id.id != order.pricelist_id.currency_id.id:
-            price_unit = order.company_id.currency_id.with_context(date=order.date_order).compute(price_unit, order.pricelist_id.currency_id)
+        price_unit = currency._compute(currency,order.currency_id,price_unit)
+#         if order.company_id.currency_id.id != order.pricelist_id.currency_id.id:
+#             price_unit = order.company_id.currency_id.with_context(date=order.date_order).compute(price_unit, order.pricelist_id.currency_id)
 
         return {'success': True,
                 'price': price_unit,
                 'error_message': False,
-                'warning_message': False}
+                'warning_message': False,
+                'currency_code':'PHP'}
