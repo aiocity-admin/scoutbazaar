@@ -295,4 +295,10 @@
         </t>
     </template>
     
+    <template id="protal_home_page_inherit" inherit_id="portal.portal_my_home">
+    	<xpath expr="//div[hasclass('o_portal_my_home')]/h3" position="replace">
+    		<h3> My Account </h3>
+    	</xpath>
+    </template>
+    
 </odoo>

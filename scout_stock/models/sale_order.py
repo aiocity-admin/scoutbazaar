@@ -100,7 +100,15 @@ class SaleOrder(models.Model):
     @api.one
     def _compute_website_order_line(self):
         super(SaleOrder, self)._compute_website_order_line()
-        self.website_order_line = self.website_order_line.filtered(lambda l: not l.is_delivery and not l.is_nso_delivery_line)
+        self.website_order_line = self.website_order_line.filtered(lambda l: not l.is_delivery and not l.is_nso_delivery_line and not l.is_vendor_delivery_line)
+    
+    def get_country_by_code(self,code):
+        
+        country = self.env['res.country'].sudo().search([('code','=',code)],limit=1)
+        if country:
+            return country.name
+        else:
+            return ''
     
     def _check_order_line_carrier(self, order):
         self.ensure_one()
@@ -154,14 +162,14 @@ class SaleOrder(models.Model):
                     delivery_charge = 0.0
                     for n_line in nso_location_lines:
                        delivery_charge += n_line.delivery_charge
-                nso_line = order.order_line.filtered(lambda r: r.name == line.location_id.nso_location_id.country_id.code + " NSO")
+                nso_line = order.order_line.filtered(lambda r: r.name == "Total Shipping and Handling Fees(" + line.location_id.nso_location_id.country_id.name + ")")
                  
                 if nso_line:
                     nso_line.write({'price_unit':delivery_charge})
                 else:
                     vals = {
                             'order_id':order.id,
-                            'name':line.location_id.nso_location_id.country_id.code + " NSO",
+                            'name': "Total Shipping and Handling Fees(" + line.location_id.nso_location_id.country_id.name + ")",
                             'product_id':delivery_product.id,
                             'product_uom': delivery_product.sudo().uom_id.id,
                             'price_unit':delivery_charge,
@@ -234,6 +242,7 @@ class SaleOrder(models.Model):
                                         return res.get("error_message")
                                     else:
                                         currency = self.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
+                                        
                                         if currency:
                                             if order.currency_id != order.company_id.currency_id:
                                                 payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
@@ -254,17 +263,20 @@ class SaleOrder(models.Model):
                             delivery_line_track_ids = self.env['delivery.line.track'].sudo().search([
                                                                                                         ('country_id','=',country_id.id),
                                                                                                         ('order_id','=',order.id),
+                                                                                                        ('is_vendor_track','=',False)
                                                                                                         ],limit=1)
                             if delivery_line_track_ids:
                                 delivery_line_track_ids.update({
                                                                 'carrier_id':carrier.id,
-                                                                'delivery_price': delivery_price})
+                                                                'delivery_price': round(delivery_price,2),
+                                                                'is_vendor_track':False,})
                             else:
                                 self.env['delivery.line.track'].sudo().create({
                                                                                   'country_id':country_id.id,
                                                                                   'order_id' : order.id,
                                                                                   'carrier_id': carrier.id,
-                                                                                  'delivery_price':delivery_price,
+                                                                                  'delivery_price':round(delivery_price,2),
+                                                                                  'is_vendor_track':False,
                                                                                   })
                              
     

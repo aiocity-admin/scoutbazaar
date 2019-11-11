@@ -1,34 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record id="product_public_categroy_view_extends_scout" model="ir.ui.view">
-            <field name="name">product.public.category.form.in.extend</field>
-            <field name="model">product.public.category</field>
-            <field name="inherit_id" ref="website_sale.product_public_category_form_view"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='parent_id']" position="after">
-                    <field name="is_vendor_category"/>
-                </xpath>
-            </field>
-        </record>
+         <template id="assets_frontend_inherit_vendor_js" inherit_id="website.assets_frontend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/scout_vendor/static/src/js/int_vendor_shipping_method.js"/>
+            </xpath>
+        </template>
+    
+<!--         <record id="product_public_categroy_view_extends_scout" model="ir.ui.view"> -->
+<!--             <field name="name">product.public.category.form.in.extend</field> -->
+<!--             <field name="model">product.public.category</field> -->
+<!--             <field name="inherit_id" ref="website_sale.product_public_category_form_view"/> -->
+<!--             <field name="arch" type="xml"> -->
+<!--                 <xpath expr="//field[@name='parent_id']" position="after"> -->
+<!--                     <field name="is_vendor_category"/> -->
+<!--                 </xpath> -->
+<!--             </field> -->
+<!--         </record> -->
         
         <!-- <template id="modify_shop_vendor_inherit" inherit_id="website_scout_baazar.modify_shop_inherit" name="Products">
             <xpath expr="//t[@t-foreach='storefront_categs']" position="after">
                 <t t-if="vendor_categs">
-        			<t t-foreach="vendor_categs" t-as="st_front">
-        				<div class="col-lg-2 menu_grid" t-att-style="'background-color:black !important' if st_front.storefront_location_id.id == curent_storefront else ''">
-        					<a id="" t-att-href="keep('/shop/category/%s' % (slug(st_front)),category=0)" t-field="st_front.name" />
-        				</div>
-        			</t>
+                    <t t-foreach="vendor_categs" t-as="st_front">
+                        <div class="col-lg-2 menu_grid" t-att-style="'background-color:black !important' if st_front.storefront_location_id.id == curent_storefront else ''">
+                            <a id="" t-att-href="keep('/shop/category/%s' % (slug(st_front)),category=0)" t-field="st_front.name" />
+                        </div>
+                    </t>
                 </t>
             </xpath>
         </template> -->
 
-        <template id="my_account_link_vendor_user" name="Link to frontend portals" inherit_id="portal.my_account_link">
-            <xpath expr="//a[@class='dropdown-item']" position="attributes">
-                <attribute name="t-if">not request.env.user.has_group('scout_vendor.group_vendor_product')</attribute>
+<!--         <template id="my_account_link_vendor_user" name="Link to frontend portals" inherit_id="portal.my_account_link"> -->
+<!--             <xpath expr="//a[@class='dropdown-item']" position="attributes"> -->
+<!--                 <attribute name="t-if">not request.env.user.has_group('scout_vendor.group_vendor_product')</attribute> -->
+<!--             </xpath> -->
+<!--         </template> -->
+        
+        <template id="website_payment_templates_inherit_is_vendor" inherit_id="website_sale.payment">
+            <xpath expr="//div[@id='payment_method']" position="before">
+                <div t-if="international_vendor_shipping_methods or is_domestic_vendor_products" class="border border-secondary rounded" style="padding:15px;border-color:black !important;">
+	                <t t-if="is_domestic_vendor_products">
+	                        <div class="col-sm-12">
+	                            <span>
+	                                <b>Dropship Domestic Shipping and Handling Fees</b>
+	                            </span>
+	                            <span t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(vendor_domestic_fees)" style="float:right;"/>
+	                        </div>
+	                        <br/>
+	                        <br/>
+	                </t>
+	                <t t-if="international_vendor_shipping_methods">
+	                    <span><b>Dropship Delivery Methods for International Shipments</b></span>
+	                    <div class="card">
+	                        <t t-foreach="international_vendor_shipping_methods" t-as="shipping">
+	                            <div class="card_body">
+	                                <t t-set="cv_name" t-value="website_sale_order.get_country_by_code(shipping)"/>
+	                                <h4>Shipping From <t t-esc="cv_name"/></h4>
+	                                <t t-foreach="international_vendor_shipping_methods[shipping]" t-as="delivery_method">
+	                                    <div class="col-sm-12">
+	                                        <t t-if="shipping in order_delivery_track_lines_vendor_dict">
+	                                            <input type="radio" class="vendor_int_shippping" t-att-name="'int_ship_vendor' + shipping" t-att-id="delivery_method.id" 
+	                                            t-att-checked="'checked' if order_delivery_track_lines_vendor_dict[shipping][0] == delivery_method else None"/>
+	                                            <span t-esc="delivery_method.name"/>
+	                                            <span style="float:right;" class="vendor_delivery_price">
+	                                            <t t-if="order_delivery_track_lines_vendor_dict[shipping][0] == delivery_method">
+	                                                <t t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(order_delivery_track_lines_vendor_dict[shipping][1])"/>
+	                                            </t>
+	                                            </span>
+	                                        </t>
+	                                        <t t-else="">
+	                                            <input type="radio" class="vendor_int_shippping" t-att-name="'int_ship_vendor' + shipping" t-att-id="delivery_method.id"/>
+	                                            <span t-esc="delivery_method.name"/>
+	                                            <span style="float:right;" class="vendor_delivery_price"></span>
+	                                        </t>
+	                                    </div>
+	                                </t>
+	                            </div>
+	                            <br/>
+	                        </t>
+	                    </div>
+	                    <br/>
+	                    <br/>
+	                </t>
+	                <t t-if="international_vendor_shipping_methods or is_domestic_vendor_products">
+	                    <div class="col-sm-12">
+	                        <span>
+	                            <b>Dropship Total Shipping and Handling Fees</b>
+	                        </span>
+	                        <span t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(website_sale_order.vendor_amount_delivery)" style="float:right;"/>
+	                    </div>
+	                </t>
+                </div>
             </xpath>
         </template>
-
+        
+        <template id="cart_summary_vendor_inherit" name="Vendor Cart Summary" inherit_id="website_sale.cart_summary">
+            <xpath expr="//tbody" position="inside">
+                
+                   <tr t-foreach="website_sale_order.order_line" t-as="o_line">
+                        <t t-if="o_line.is_vendor_delivery_line">
+                               <td class='' colspan="2" t-if="not o_line.product_id.product_tmpl_id"></td>
+                               <td class='td-img' t-if="o_line.product_id.product_tmpl_id">
+                                   <span t-field="o_line.product_id.image_small" t-options="{'widget': 'image', 'class': 'rounded'}" />
+                               </td>
+                               <td class='td-product_name' t-if="o_line.product_id.product_tmpl_id">
+                                   <div>
+                                       <strong t-field="o_line.name" />
+                                   </div>
+                               </td>
+                               <td class='td-qty'>
+<!--                                    <div t-esc="o_line.product_uom_qty" /> -->
+                               </td>
+                               <td class="text-center td-price">
+                                   <span t-field="o_line.price_reduce_taxexcl" style="white-space: nowrap;" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}" groups="account.group_show_line_subtotals_tax_excluded" />
+                                   <span t-field="o_line.price_reduce_taxinc" style="white-space: nowrap;" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}" groups="account.group_show_line_subtotals_tax_included" />
+                               </td>
+                        </t>
+                  </tr>
+                
+            </xpath>
+        </template>
     </data>
 </odoo>

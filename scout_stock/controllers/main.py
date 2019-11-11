@@ -25,7 +25,7 @@ from odoo.addons.website_sale_coupon.controllers.main import WebsiteSale as Webs
 from odoo.addons.website_helpdesk.controllers.main import WebsiteHelpdesk
 from odoo.addons.website_form.controllers.main import WebsiteForm
 from odoo.addons.website_sale_delivery.controllers.main import WebsiteSaleDelivery
-
+from odoo.addons.portal.controllers.web import Home
 from lxml import etree, html
 import math
 import os
@@ -38,6 +38,21 @@ import requests
 
 PPG = 20  # Products Per Page
 PPR = 4   # Products Per Row
+
+
+
+
+class Home(Home):
+    @http.route()
+    def web_login(self, redirect=None, *args, **kw):
+        response = super(Home, self).web_login(redirect=redirect, *args, **kw)
+        if not redirect and request.params['login_success']:
+            if request.env['res.users'].browse(request.uid).has_group('base.group_user'):
+                redirect = b'/web?' + request.httprequest.query_string
+            else:
+                redirect = '/shop'
+            return http.redirect_with_hash(redirect)
+        return response
 
 
 class WebsiteSaleCountrySelect(WebsiteSale):
@@ -84,8 +99,8 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         
         order_delivery_track_lines_dict_new = {}
         for t_line in order_delivery_track_lines_dict:
-            
-            nso_delivery_line = order.order_line.filtered(lambda r:r.is_nso_delivery_line and r.name == t_line + ' NSO')
+            country_name = request.env['res.country'].sudo().search([('code','=',t_line)],limit=1)
+            nso_delivery_line = order.order_line.filtered(lambda r:r.is_nso_delivery_line and r.name == "Total Shipping and Handling Fees(" + country_name.name + ")")
             if nso_delivery_line:
                 order_delivery_track_lines_dict_new.update({
                                                             t_line : [order_delivery_track_lines_dict[t_line],nso_delivery_line.price_total]
@@ -116,7 +131,8 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         nso_delivery_lines.update({'delivery_charge':0.0})
         if partner_shipping_id:
             for line in order.order_line:
-                if line.product_id.public_categ_ids:
+                stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+                if line.product_id.public_categ_ids and not line.product_id.route_ids in stage_ids:
                     stock_country = self.get_stock_country(line.product_id.public_categ_ids)
                     if stock_country:
                         if stock_country == partner_shipping_id.country_id:
@@ -211,14 +227,13 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                   'carrier_id': domestic_carrier.id,
                                                                   'delivery_price':domestic_price,
                                                                   })
-            res.qcontext.update({'domestic_fees': domestic_price})
+            res.qcontext.update({'domestic_fees': round(domestic_price,2)})
         
         
         
         
         order_delivery_track_lines_dict = {}
-        order_delivery_track_lines = request.env['delivery.line.track'].sudo().search([('order_id','=',order.id)])
-        
+        order_delivery_track_lines = request.env['delivery.line.track'].sudo().search([('order_id','=',order.id),('is_vendor_track','=',False)])
         if order_delivery_track_lines:
             for track_line in order_delivery_track_lines:
                 order_delivery_track_lines_dict.update({track_line.country_id.code:track_line.carrier_id})
@@ -228,7 +243,6 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 shipping_lines = order.order_line.filtered(lambda r: r.location_id and r.location_id.nso_location_id.country_id == country_id)
                 if shipping_lines:
                     shipping_lines.update({'delivery_method':t_line.carrier_id})
-        
         order = request.website.sale_get_order()
         order.recalculate_nso_lines(order)
         order_new = request.website.sale_get_order()
@@ -304,19 +318,23 @@ class WebsiteSaleCountrySelect(WebsiteSale):
             delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
                                                                                         ('country_id','=',country_id.id),
                                                                                         ('order_id','=',order.id),
+                                                                                        ('is_vendor_track','=',False)
                                                                                         ],limit=1)
             if delivery_line_track_ids:
                 delivery_line_track_ids.update({
                                                 'carrier_id':carrier.id,
-                                                'delivery_price': delivery_price})
+                                                'delivery_price': delivery_price,
+                                                'is_vendor_track': False
+                                                })
             else:
                 request.env['delivery.line.track'].sudo().create({
                                                                   'country_id':country_id.id,
                                                                   'order_id' : order.id,
                                                                   'carrier_id': carrier.id,
                                                                   'delivery_price':delivery_price,
+                                                                  'is_vendor_track':False
                                                                   })
-        return {'delivery_price':delivery_price}
+        return {'delivery_price':round(delivery_price,2)}
     
     
     def _get_shop_payment_values(self, order, **kwargs):

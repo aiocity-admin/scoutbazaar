@@ -70,11 +70,11 @@
 	                               </td>
 	                               <td class='td-product_name' t-if="o_line.product_id.product_tmpl_id">
 	                                   <div>
-	                                       <strong t-field="o_line.name" />
+	                                       <strong t-field="o_line.name"/>
 	                                   </div>
 	                               </td>
 	                               <td class='td-qty'>
-	                                   <div t-esc="o_line.product_uom_qty" />
+<!-- 	                                   <div t-esc="o_line.product_uom_qty" /> -->
 	                               </td>
 	                               <td class="text-center td-price">
 	                                   <span t-field="o_line.price_reduce_taxexcl" style="white-space: nowrap;" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}" groups="account.group_show_line_subtotals_tax_excluded" />

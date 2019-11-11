@@ -23,13 +23,13 @@
     "version" : "12.0.0.2",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
-    "depends" : ['hr','hr_attendance','purchase','scout_stock'],
+    "depends" : ['hr','hr_attendance','purchase','stock_dropshipping'],
     'data': [
              'data/vendor_category.xml',
              'security/ir.model.access.csv',
              'views/vendor_product.xml',
-             'views/email_template.xml'
-             # 'views/website_vendor_templates.xml',
+             'views/email_template.xml',
+             'views/website_vendor_templates.xml',
              ],
     'demo':[],
     'installable': True,

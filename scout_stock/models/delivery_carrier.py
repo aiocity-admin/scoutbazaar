@@ -18,6 +18,19 @@ class UPSDeliveryCarrier(models.Model):
     shipping_range = fields.Selection([('local','Local'),('international','International')],string="Shipping Range")
     source_country_ids = fields.Many2many('res.country', string='Source Countries')
     
+    # Get vendor======================================
+    def get_stock_vendor(self,order,line):
+        partner_shipping_id = order.partner_shipping_id
+        partner_country_state = line.product_id.international_ids.filtered(lambda r: r.country_id == partner_shipping_id.country_id and r.state_id == partner_shipping_id.state_id)
+        if partner_country_state:
+            return partner_country_state
+        else:
+            partner_country = line.product_id.international_ids.filtered(lambda r: r.country_id == partner_shipping_id.country_id)
+            if partner_country:
+                return partner_country
+            else:
+                return line.product_id.international_ids[0]
+    
     def ups_rate_line_shipment(self, order,line):
         superself = self.sudo()
         srm = UPSRequest(self.log_xml, superself.ups_username, superself.ups_passwd, superself.ups_shipper_number, superself.ups_access_number, self.prod_environment)
@@ -53,8 +66,14 @@ class UPSDeliveryCarrier(models.Model):
             }
         else:
             cod_info = None
-        
-        check_value = srm.check_required_value(line.location_id.nso_location_id,line.location_id.nso_location_id, order.partner_shipping_id, order=order)
+        stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+        if not line.location_id and line.product_id.route_ids in stage_ids:
+            vendor = self.get_stock_vendor(order,line)
+            if vendor:
+                check_value = srm.check_required_value(vendor, vendor,order.partner_shipping_id, order=order)
+        else:
+            check_value = srm.check_required_value(line.location_id.nso_location_id,line.location_id.nso_location_id, order.partner_shipping_id, order=order)
+#         check_value = srm.check_required_value(line.location_id.nso_location_id,line.location_id.nso_location_id, order.partner_shipping_id, order=order)
         
         if check_value:
             return {'success': False,
@@ -63,10 +82,22 @@ class UPSDeliveryCarrier(models.Model):
                     'warning_message': False}
 
         ups_service_type = order.ups_service_type or self.ups_default_service_type
-        result = srm.get_shipping_price(
-            shipment_info=shipment_info, packages=packages, shipper=line.location_id.nso_location_id, ship_from=line.location_id.nso_location_id,
-            ship_to=order.partner_shipping_id, packaging_type=self.ups_default_packaging_id.shipper_package_code, service_type=ups_service_type,
-            saturday_delivery=self.ups_saturday_delivery, cod_info=cod_info)
+        
+        if not line.location_id and line.product_id.route_ids in stage_ids:
+            vendor = self.get_stock_vendor(order,line)
+            if vendor:
+                result = srm.get_shipping_price(
+                    shipment_info=shipment_info, packages=packages, shipper=vendor, ship_from=vendor,
+                    ship_to=order.partner_shipping_id, packaging_type=self.ups_default_packaging_id.shipper_package_code, service_type=ups_service_type,
+                    saturday_delivery=self.ups_saturday_delivery, cod_info=cod_info)
+            
+        else:
+            result = srm.get_shipping_price(
+                shipment_info=shipment_info, packages=packages, shipper=line.location_id.nso_location_id, ship_from=line.location_id.nso_location_id,
+                ship_to=order.partner_shipping_id, packaging_type=self.ups_default_packaging_id.shipper_package_code, service_type=ups_service_type,
+                saturday_delivery=self.ups_saturday_delivery, cod_info=cod_info)
+        
+        
         if result.get('error_message'):
             return {'success': False,
                     'price': 0.0,
@@ -78,8 +109,7 @@ class UPSDeliveryCarrier(models.Model):
         else:
             quote_currency = ResCurrency.search([('name', '=', result['currency_code'])], limit=1)
             price = quote_currency._convert(
-                float(result['price']), order.currency_id, order.company_id, order.date_order or fields.Date.today())
-
+                float(result['price']), order.currency_id, order.company_id,fields.Date.today())
         if self.ups_bill_my_account and order.ups_carrier_account:
             # Don't show delivery amount, if ups bill my account option is true
             price = 0.0
@@ -180,8 +210,17 @@ class UPSDeliveryCarrier(models.Model):
     def easypost_rate_line_shipment(self, order,line):
         """ Return the rates for a quotation/SO."""
         ep = EasypostRequest(self.easypost_production_api_key if self.prod_environment else self.easypost_test_api_key, self.log_xml)
-        response = ep.rate_request(self, order.partner_shipping_id, line.location_id.nso_location_id, order,picking=False,line=line)
+#         response = ep.rate_request(self, order.partner_shipping_id, line.location_id.nso_location_id, order,picking=False,line=line)
         # Return error message
+        response = False
+        stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+        if not line.location_id and line.product_id.route_ids in stage_ids:
+            vendor = self.get_stock_vendor(order,line)
+            if vendor:
+                response = ep.rate_request(self, order.partner_shipping_id, vendor, order,picking=False,line=line)
+        else:
+            response = ep.rate_request(self, order.partner_shipping_id, line.location_id.nso_location_id, order,picking=False,line=line)
+        
         if response.get('error_message'):
             return {
                 'success': False,

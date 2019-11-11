@@ -7,8 +7,13 @@
             <field name="model">stock.location</field>
             <field name="inherit_id" ref="stock.view_location_form"/>
             <field name="arch" type="xml">
+                <xpath  expr="//form/h2" position="after">
+                    <label for="is_store_nso"/>
+                    <field name="is_store_nso" string="Is Store NSO"/>
+                </xpath>
+                
                 <xpath  expr="//group//field[@name='barcode']" position="after">
-                    <field name="nso_location_id" string="NSO Location"/>
+                    <field name="nso_location_id" string="NSO Location" attrs="{'required': [('is_store_nso', '=', True)]}"/>
                 </xpath>
             </field>
         </record>

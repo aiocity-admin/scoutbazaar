@@ -17,4 +17,6 @@ class DeliveryLineTrack(models.Model):
     
     delivery_price = fields.Float('Delivery Price')
     
+    is_vendor_track = fields.Boolean(string="Is a Vendor track")
+    
     

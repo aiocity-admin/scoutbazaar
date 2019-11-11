@@ -45,7 +45,20 @@ class JTDeliveryCarrier(models.Model):
     
     big_size_price = fields.Float('Big Product Box Price')
     
-    
+    # Get vendor======================================
+    def get_stock_vendor_jt(self,order,line):
+        partner_shipping_id = order.partner_shipping_id
+        partner_country_state = line.product_id.international_ids.filtered(lambda r: r.country_id == partner_shipping_id.country_id and r.state_id == partner_shipping_id.state_id)
+        if partner_country_state:
+            return partner_country_state
+        else:
+            partner_country = line.product_id.international_ids.filtered(lambda r: r.country_id == partner_shipping_id.country_id)
+            if partner_country:
+                return partner_country
+            else:
+                return line.product_id.international_ids[0]
+            
+            
     
     def get_maximum_shipping_rate(self,origin_id,destination_id,total_weight_remaining):
         shipping_rates = self.env['jt.shipping.rates'].sudo().search([
@@ -127,6 +140,11 @@ class JTDeliveryCarrier(models.Model):
         total_rate =0.0
         big_product_price = order.carrier_id.big_size_price
         for line in line:
+            stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+            if not line.location_id and line.product_id.route_ids in stage_ids:
+                vendor = self.get_stock_vendor_jt(order,line)
+                if vendor:
+                    origin_id = vendor.state_id
             if line.location_id.state_id:
                 origin_id = line.location_id.state_id
             total_weight += (line.product_id.weight * line.product_uom_qty)
