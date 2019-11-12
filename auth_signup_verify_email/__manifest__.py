@@ -20,7 +20,9 @@
         ],
     },
     "data": [
+        "data/auth_signup_template.xml",
         "views/signup.xml",
     ],
     'installable': True,
+    'post_init_hook':'post_init_hook',
 }
