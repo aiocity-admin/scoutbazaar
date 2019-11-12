@@ -25,7 +25,7 @@ class SaleOrderLine(models.Model):
                     if template_id:
                         template_id.sudo().write({
                           'email_to': str(partner.email),
-                          'email_from': 'devteam.geminatec@gmail.com',
+                          'email_from': template_id.email_from,
                         })
                         a = template_id.with_context({'location_id':location_id,'name':location.name}).send_mail(order.id, force_send=True, raise_exception=False)
     

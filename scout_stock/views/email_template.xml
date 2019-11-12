@@ -5,6 +5,7 @@
         <field name="subject">Order Line : Send by email</field>
         <field name="model_id" ref="sale.model_sale_order"/>
         <field name="auto_delete" eval="True"/>
+        <field name="email_from">orders@scoutbazaar.com</field>
         <field name="body_html" type="html">
             <div>
                <p>Hello
