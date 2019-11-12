@@ -9,13 +9,13 @@
                 <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
                     <field name="location_id"/>
                     <field name="delivery_method"/>
-                    <field name="delivery_charge"/>
+                    <field name="delivery_charge" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
                     <field name="location_id" options="{'no_create':True}"/>
-                    <field name="delivery_charge"/>
+                    <field name="delivery_charge" invisible="1"/>
                     <field name="delivery_method" options="{'no_create':True}"/>
-                    <field name="line_delivery_message"/>
+                    <field name="line_delivery_message" invisible="1"/>
                 </xpath>
             </field>
         </record>

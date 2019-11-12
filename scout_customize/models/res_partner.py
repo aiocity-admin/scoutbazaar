@@ -28,13 +28,15 @@ class Respartner(models.Model):
     
     school_list_ids = fields.Many2many("school.list" ,string="School")
     
-
+    boy_scout =fields.Selection([('cub_scout','Cub Scout '),
+                                               ('boy_scout','Boy Scout')],string='Boy Scout',)
     
-class ProductTemplate(models.Model):
-
-    _inherit = 'product.template'
-    
-    school_list_ids = fields.Many2many("school.list" ,string="School Scout")
-    scout_program_id = fields.Many2one('scout.program',string="Scout Program")
+    scout_user_rank =fields.Selection([('cub','Cub'),
+                                          ('scout','Scout'),
+                                          ('den_master','Den Master '),
+                                          ('scout_master','Scout Master'),
+                                          ('patrol_leader','Patrol Leader'),
+                                          ('troop_leader','Troop Leader ')
+                                          ],string='Boy/Girl Scout User Rank',)
     
   

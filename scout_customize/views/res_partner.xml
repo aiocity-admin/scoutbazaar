@@ -11,6 +11,8 @@
                     <group>
                         <group>
                             <field name="school_list_ids" widget='many2many_tags'/>
+                            <field name="boy_scout"/>
+                            <field name="scout_user_rank"/>
                         </group>
                     </group>
                 </page>

@@ -97,32 +97,15 @@ class VendorPage(WebsiteSale):
                     stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
                     if not o_line.location_id and o_line.product_id.route_ids in stage_ids:
                         vendor = self.get_stock_vendor(order,o_line)
-                        if vendor.country_id.code == 'PH' and order.partner_shipping_id.country_id.code == 'PH':
-                            delivery_carrier = request.env['delivery.carrier'].search([('delivery_type','=','base_on_jt_configuration')],limit=1)
-                            if delivery_carrier:
-                                res_price = delivery_carrier.base_on_jt_configuration_rate_shipment(order,o_line)
-                                if not res_price.get('error_message'):
-                                    is_domestic_vendor_products = True
-                                    domestic_vendor_carrier = delivery_carrier
-                                    currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
-                                    if currency:
-                                        if order.currency_id != order.company_id.currency_id:
-                                            payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
-                                    handling_price = (res_price.get('price') *handling_charge)/100
-                                    temp_price = payment_processing_fee + ((transaction_value/100) * (o_line.price_total + res_price.get('price') + handling_price))
-                                    domestic_vendor_price += (res_price.get('price') + temp_price)
-                                    o_line.write({
-                                                'delivery_method':delivery_carrier.id,
-                                                'delivery_charge':res_price.get('price') + temp_price
-                                                })
-                                    order.calculate_vendor_lines(order)
-                        elif vendor.country_id.code == 'HK' and order.partner_shipping_id.country_id.code == 'HK':
-                            delivery_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
+                        if vendor.country_id == order.partner_shipping_id.country_id:
+                            delivery_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','local')],limit=1)
+                            if not delivery_carrier:
+                                delivery_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','international')],limit=1)
                             if delivery_carrier:
                                 res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,o_line)
                                 if not res_price.get('error_message'):
-                                    domestic_vendor_carrier = delivery_carrier
                                     is_domestic_vendor_products = True
+                                    domestic_vendor_carrier = delivery_carrier
                                     currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
                                     if currency:
                                         if order.currency_id != order.company_id.currency_id:
@@ -178,6 +161,7 @@ class VendorPage(WebsiteSale):
         order.recalculate_vendor_lines(order)
         order_new = request.website.sale_get_order()
         order_delivery_track_lines_vendor_dict = self.prepare_international_shipping_vendor_dict(order,order_delivery_track_lines_vendor_dict)
+        order._compute_website_order_line()
         res.qcontext.update({
                              'is_domestic_vendor_products':is_domestic_vendor_products,
                              'international_vendor_shipping_methods':international_vendor_shipping_methods,

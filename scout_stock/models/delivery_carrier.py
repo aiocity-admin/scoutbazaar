@@ -31,6 +31,23 @@ class UPSDeliveryCarrier(models.Model):
             else:
                 return line.product_id.international_ids[0]
     
+    
+    def fixed_rate_line_shipment(self, order,line):
+        carrier = self._match_address(order.partner_shipping_id)
+        if not carrier:
+            return {'success': False,
+                    'price': 0.0,
+                    'error_message': _('Error: this delivery method is not available for this address.'),
+                    'warning_message': False}
+        price = self.fixed_price
+        if self.company_id and self.company_id.currency_id.id != order.currency_id.id:
+            price = self.env['res.currency']._compute(self.company_id.currency_id, order.currency_id, price)
+        return {'success': True,
+                'price': price,
+                'error_message': False,
+                'warning_message': False,
+                'currency_code':order.currency_id.name}
+    
     def ups_rate_line_shipment(self, order,line):
         superself = self.sudo()
         srm = UPSRequest(self.log_xml, superself.ups_username, superself.ups_passwd, superself.ups_shipper_number, superself.ups_access_number, self.prod_environment)

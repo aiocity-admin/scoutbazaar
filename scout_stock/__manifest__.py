@@ -12,6 +12,7 @@
     'data': ['security/ir.model.access.csv',
              'data/res_config_demo.xml',
              'views/scout_stock.xml',
+             'views/product_product_views.xml',
              'views/res_partner_NSO.xml',
              'views/sale_order_view.xml',
              'views/email_template.xml',

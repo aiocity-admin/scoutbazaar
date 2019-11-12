@@ -92,6 +92,24 @@ class WebsiteEventController(WebsiteEventController):
             res.qcontext.update({'event_ids':events_new,'dates':dates})
         return res
     
+    
+    @http.route(['/event/<model("event.event"):event>/registration/new'], type='json', auth="public", methods=['POST'], website=True)
+    def registration_new(self, event, **post):
+        tickets = self._process_tickets_details(post)
+        order = request.website.sale_get_order(force_create=True)
+        if order and order.order_line:
+            for line in order.order_line:
+                    if line.event_ok:
+                        if not tickets:
+                            return False
+                        return request.env['ir.ui.view'].render_template("website_event.registration_attendee_details", {'tickets': tickets, 'event': event})
+                    else:
+                        return request.env['ir.ui.view'].render_template('scout_customize.my_event_details')
+        else:
+            if not tickets:
+                return False
+            return request.env['ir.ui.view'].render_template("website_event.registration_attendee_details", {'tickets': tickets, 'event': event})
+    
 class WebsiteSaleSelecteEventOrder(WebsiteSale):
     
     #Orderline Event Filters======================================

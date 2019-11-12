@@ -175,7 +175,7 @@ class JTDeliveryCarrier(models.Model):
             
         return total_delivery_cost
     
-    def base_on_jt_configuration_rate_shipment(self, order, line):
+    def base_on_jt_configuration_rate_line_shipment(self, order, line):
         carrier = self._match_address(order.partner_shipping_id)
         currency = self.env['res.currency'].sudo().search([('name','=','PHP')])
         if not carrier:

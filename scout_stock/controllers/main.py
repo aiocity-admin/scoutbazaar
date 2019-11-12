@@ -133,36 +133,28 @@ class WebsiteSaleCountrySelect(WebsiteSale):
             for line in order.order_line:
                 stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
                 if line.product_id.public_categ_ids and not line.product_id.route_ids in stage_ids:
-                    stock_country = self.get_stock_country(line.product_id.public_categ_ids)
-                    if stock_country:
-                        if stock_country == partner_shipping_id.country_id:
-                            orderlines_country_grouping.update({stock_country:False})
-                            if partner_shipping_id.state_id:
-                                ss_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id),('state_ids','in',partner_shipping_id.state_id.id)],limit=1)
-                                if ss_id:
-                                    if not line.product_id.type == 'service':
-                                        line.location_id = ss_id.location_id
-                                else:
-                                    sco_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id)],limit=1)
-                                    if sco_id:
-                                        if not line.product_id.type == 'service':
-                                            line.location_id = sco_id.location_id
-                            else:
-                                scou_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id)],limit=1)
-                                if scou_id:
-                                    if not line.product_id.type == 'service':
-                                        line.location_id = scou_id.location_id
-                        else:
-                            orderlines_country_grouping.update({stock_country:True})
-                            sc_id = request.env['scout.stock'].sudo().search([('country_id','=',stock_country.id)],limit=1)
-                            if sc_id:
-                                if not line.product_id.type == 'service':
-                                    line.location_id = sc_id.location_id
-                                    
+                    stock_locations = request.env['stock.location'].sudo().search([('nso_location_id','=',line.product_id.nso_partner_id.id)])
+                    if stock_locations:
+                        stock_scout_loc = request.env['scout.stock'].sudo().search([('location_id','in',stock_locations.ids)])
+                        if stock_scout_loc:
+                            for ss_id in stock_scout_loc:
+                                if partner_shipping_id.state_id.id in ss_id.state_ids.ids and partner_shipping_id.country_id == ss_id.country_id:
+                                    line.location_id = ss_id.location_id
+                            
+                            if not line.location_id:
+                                stock_scout_country_filter = stock_scout_loc.filtered(lambda r:r.country_id == partner_shipping_id.country_id)
+                                if stock_scout_country_filter:
+                                    line.location_id = stock_scout_country_filter[0].location_id
+                            
+                            if not line.location_id:
+                                line.location_id = stock_scout_loc[0].location_id
                         
+                        if line.location_id.nso_location_id.country_id == partner_shipping_id.country_id:
+                            orderlines_country_grouping.update({line.location_id.nso_location_id.country_id:False})
+                        else:
+                            orderlines_country_grouping.update({line.location_id.nso_location_id.country_id:True})
         order = request.website.sale_get_order()
         for line_group in orderlines_country_grouping:
-            
             if orderlines_country_grouping[line_group]:
                 delivery_methods = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[line_group.id]),('shipping_range','=','international')])
                 if delivery_methods:
@@ -171,46 +163,27 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 for o_line in order.order_line:
                     if o_line.location_id:
                         if o_line.location_id.nso_location_id.country_id == order.partner_shipping_id.country_id:
-                            if order.partner_shipping_id.country_id.code == 'PH':
-                                delivery_carrier = request.env['delivery.carrier'].sudo().search([('delivery_type','=','base_on_jt_configuration')],limit=1)
-                                if delivery_carrier:
-                                    res_price = delivery_carrier.base_on_jt_configuration_rate_shipment(order,o_line)
-                                    if not res_price.get('error_message'):
-                                        is_domestic_products = True
-                                        domestic_carrier = delivery_carrier
-                                        currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
-                                        if currency:
-                                            if order.currency_id != order.company_id.currency_id:
-                                                payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
-                                        handling_price = (res_price.get('price') *handling_charge)/100
-                                        temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
-                                        domestic_price += (res_price.get('price') + temp_price)
-                                        o_line.write({
-                                                    'delivery_method':delivery_carrier.id,
-                                                    'delivery_charge':res_price.get('price') + temp_price
-                                                    })
-                                        order.calculate_nso_lines(order)
-                            elif order.partner_shipping_id.country_id.code == 'HK':
-                                delivery_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
-                                if delivery_carrier:
-                                    res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,o_line)
-                                    if not res_price.get('error_message'):
-                                        domestic_carrier = delivery_carrier
-                                        is_domestic_products = True
-                                        currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
-                                        if currency:
-                                            if order.currency_id != order.company_id.currency_id:
-                                                payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
-                                        handling_price = (res_price.get('price') *handling_charge)/100
-                                        
-                                        temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
-                                        domestic_price += (res_price.get('price') + temp_price)
-                                        o_line.write({
-                                                    'delivery_method':delivery_carrier.id,
-                                                    'delivery_charge':res_price.get('price') + temp_price
-                                                    })
-                                        order.calculate_nso_lines(order)
-        
+                            delivery_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','local')],limit=1)
+                            if not delivery_carrier:
+                                delivery_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','international')],limit=1)
+                            if delivery_carrier:
+                                res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,o_line)
+                                if not res_price.get('error_message'):
+                                    is_domestic_products = True
+                                    domestic_carrier = delivery_carrier
+                                    currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
+                                    if currency:
+                                        if order.currency_id != order.company_id.currency_id:
+                                            payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
+                                    handling_price = (res_price.get('price') *handling_charge)/100
+                                    temp_price = payment_processing_fee + ((transaction_value/100) * (o_line.price_total + res_price.get('price') + handling_price))
+                                    domestic_price += (res_price.get('price') + temp_price)
+                                    o_line.write({
+                                                'delivery_method':delivery_carrier.id,
+                                                'delivery_charge':res_price.get('price') + temp_price
+                                                })
+                                    order.calculate_nso_lines(order)
+                                    
         if is_domestic_products:
             delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
                                                                                         ('country_id','=',order.partner_shipping_id.country_id.id),
@@ -218,7 +191,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                                         ],limit=1)
             if delivery_line_track_ids:
                 delivery_line_track_ids.update({
-                                                'delivery_price': domestic_price
+                                                'delivery_price': round(domestic_price,2)
                                                 })
             else:
                 request.env['delivery.line.track'].sudo().create({
@@ -334,7 +307,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                   'delivery_price':delivery_price,
                                                                   'is_vendor_track':False
                                                                   })
-        return {'delivery_price':round(delivery_price,2)}
+        return {'delivery_price':order.currency_id.symbol + str(round(delivery_price,2))}
     
     
     def _get_shop_payment_values(self, order, **kwargs):

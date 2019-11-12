@@ -14,8 +14,7 @@ from odoo.addons.http_routing.models.ir_http import slug
 
 
 class CustomerPortal(CustomerPortal):
-    
-    MANDATORY_BILLING_FIELDS = ["name", "phone", "email", "street", "city", "country_id","school_list_ids"]
+    MANDATORY_BILLING_FIELDS = ["name", "phone", "email", "street", "city", "country_id","school_list_ids","boy_scout","scout_user_rank"]
     @http.route('/my/account', type='http', auth='user', website=True)
     def account(self, redirect=None, **post):
 
@@ -46,6 +45,8 @@ class CustomerPortal(CustomerPortal):
         states = request.env['res.country.state'].sudo().search([])
         school_ids = request.env['school.list'].sudo().search([])
         select_school_ids = partner.school_list_ids.ids
+        select_boy_scout = partner.boy_scout
+        partner_scout_user_rank = partner.scout_user_rank
 
         values.update({
             'partner': partner,
@@ -56,13 +57,12 @@ class CustomerPortal(CustomerPortal):
             'page_name': 'my_details',
             'school_ids': school_ids,
             'select_school_ids':select_school_ids,
+            'select_boy_scout':select_boy_scout,
+            'partner_scout_user_rank':partner_scout_user_rank,
         })
-
         response = request.render("portal.portal_my_details", values)
         response.headers['X-Frame-Options'] = 'DENY'
         return response
-    
-    
     
     def details_form_validate(self, data):
         res = super(CustomerPortal,self).details_form_validate(data)

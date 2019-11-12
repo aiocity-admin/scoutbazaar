@@ -9,6 +9,10 @@ class ProductTemplate(models.Model):
     
     _inherit='product.template'
     
+    
+    school_list_ids = fields.Many2many("school.list" ,string="School Scout")
+    scout_program_id = fields.Many2one('scout.program',string="Scout Program")
+    
     @api.one
     def _set_weight(self):
         if len(self.product_variant_ids) == 1:

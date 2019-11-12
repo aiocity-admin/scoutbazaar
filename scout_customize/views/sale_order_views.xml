@@ -5,14 +5,14 @@
     <field name="inherit_id" ref="sale.view_order_form"/>
     <field name="arch" type="xml">
         <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
-            <field name="is_gift_cart"/>
-            <field name="is_set_multi_gift"/>
-            <field name="gift_cart_email"/>
+            <field name="is_gift_cart" invisible="1"/>
+            <field name="is_set_multi_gift" invisible="1"/>
+            <field name="gift_cart_email" invisible="1"/>
         </xpath>
         <xpath expr="//field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
-            <field name="is_gift_cart"/>
-            <field name="is_set_multi_gift"/>
-            <field name="gift_cart_email"/>
+            <field name="is_gift_cart" invisible="1"/>
+            <field name="is_set_multi_gift" invisible="1"/>
+            <field name="gift_cart_email" attrs="{'invisible':[('is_gift_cart','=',False)]}"/>
         </xpath>
     </field>
   </record>

@@ -301,4 +301,49 @@
     	</xpath>
     </template>
     
+    
+     <!--================== Product Filter -->
+
+
+    <!-- //rajesh 4 nov -->
+    <template id="product_program_scout" inherit_id="website_sale.products_attributes" name="Product Attribute's Filters">
+        <xpath expr="//div[@id='products_grid_before']//form[hasclass('js_attributes')]/ul" position="after">
+            
+                <h2 class="scout_program" style="top:7px">Scout Program</h2>
+            <t t-if="scout_programs">
+                <t t-set="program_section_open" t-value="False"/>
+                <t t-foreach="scout_programs" t-as="program">
+                    <t t-if="program.id == int(current_program)">
+                        <t t-set="program_section_open" t-value="True"/>
+                    </t>
+                </t>
+                <div class="row">
+                    
+                    <div class="col-lg-6">
+                        <ul class="nav nav-pills nav-stacked">
+                            <t t-foreach="scout_programs" t-as="program">
+                                <li t-att-class="'active' if program.id == int(current_program) else None">
+                                    <label style="margin:0 20px;">
+                                    <input type="checkbox" name="scout_program" t-att-id="program.id" t-att-value="program.id" t-att-checked="'checked' if program.id == int(current_program) else None"/>
+                                    <span t-esc="program.name"/>
+                                    </label>
+                                </li>
+                            </t>
+                        </ul>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <t t-if="program_section_open">
+                            <span class="clear_program_filter" style="color:red;cursor:pointer;">
+                                <i class="fa fa-times"/>Clear
+                            </span>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </xpath> 
+    </template>
+    <!-- //rajesh 4 nov -->
+    <!--================== Product Filter -->
+    
 </odoo>

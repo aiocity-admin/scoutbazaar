@@ -110,45 +110,45 @@ class SaleOrder(models.Model):
         else:
             return ''
     
-    def _check_order_line_carrier(self, order):
-        self.ensure_one()
-        carrier = False
-        DeliveryCarrier = self.env['delivery.carrier']
-        for line in order.order_line:
-            if line.location_id:
-                if not line.product_id.type == 'service':
-                    
-                    if order.partner_shipping_id.country_id.code == line.location_id.nso_location_id.country_id.code:
-                        if order.partner_shipping_id.country_id.code == 'PH':
-                            line.delivery_method = False
-                            carrier = self.env['delivery.carrier'].sudo().search([('delivery_type','=','base_on_jt_configuration')],limit=1)
-                            line.delivery_method = carrier.id
-                            line.delivery_charge = False
-        #                     price_jt = line.delivery_method._get_jt_order_line_price(order,line)
-                            price_jt = line.delivery_method.base_on_jt_configuration_rate_shipment(order,line)
-                            if price_jt['success']:
-                                line.delivery_charge = price_jt['price']
-                                line.line_delivery_message = price_jt['warning_message']
-                            else:
-                                line.delivery_price = 0.0
-                                line.line_delivery_message = price_jt['error_message']
-                        
-#                         elif order.partner_shipping_id.country_id.code == 'HK':
+#     def _check_order_line_carrier(self, order):
+#         self.ensure_one()
+#         carrier = False
+#         DeliveryCarrier = self.env['delivery.carrier']
+#         for line in order.order_line:
+#             if line.location_id:
+#                 if not line.product_id.type == 'service':
+#                     
+#                     if order.partner_shipping_id.country_id.code == line.location_id.nso_location_id.country_id.code:
+#                         if order.partner_shipping_id.country_id.code == 'PH':
 #                             line.delivery_method = False
-#                             carrier = self.env['delivery.carrier'].sudo().search([('name','=','j&T Express')],limit=1)
+#                             carrier = self.env['delivery.carrier'].sudo().search([('delivery_type','=','base_on_jt_configuration')],limit=1)
 #                             line.delivery_method = carrier.id
-                    else:
-                        line.delivery_method = False
-                        carrier = self.env['delivery.carrier'].sudo().search([('name','=','UPS International'),('source_country_ids','in',[line.location_id.nso_location_id.country_id.id])],limit=1)
-                        line.delivery_method = carrier.id
-                        line.delivery_charge = False
-                        res = line.delivery_method.ups_rate_line_shipment(order,line)
-                        if res['success']:
-                            line.delivery_charge = res['price']
-                            line.line_delivery_message = res['warning_message']
-                        else:
-                            line.delivery_price = 0.0
-                            line.line_delivery_message = res['error_message']
+#                             line.delivery_charge = False
+#         #                     price_jt = line.delivery_method._get_jt_order_line_price(order,line)
+#                             price_jt = line.delivery_method.base_on_jt_configuration_rate_shipment(order,line)
+#                             if price_jt['success']:
+#                                 line.delivery_charge = price_jt['price']
+#                                 line.line_delivery_message = price_jt['warning_message']
+#                             else:
+#                                 line.delivery_price = 0.0
+#                                 line.line_delivery_message = price_jt['error_message']
+#                         
+# #                         elif order.partner_shipping_id.country_id.code == 'HK':
+# #                             line.delivery_method = False
+# #                             carrier = self.env['delivery.carrier'].sudo().search([('name','=','j&T Express')],limit=1)
+# #                             line.delivery_method = carrier.id
+#                     else:
+#                         line.delivery_method = False
+#                         carrier = self.env['delivery.carrier'].sudo().search([('name','=','UPS International'),('source_country_ids','in',[line.location_id.nso_location_id.country_id.id])],limit=1)
+#                         line.delivery_method = carrier.id
+#                         line.delivery_charge = False
+#                         res = line.delivery_method.ups_rate_line_shipment(order,line)
+#                         if res['success']:
+#                             line.delivery_charge = res['price']
+#                             line.line_delivery_message = res['warning_message']
+#                         else:
+#                             line.delivery_price = 0.0
+#                             line.line_delivery_message = res['error_message']
     
     def calculate_nso_lines(self,order):
         sale_order_line_obj = self.env['sale.order.line'].sudo()
@@ -191,41 +191,24 @@ class SaleOrder(models.Model):
         for line in order.order_line:
             if line.location_id:
                 if line.location_id.nso_location_id.country_id == order.partner_shipping_id.country_id:
-                    if order.partner_shipping_id.country_id.code == 'PH':
-                            delivery_carrier = self.env['delivery.carrier'].search([('delivery_type','=','base_on_jt_configuration')],limit=1)
-                            if delivery_carrier:
-                                res_price = delivery_carrier.base_on_jt_configuration_rate_shipment(order,line)
-                                if not res_price.get('error_message'):
-                                    
-                                    currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
-                                    if currency:
-                                        if order.currency_id != order.company_id.currency_id:
-                                            payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
-                                    handling_price = (res_price.get('price') *handling_charge)/100
-                                    temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
-                                    line.write({
-                                                'delivery_method':delivery_carrier.id,
-                                                'delivery_charge':res_price.get('price') + temp_price
-                                                })
-                                    order.calculate_nso_lines(order)
-                    elif order.partner_shipping_id.country_id.code == 'HK':
-                        delivery_carrier = self.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('delivery_type','=','easypost')],limit=1)
-                        if delivery_carrier:
-                            res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,line)
-                            if not res_price.get('error_message'):
-                                domestic_carrier = delivery_carrier
-                                currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
-                                if currency:
-                                    if order.currency_id != order.company_id.currency_id:
-                                        payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
-                                handling_price = (res_price.get('price') *handling_charge)/100
-                                temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
-                                line.write({
-                                            'delivery_method':delivery_carrier.id,
-                                            'delivery_charge':res_price.get('price') + temp_price
-                                            })
-                                order.calculate_nso_lines(order)
-                         
+                    delivery_carrier = self.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','local')],limit=1)
+                    if not delivery_carrier:
+                        delivery_carrier = self.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','international')],limit=1)
+                    if delivery_carrier:
+                        res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,line)
+                        if not res_price.get('error_message'):
+                            
+                            currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
+                            if currency:
+                                if order.currency_id != order.company_id.currency_id:
+                                    payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
+                            handling_price = (res_price.get('price') *handling_charge)/100
+                            temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
+                            line.write({
+                                        'delivery_method':delivery_carrier.id,
+                                        'delivery_charge':res_price.get('price') + temp_price
+                                        })
+                            order.calculate_nso_lines(order)
                 else:
                     country_code = line.location_id.nso_location_id.country_id.code
                     carrier = line.delivery_method if line.delivery_method else False  
@@ -247,7 +230,7 @@ class SaleOrder(models.Model):
                                             if order.currency_id != order.company_id.currency_id:
                                                 payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
                                         handling_price = (res.get('price') *handling_charge)/100
-                                        temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res.get('price') + handling_price))
+                                        temp_price = payment_processing_fee + ((transaction_value/100) * (so_line.price_total + res.get('price') + handling_price))
                                         lines_to_change.update({so_line:res.get('price') + temp_price})
                                         delivery_price += (res.get('price') + temp_price)
                                          
