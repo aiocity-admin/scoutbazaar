@@ -11,7 +11,7 @@
 					<script type="text/javascript" src="/scout_stock/static/src/js/jquery.form.js"/>
 					<script type="text/javascript" src="/scout_stock/static/src/js/jquery-confirm.min.js"/>
 					<script type="text/javascript" src="/scout_stock/static/src/js/onchage_paynow.js"/>
-					<script type="text/javascript" src="/scout_stock/static/src/js/website_payment_button.js"></script>
+<!-- 					<script type="text/javascript" src="/scout_stock/static/src/js/website_payment_button.js"></script> -->
                 </xpath>
             </template>
             
