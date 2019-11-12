@@ -15,8 +15,8 @@ class VendorUsers(models.Model):
     
     vendor_user_product = fields.Many2one('res.users',string='Vendor User', default=lambda self: self.env.user)
     vendor_user_partner_id = fields.Many2one('res.partner',related="vendor_user_product.partner_id")
-    international_ids = fields.Many2many('res.partner',string="International Domestic") 
-    # is_vendor_product = fields.Boolean('Is Vendor Product')
+    international_ids = fields.Many2many('res.partner',string="International locations") 
+    is_vendor_product = fields.Boolean('Is Vendor Product')
 
     @api.model_create_multi
     def create(self,vals_list):

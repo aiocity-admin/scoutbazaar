@@ -5,11 +5,17 @@
 	        <field name="model">product.template</field>
 	        <field name="inherit_id" ref="product.product_template_only_form_view"/>
 	        <field name="arch" type="xml">
+	        <xpath expr="//field[@name='purchase_ok']" position="before">
+		        <div>
+		            <field name="is_vendor_product"/>
+		            <label for="is_vendor_product" string="Is Vendor Product"/>
+		        </div>
+       		</xpath>
 	        <xpath expr="//field[@name='categ_id']" position="after">
-                <field name="vendor_user_product"/>
+                <field name="is_vendor_product" invisible="1"/>
+                <field name="vendor_user_product" attrs="{'invisible': [('is_vendor_product','=',False)]}"/>
                 <field name="vendor_user_partner_id" invisible="1"/>
-                <field name="international_ids" widget="many2many_tags" domain="[('parent_id', '=', vendor_user_partner_id)]" options="{'no_create': True}"/>
-                <!-- <field name="is_vendor_product"/> -->
+                <field name="international_ids" widget="many2many_tags" domain="[('parent_id', '=', vendor_user_partner_id)]" options="{'no_create': True}" attrs="{'invisible': [('is_vendor_product','=',False)]}"/>
            </xpath>
 	        </field>
     	</record>
