@@ -34,7 +34,7 @@ import uuid
 import werkzeug
 import json
 import requests
-
+_logger = logging.getLogger(__name__)
 
 PPG = 20  # Products Per Page
 PPR = 4   # Products Per Row
@@ -262,11 +262,12 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
         transaction_value = res_config.transaction_value
-        
+        _logger.warning('1============================ %s %s %s %s ',carrier,handling_charge,payment_processing_fee,transaction_value)
         for line in order.order_line:
             if line.location_id:
                 if line.location_id.nso_location_id.country_id.code == country_code:
                     res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,line)
+                    _logger.warning('2============================ %s',res)
                     if res.get('error_message'):
                         return res.get("error_message")
                     else:
@@ -278,7 +279,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                         temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res.get('price') + handling_price))
                         lines_to_change.update({line:res.get('price') + temp_price})
                         delivery_price += (temp_price + res.get('price'))
-                        
+        _logger.warning('3============================ %s',delivery_price)               
         if lines_to_change:
             for change_line in lines_to_change:
                 line_id = request.env['sale.order.line'].sudo().browse(change_line.id)
@@ -307,6 +308,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                   'delivery_price':delivery_price,
                                                                   'is_vendor_track':False
                                                                   })
+        _logger.warning('4============================ %s',delivery_line_track_ids)
         return {'delivery_price':order.currency_id.symbol + str(round(delivery_price,2))}
     
     
