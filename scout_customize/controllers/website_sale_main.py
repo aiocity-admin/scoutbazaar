@@ -45,6 +45,7 @@ class WebsiteSaleScout(WebsiteSale):
         res = super(WebsiteSaleScout, self).shop(
                 page, category, search, ppg, **post)
         
+        
         self.toggle_views()
         if category:
             request.session['my_current_category'] = category.id
@@ -59,7 +60,118 @@ class WebsiteSaleScout(WebsiteSale):
                         return request.redirect(keep('/shop/category/%s' % slug(current_sc_id),category=0))
                     else:
                         return request.render('scout_customize.not_category_msg')
+
+
+        # //rajesh 4 nov
+
+        if not request.env.user._is_public():
+            partner = request.env.user.partner_id
+            
+            if category:
+                school_ids = request.env['product.template'].sudo().search([('school_list_ids','in', partner.school_list_ids.ids),('public_categ_ids','=',category.id)])
+                school_ids_not = request.env['product.template'].sudo().search([('school_list_ids','=', False),('public_categ_ids','=',category.id)])
+                products = school_ids + school_ids_not
+                if products and not request.env.user._is_public():
+                    partner = request.env.user.partner_id
+                    restricted_products = []
+                    products_new = False
+                    if partner.school_list_ids:
+                        products_order_by = request.env['product.template'].search([('school_list_ids','in',partner.school_list_ids.ids)])
+                        if products_order_by and school_ids:
+                            product_new_list = []
+                            product_old_list = []
+                            for product in products:
+                                if product in products_order_by:
+                                    product_new_list.append(product.id)
+                                else:
+                                    product_old_list.append(product.id)
+                            products_new = request.env['product.template'].browse(product_new_list)
+                            products_new |= request.env['product.template'].browse(product_old_list)
+                            if ppg:
+                                try:
+                                    ppg = int(ppg)
+                                except ValueError:
+                                    ppg = PPG
+                                post["ppg"] = ppg
+                            else:
+                                ppg = PPG
+                                
+                        else:
+                            products_new = products
+                            
+                    else:
+                        products_new = products
+                            
+                    if restricted_products:
+                        products_new = products_new.filtered(lambda p:p.id not in restricted_products)
+                    
+                else:
+                    return False    
+
+            else:
+                school_ids = request.env['product.template'].sudo().search([('school_list_ids','in', partner.school_list_ids.ids)])
+                school_ids_not = request.env['product.template'].sudo().search([('school_list_ids','=', False)])
+                products = school_ids + school_ids_not
+                if products and not request.env.user._is_public():
+                    partner = request.env.user.partner_id
+                    restricted_products = []
+                    products_new = False
+                    if partner.school_list_ids:
+                        products_order_by = request.env['product.template'].search([('school_list_ids','in',partner.school_list_ids.ids)])
+                        if products_order_by and school_ids:
+                            product_new_list = []
+                            product_old_list = []
+                            for product in products:
+                                if product in products_order_by:
+                                    product_new_list.append(product.id)
+                                else:
+                                    product_old_list.append(product.id)
+                            products_new = request.env['product.template'].browse(product_new_list)
+                            products_new |= request.env['product.template'].browse(product_old_list)
+                            if ppg:
+                                try:
+                                    ppg = int(ppg)
+                                except ValueError:
+                                    ppg = PPG
+                                post["ppg"] = ppg
+                            else:
+                                ppg = PPG
+                                
+                        else:
+                            products_new = products
+                            
+                    else:
+                        products_new = products
+                            
+                    if restricted_products:
+                        products_new = products_new.filtered(lambda p:p.id not in restricted_products)
+
+            res.qcontext.update({
+                                 'products':products_new,
+                                 'bins': TableCompute().process(products_new, int(ppg)),
+                                 })
+
+
+
+            scout_program_ids = request.env['scout.program'].sudo().search([])
+            if scout_program_ids:
+                res.qcontext.update({'scout_programs': scout_program_ids})
+            else:
+                res.qcontext.update({'scout_programs': False})
+                
+                
+            if 'scout_program' in post:
+                program_id = post.get('scout_program')
+                products_filter = res.qcontext.get('products').filtered(lambda r:r.scout_program_id.id == int(program_id))
+                res.qcontext.update({'current_program':program_id,'products':products_filter,'bins': TableCompute().process(products_filter, int(ppg))})
+                
+            else:
+                res.qcontext.update({'current_program':False})
+        
         return res
+    
+    
+        # //rajesh 4 nov    
     
     #Check shop url======================================
     @http.route(['/get/shop/url'], type='json', auth="public", website=True,methods=['GET', 'POST'])

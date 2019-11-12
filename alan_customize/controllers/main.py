@@ -447,7 +447,7 @@ class WebsiteSale(WebsiteSale):
             'tag_values': tag_values,
             'tag_set': tag_set,
             'pager': pager,
-            'products': products,
+            # 'products': products,
             'search_count': product_count,
             'bins': TableCompute().process(products, ppg),
             'categories': categs,
