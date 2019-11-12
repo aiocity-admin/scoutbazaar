@@ -158,17 +158,133 @@ class VendorPage(WebsiteSale):
                             if shipping_lines:
                                 shipping_lines.update({'delivery_method':t_line.carrier_id})
         order = request.website.sale_get_order()
-        order.recalculate_vendor_lines(order)
-        order_new = request.website.sale_get_order()
         order_delivery_track_lines_vendor_dict = self.prepare_international_shipping_vendor_dict(order,order_delivery_track_lines_vendor_dict)
-        order._compute_website_order_line()
+        
+        print('==================www================11==============',order_delivery_track_lines_vendor_dict)
+        len_list = len(international_vendor_shipping_methods)
+        if len_list:
+            for inter_line in international_vendor_shipping_methods:
+                if not inter_line in order_delivery_track_lines_vendor_dict:
+                    order = request.website.sale_get_order()
+                    country_code = inter_line
+                    carrier_id = international_vendor_shipping_methods[inter_line][0].id
+                    carrier = request.env['delivery.carrier'].sudo().browse(carrier_id)
+                    country_id = request.env['res.country'].sudo().search([('code','=',country_code)],limit=1)
+                    delivery_price = 0.0
+                    lines_to_change = {}
+                    res_config = request.env['payment.handling.config'].sudo().search([],limit=1)
+                    handling_charge = res_config.handling_charge
+                    payment_processing_fee = res_config.payment_processing_fee
+                    transaction_value = res_config.transaction_value
+                    
+                    for line in order.order_line:
+                        stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+                        if not line.location_id and line.product_id.route_ids in stage_ids:
+                            vendor = self.get_stock_vendor(order,line)
+                            if vendor:
+                                if not vendor.country_id.code == order.partner_shipping_id.country_id.code:
+                                    res_price = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,line)
+                                    if res_price.get('error_message'):
+                                        return res_price.get("error_message")
+                                    else:
+                                        currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
+                                        if currency:
+                                            if order.currency_id != order.company_id.currency_id:
+                                                payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
+                                        handling_price = (res_price.get('price') *handling_charge)/100
+                                        temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
+                                        lines_to_change.update({line:res_price.get('price') + temp_price})
+                                        delivery_price += (temp_price + res_price.get('price'))
+                    if lines_to_change:
+                        for change_line in lines_to_change:
+                            line_id = request.env['sale.order.line'].sudo().browse(change_line.id)
+                            if line_id:
+                                line_id.write({
+                                                'delivery_method':carrier.id,
+                                                'delivery_charge':lines_to_change[change_line]
+                                                })
+                                order.calculate_vendor_lines(order)
+                        delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
+                                                                                                    ('country_id','=',country_id.id),
+                                                                                                    ('order_id','=',order.id),
+                                                                                                    ('is_vendor_track','=',True)
+                                                                                                    ],limit=1)
+                        if delivery_line_track_ids:
+                            delivery_line_track_ids.update({
+                                                            'carrier_id':carrier.id,
+                                                            'delivery_price': delivery_price,
+                                                            'is_vendor_track':True
+                                                            })
+                        else:
+                            request.env['delivery.line.track'].sudo().create({
+                                                                              'country_id':country_id.id,
+                                                                              'order_id' : order.id,
+                                                                              'carrier_id': carrier.id,
+                                                                              'delivery_price':delivery_price,
+                                                                              'is_vendor_track':True
+                                                                              })
+                    track_id = request.env['delivery.line.track'].sudo().search([
+                                                                            ('country_id.code','=',inter_line),
+                                                                            ('order_id','=',order.id),
+                                                                            ('is_vendor_track','=',True)
+                                                                            ],limit=1)
+                    
+                    if track_id:
+                        order_delivery_track_lines_vendor_dict.update({
+                                                                    inter_line:[carrier,track_id.delivery_price]
+                                                                    })
+                    else:
+                        order_delivery_track_lines_vendor_dict.update({
+                                                                    inter_line:[carrier,False]
+                                                                    })
+                    print('==================www==============================',order_delivery_track_lines_vendor_dict,inter_line,delivery_price)
         res.qcontext.update({
                              'is_domestic_vendor_products':is_domestic_vendor_products,
                              'international_vendor_shipping_methods':international_vendor_shipping_methods,
                              'order_delivery_track_lines_vendor_dict':order_delivery_track_lines_vendor_dict,
                              })  
+        order = request.website.sale_get_order()
+        order._compute_website_order_line()
+        order.recalculate_vendor_lines(order)
         order.check_blank_vendor_delivery_lines()
+        
         return res
+    
+    @http.route(['/my/calculate/vendor/international_shipping'], type='json', auth="public", website=True)
+    def calculate_vendor_international_shippingi(self,**post):
+        order = request.website.sale_get_order()
+        country_code = post.get('vendor_country_codei')
+        carrier_id = int(post.get('vendor_delivery_idi'))
+        carrier = request.env['delivery.carrier'].sudo().browse(carrier_id)
+        country_id = request.env['res.country'].sudo().search([('code','=',country_code)],limit=1)
+        delivery_price = 0.0
+        lines_to_change = {}
+        res_config = request.env['payment.handling.config'].sudo().search([],limit=1)
+        handling_charge = res_config.handling_charge
+        payment_processing_fee = res_config.payment_processing_fee
+        transaction_value = res_config.transaction_value
+        
+        for line in order.order_line:
+            stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+            if not line.location_id and line.product_id.route_ids in stage_ids:
+                vendor = self.get_stock_vendor(order,line)
+                print('=======================================vendor-------',vendor)
+                if vendor:
+                    if vendor.country_id.code == country_code:
+                        res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,line)
+                        print('==============================delivery_price555555555======res=========',res)
+                        if res.get('error_message'):
+                            return res.get("error_message")
+                        else:
+                            currency = request.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
+                            if currency:
+                                if order.currency_id != order.company_id.currency_id:
+                                    payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
+                            handling_price = (res.get('price') *handling_charge)/100
+                            temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res.get('price') + handling_price))
+                            delivery_price += (temp_price + res.get('price'))
+        print('==============================delivery_price555555555===============',delivery_price)
+        return {'vendor_delivery_pricei': order.currency_id.symbol + ' ' + str(round(delivery_price,2))}
     
     @http.route(['/calculate/vendor/international_shipping'], type='json', auth="public", website=True)
     def calculate_vendor_international_shipping(self,**post):
@@ -190,19 +306,11 @@ class VendorPage(WebsiteSale):
                 vendor = self.get_stock_vendor(order,line)
                 if vendor:
                     if vendor.country_id.code == country_code:
-                        res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,line)
-                        if res.get('error_message'):
-                            return res.get("error_message")
-                        else:
-                            currency = request.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
-                            if currency:
-                                if order.currency_id != order.company_id.currency_id:
-                                    payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
-                            handling_price = (res.get('price') *handling_charge)/100
-                            temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res.get('price') + handling_price))
-                            lines_to_change.update({line:res.get('price') + temp_price})
-                            delivery_price += (temp_price + res.get('price'))
-                            
+                        symbol= order.currency_id.symbol
+                        my_price = post.get('my_delivery_price').split(symbol + ' ')[1]
+                        if my_price:
+                            lines_to_change.update({line:float(my_price)})
+                            delivery_price += float(my_price)
         if lines_to_change:
             for change_line in lines_to_change:
                 line_id = request.env['sale.order.line'].sudo().browse(change_line.id)
@@ -228,8 +336,12 @@ class VendorPage(WebsiteSale):
                                                                   'country_id':country_id.id,
                                                                   'order_id' : order.id,
                                                                   'carrier_id': carrier.id,
-                                                                  'delivery_price':round(delivery_price,2),
+                                                                  'delivery_price':delivery_price,
                                                                   'is_vendor_track':True
                                                                   })
-        return {'vendor_delivery_price':delivery_price}
+        if lines_to_change[change_line]:
+            return {'vendor_delivery_price': order.currency_id.symbol + ' ' + str(round(lines_to_change[change_line],2))}
+        else:
+            return False
+    
     
