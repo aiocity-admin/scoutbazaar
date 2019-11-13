@@ -346,4 +346,10 @@
     <!-- //rajesh 4 nov -->
     <!--================== Product Filter -->
     
+    <template id="address_kanban_inherit_div" name="Kanban address" inherit_id="website_sale.address_kanban">
+        <xpath expr="//div/div[hasclass('card-body')]/a[hasclass('js_edit_address')]" position="after">
+            <span class="deleteaddress fa fa-remove float-right" style="margin-top: 3px;color: lightcoral;padding-right: 2%;" role="button" title="Delete this address" aria-label="Delete this address" t-att-value="contact.id" t-att-id="contact.id"></span>
+        </xpath>
+    </template>
+
 </odoo>

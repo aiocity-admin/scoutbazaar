@@ -21,6 +21,26 @@ import json
 
 class WebsiteSaleScout(WebsiteSale):
     
+#     delete address code=================
+    @http.route(['/my/delete/address'], type='json', auth="public")
+    def DeleteAddress(self, **kw):
+        if 'deleteaddress' in kw:
+            partner = kw.get("deleteaddress", False)
+            partner_address = request.env['res.partner'].sudo().search([('id','=',int(partner))],limit=1)
+            if partner_address:
+                sale_order_shipping = request.env['sale.order'].sudo().search([('partner_shipping_id','=',partner_address.id)])
+                sale_order_billing = request.env['sale.order'].sudo().search([('partner_id','=',partner_address.id)])
+                shipping_len = len(sale_order_shipping)
+                billing_len = len(sale_order_billing)
+                if shipping_len == 0 and billing_len == 0:
+                    partner_address.unlink()
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
     
     #Storefront Shop Filters======================================
     def toggle_views(self):
