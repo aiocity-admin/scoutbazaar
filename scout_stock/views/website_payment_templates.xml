@@ -54,7 +54,7 @@
 	    					<span>
 		    					<b>Scout Bazaar Total Shipping and Handling Fees</b>
 		    				</span>
-	    					<span t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(website_sale_order.nso_amount_delivery)" style="float:right;"/>
+	    					<span class="nso_amount_delivery" t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(website_sale_order.nso_amount_delivery)" style="float:right;"/>
 	    				</div>
 	    			</t>
     			</div>
