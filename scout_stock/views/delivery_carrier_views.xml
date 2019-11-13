@@ -14,5 +14,20 @@
                 </xpath>
             </field>
         </record>
+        
+         <record id="tracking_inherit_stock_picking" model="ir.ui.view">
+		      <field name="name">stock.picking.form.tracking.inherit</field>
+		      <field name="model">stock.picking</field>
+		      <field name="inherit_id" ref="delivery.view_picking_withcarrier_out_form"/>
+		      <field name="arch" type="xml">
+		      		<xpath expr="//label[@for='carrier_tracking_ref']" position="replace"/>
+			        <xpath expr="//div[@name='tracking']" position="replace">
+			            <field name="integration_level" invisible="1"/>
+			            <field name="carrier_tracking_ref" class="oe_inline" attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}"/>
+                        <button type="object" class="fa fa-arrow-right oe_link" name="cancel_shipment" string="Cancel" attrs="{'invisible':['|','|','|','|',('integration_level','=','rate'),('carrier_tracking_ref','=',False),('delivery_type','in', ['fixed', 'base_on_rule']),('delivery_type','=',False),('state','not in',('done'))]}"/>
+			        	<field name="carrier_tracking_url_for_get_rate" attrs="{ 'invisible': [('integration_level','=','rate_and_ship')] ,'readonly' : [('state','=',('done', 'cancel'))]}" widget="url"/>
+			        </xpath>
+		      </field>
+	    </record>
     </data>
 </odoo>

@@ -386,4 +386,51 @@ class EasypostRequest(EasypostRequest):
         
         return response
     
+class StockPicking(models.Model):
+    
+    _inherit="stock.picking"
+    
+    carrier_tracking_url_for_get_rate = fields.Char(string='Tracking Url')
+    integration_level = fields.Selection([('rate','Get Rate'),('rate_ans_ship','Get Rate ans Shipment')],string = 'Integration Level',related="carrier_id.integration_level")
+    
+    
+    
+    @api.multi
+    def open_website_url(self):
+        self.ensure_one()
+        if not self.carrier_tracking_url:
+            raise UserError(_("Your delivery method has no redirect on courier provider's website to track this order."))
+
+        carrier_trackers = []
+        try:
+            if self.integration_level == 'rate':
+                if self.carrier_tracking_url_for_get_rate:
+                    carrier_trackers = json.loads(self.carrier_tracking_url_for_get_rate)
+            else:
+                carrier_trackers = json.loads(self.carrier_tracking_url)
+        except ValueError:
+            carrier_trackers = self.carrier_tracking_url
+        else:
+            msg = "Tracking links for shipment: <br/>"
+            for tracker in carrier_trackers:
+                msg += '<a href=' + tracker[1] + '>' + tracker[0] + '</a><br/>'
+            self.message_post(body=msg)
+            return self.env.ref('delivery.act_delivery_trackers_url').read()[0]
+
+        if self.integration_level == 'rate':
+            client_action = {
+                'type': 'ir.actions.act_url',
+                'name': "Shipment Tracking Page",
+                'target': 'new',
+                'url': self.carrier_tracking_url_for_get_rate,
+            }
+        else:
+            client_action = {
+                'type': 'ir.actions.act_url',
+                'name': "Shipment Tracking Page",
+                'target': 'new',
+                'url': self.carrier_tracking_url,
+            }
+        return client_action
+    
     
