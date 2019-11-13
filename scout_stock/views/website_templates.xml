@@ -92,5 +92,81 @@
 		    		<span style="color:red"><i>* Delivery Charges will be re-calculated after "Process Checkout" if you have made any changes in the cart.</i></span>
 		    	</xpath>
 		    </template>
+		    
+		    
+		    <template id="my_sale_order_portal_content_inherit_sale_stock" name="Orders Shipping Followups" inherit_id="sale_stock.sale_order_portal_content_inherit_sale_stock">
+		        <xpath expr="//t[@t-if='sale_order.picking_ids']" position="replace">
+		            <t t-if="sale_order.picking_ids">
+		                <div>
+		                    <h3>Track Order</h3>
+		                </div>
+		                <div>
+		                    <table class="table table-sm" id="track_order_table">
+		                            <thead class="bg-200">
+		                                <tr>
+		                                      <th class="text-left">Shipping Method</th>
+		                                      <th class="text-right">Delivery Date</th>
+		                                      <th class="text-right">Track Order</th>
+		                                      <th class="text-right">Picking Name</th>
+		                                      <th class="text-right">Status</th>
+		                                </tr>
+		                            </thead>
+		                            <t t-foreach="sale_order.picking_ids.filtered(lambda picking: picking.picking_type_id.code != 'internal')" t-as="i">
+		                            <t t-set="delivery_report_url" t-value="'/my/picking/pdf/%s?%s' % (i.id, keep_query())"/>
+		                            <tbody class="delivery_method_tbody">
+		                                <tr id="my_picking_info" class="bg-100">
+		                                    <td>
+		                                        <t t-if="i.carrier_id">
+		                                            <span t-field="i.carrier_id.name"/>
+		                                        </t>
+		                                    </td>
+		                                    <td class="text-right">
+		                                        <span class="text-muted" t-field="i.date" t-options='{"widget": "date"}'/>
+		                                    </td>
+		                                    <td class="text-right">
+		                                        <t t-if="i.integration_level == 'rate'">
+		                                        	<t t-if="i.carrier_tracking_url_for_get_rate">
+		                                            	<a t-att-href="i.carrier_tracking_url_for_get_rate" target="_blank"><span t-field="i.carrier_tracking_ref"/></a>
+		                                        	</t>
+		                                        	<t t-else="">
+		                                            	<span t-field="i.carrier_tracking_ref"/>
+		                                        	</t>
+		                                        </t>
+		                                        <t t-else="">
+		                                        	<t t-if="i.carrier_tracking_url">
+		                                        	 	<a t-att-href="i.carrier_tracking_url" target="_blank"><span t-field="i.carrier_tracking_ref"/></a>
+		                                        	</t>
+		                                        	<t t-else="">
+		                                            	<span t-field="i.carrier_tracking_ref"/>
+		                                        	</t>
+		                                        </t>
+		                                        
+		                                    </td>
+		                                    <td class="text-right">
+		                                        <a t-att-href="delivery_report_url"><span class="fa fa-download" role="img" aria-label="Download" title="Download"/></a>
+		                                        <a t-att-href="delivery_report_url"><span t-field="i.name"/></a>
+		                                    </td>
+		                                    <td class="text-right">
+		                                        <t t-if="i.state == 'done'">
+		                                            <span class="badge badge-success label-text-align"><i class="fa fa-fw fa-truck"/> Shipped</span>
+		                                        </t>
+		                                        <t t-if="i.state == 'partially_available'">
+		                                            <span class="badge badge-warning label-text-align"><i class="fa fa-fw fa-clock-o"/> Partially Available</span>
+		                                        </t>
+		                                        <t t-if="i.state == 'cancel'">
+		                                            <span class="badge badge-danger label-text-align"><i class="fa fa-fw fa-times"/> Cancelled</span>
+		                                        </t>
+		                                        <t t-if="i.state in ['draft', 'waiting', 'confirmed', 'assigned']">
+		                                            <span class="badge badge-info label-text-align"><i class="fa fa-fw fa-clock-o"/> Preparation</span>
+		                                        </t>
+		                                    </td>
+		                                </tr>
+		                            </tbody>
+		                            </t>
+		                    </table>
+		                </div>
+		            </t>
+		        </xpath>
+		    </template>
   </data>
 </odoo>
