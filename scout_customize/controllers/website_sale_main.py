@@ -146,7 +146,7 @@ class WebsiteSaleScout(WebsiteSale):
                     if restricted_products:
                         products_new = products_new.filtered(lambda p:p.id not in restricted_products)
 
-            res.qcontext.update({
+                    res.qcontext.update({
                                  'products':products_new,
                                  'bins': TableCompute().process(products_new, int(ppg)),
                                  })
