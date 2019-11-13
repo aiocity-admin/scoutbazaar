@@ -105,8 +105,8 @@ class WebsiteSaleScout(WebsiteSale):
                     if restricted_products:
                         products_new = products_new.filtered(lambda p:p.id not in restricted_products)
                     
-                else:
-                    return False    
+                # else:
+                #     return False    
 
             else:
                 school_ids = request.env['product.template'].sudo().search([('school_list_ids','in', partner.school_list_ids.ids)])
