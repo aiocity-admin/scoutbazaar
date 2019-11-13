@@ -19,15 +19,18 @@ class SaleOrderLine(models.Model):
         for location_id in line_list:
             if location_id:
                 location = self.env['stock.location'].sudo().search([('id','=',int(location_id))])
-                partner = location.nso_location_id
-                if partner:
-                    template_id = self.env.ref('scout_stock.email_template_edi_sale_line', False)
-                    if template_id:
-                        template_id.sudo().write({
-                          'email_to': str(partner.email),
-                          'email_from': template_id.email_from,
-                        })
-                        a = template_id.with_context({'location_id':location_id,'name':location.name}).send_mail(order.id, force_send=True, raise_exception=False)
+                if location:
+                    picking_id = self.env['stock.picking'].sudo().search([('location_id','=',location.id),('origin','=',order.name),('state', '!=', 'cancel')],limit=1)
+                    if picking_id:
+                        partner = location.nso_location_id
+                        if partner:
+                            template_id = self.env.ref('scout_stock.email_template_edi_sale_line', False)
+                            if template_id:
+                                template_id.sudo().write({
+                                  'email_to': str(partner.email),
+                                  'email_from': template_id.email_from,
+                                })
+                                a = template_id.with_context({'picking_id':picking_id.location_id.nso_location_id,'delivery_ref':picking_id.name,'location_id':location_id,'name':location.name}).send_mail(order.id, force_send=True, raise_exception=False)
     
     @api.multi
     def _action_launch_stock_rule(self):
@@ -88,6 +91,19 @@ class SaleOrder(models.Model):
         string='NSO Delivery Amount',
         help="The amount without tax.", store=True, track_visibility='always')
     
+    # User in order line mail Send ==================
+    @api.multi
+    def action_confirm(self):
+        res = super(SaleOrder, self).action_confirm()
+        line_list = []
+        sale_order_line_obj = self.env['sale.order.line'].sudo()
+        order = self
+        for line in self.order_line:
+            if not line.location_id.id  in line_list:
+                line_list.append(line.location_id.id)
+        if line_list:
+            ids = sale_order_line_obj.send_sale_order_email(order,line_list)
+        return res
     
     @api.depends('order_line.price_unit', 'order_line.tax_id', 'order_line.discount', 'order_line.product_uom_qty')
     def _compute_nso_amount_delivery(self):

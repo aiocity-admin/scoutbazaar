@@ -21,6 +21,11 @@
                     <strong>Order Reference :</strong> ${object.name}
                </p>
                <p>
+                    % if ctx['delivery_ref']
+                        <strong>Delivery Order Reference :</strong> ${ctx['delivery_ref']}
+                    % endif
+               </p>
+               <p>
                     <strong>Customer Details :</strong>
                     <ul>
                        <li>Name : ${object.partner_id.name}</li>

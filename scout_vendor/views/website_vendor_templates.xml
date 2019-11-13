@@ -3,38 +3,10 @@
     <data>
          <template id="assets_frontend_inherit_vendor_js" inherit_id="website.assets_frontend">
             <xpath expr="." position="inside">
+                <script type="text/javascript" src="/scout_vendor/static/src/js/jquery.blockUI.js"/>
                 <script type="text/javascript" src="/scout_vendor/static/src/js/int_vendor_shipping_method.js"/>
             </xpath>
         </template>
-    
-<!--         <record id="product_public_categroy_view_extends_scout" model="ir.ui.view"> -->
-<!--             <field name="name">product.public.category.form.in.extend</field> -->
-<!--             <field name="model">product.public.category</field> -->
-<!--             <field name="inherit_id" ref="website_sale.product_public_category_form_view"/> -->
-<!--             <field name="arch" type="xml"> -->
-<!--                 <xpath expr="//field[@name='parent_id']" position="after"> -->
-<!--                     <field name="is_vendor_category"/> -->
-<!--                 </xpath> -->
-<!--             </field> -->
-<!--         </record> -->
-        
-        <!-- <template id="modify_shop_vendor_inherit" inherit_id="website_scout_baazar.modify_shop_inherit" name="Products">
-            <xpath expr="//t[@t-foreach='storefront_categs']" position="after">
-                <t t-if="vendor_categs">
-                    <t t-foreach="vendor_categs" t-as="st_front">
-                        <div class="col-lg-2 menu_grid" t-att-style="'background-color:black !important' if st_front.storefront_location_id.id == curent_storefront else ''">
-                            <a id="" t-att-href="keep('/shop/category/%s' % (slug(st_front)),category=0)" t-field="st_front.name" />
-                        </div>
-                    </t>
-                </t>
-            </xpath>
-        </template> -->
-
-<!--         <template id="my_account_link_vendor_user" name="Link to frontend portals" inherit_id="portal.my_account_link"> -->
-<!--             <xpath expr="//a[@class='dropdown-item']" position="attributes"> -->
-<!--                 <attribute name="t-if">not request.env.user.has_group('scout_vendor.group_vendor_product')</attribute> -->
-<!--             </xpath> -->
-<!--         </template> -->
         
         <template id="website_payment_templates_inherit_is_vendor" inherit_id="website_sale.payment">
             <xpath expr="//div[@id='payment_method']" position="before">
@@ -87,7 +59,7 @@
 	                        <span>
 	                            <b>Dropship Total Shipping and Handling Fees</b>
 	                        </span>
-	                        <span t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(website_sale_order.vendor_amount_delivery)" style="float:right;"/>
+	                        <span class="vendor_amount_delivery" t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(website_sale_order.vendor_amount_delivery)" style="float:right;"/>
 	                    </div>
 	                </t>
                 </div>

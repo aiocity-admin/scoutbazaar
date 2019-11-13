@@ -305,22 +305,22 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         order.check_blank_nso_delivery_lines()  
         return res
     
-    #Send NSO Email code======================================
-    @http.route(['/shop/confirmation'], type='http', auth="public", website=True)
-    def payment_confirmation(self, **post):
-        views = super(WebsiteSaleCountrySelect, self).payment_confirmation(**post)
-        line_list = []
-        sale_order_line_obj = request.env['sale.order.line'].sudo()
-        sale_order_id = request.session.get('sale_last_order_id')
-        if sale_order_id:
-            order = request.env['sale.order'].sudo().browse(sale_order_id)
-            for line in order.order_line:
-                if not line.location_id.id  in line_list:
-                    line_list.append(line.location_id.id)
-            if line_list:
-                ids = sale_order_line_obj.send_sale_order_email(order,line_list)
-        
-        return views
+#     #Send NSO Email code======================================
+#     @http.route(['/shop/confirmation'], type='http', auth="public", website=True)
+#     def payment_confirmation(self, **post):
+#         views = super(WebsiteSaleCountrySelect, self).payment_confirmation(**post)
+#         line_list = []
+#         sale_order_line_obj = request.env['sale.order.line'].sudo()
+#         sale_order_id = request.session.get('sale_last_order_id')
+#         if sale_order_id:
+#             order = request.env['sale.order'].sudo().browse(sale_order_id)
+#             for line in order.order_line:
+#                 if not line.location_id.id  in line_list:
+#                     line_list.append(line.location_id.id)
+#             if line_list:
+#                 ids = sale_order_line_obj.send_sale_order_email(order,line_list)
+#         
+#         return views
     
     
     

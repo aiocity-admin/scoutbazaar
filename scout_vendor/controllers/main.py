@@ -43,8 +43,8 @@ class VendorPage(WebsiteSale):
             else:
                 return line.product_id.international_ids[0]
     
+    #========= set delivery line track group===============
     def prepare_international_shipping_vendor_dict(self,order,order_delivery_track_lines_dict):
-        
         order_delivery_track_lines_dict_new = {}
         for t_line in order_delivery_track_lines_dict:
             track_id = request.env['delivery.line.track'].sudo().search([
@@ -160,7 +160,6 @@ class VendorPage(WebsiteSale):
         order = request.website.sale_get_order()
         order_delivery_track_lines_vendor_dict = self.prepare_international_shipping_vendor_dict(order,order_delivery_track_lines_vendor_dict)
         
-        print('==================www================11==============',order_delivery_track_lines_vendor_dict)
         len_list = len(international_vendor_shipping_methods)
         if len_list:
             for inter_line in international_vendor_shipping_methods:
@@ -237,7 +236,6 @@ class VendorPage(WebsiteSale):
                         order_delivery_track_lines_vendor_dict.update({
                                                                     inter_line:[carrier,False]
                                                                     })
-                    print('==================www==============================',order_delivery_track_lines_vendor_dict,inter_line,delivery_price)
         res.qcontext.update({
                              'is_domestic_vendor_products':is_domestic_vendor_products,
                              'international_vendor_shipping_methods':international_vendor_shipping_methods,
@@ -250,8 +248,9 @@ class VendorPage(WebsiteSale):
         
         return res
     
+    #=========all line group price calculate=================
     @http.route(['/my/calculate/vendor/international_shipping'], type='json', auth="public", website=True)
-    def calculate_vendor_international_shippingi(self,**post):
+    def my_calculate_vendor_international_shipping(self,**post):
         order = request.website.sale_get_order()
         country_code = post.get('vendor_country_codei')
         carrier_id = int(post.get('vendor_delivery_idi'))
@@ -268,11 +267,9 @@ class VendorPage(WebsiteSale):
             stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
             if not line.location_id and line.product_id.route_ids in stage_ids:
                 vendor = self.get_stock_vendor(order,line)
-                print('=======================================vendor-------',vendor)
                 if vendor:
                     if vendor.country_id.code == country_code:
                         res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,line)
-                        print('==============================delivery_price555555555======res=========',res)
                         if res.get('error_message'):
                             return res.get("error_message")
                         else:
@@ -283,9 +280,9 @@ class VendorPage(WebsiteSale):
                             handling_price = (res.get('price') *handling_charge)/100
                             temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res.get('price') + handling_price))
                             delivery_price += (temp_price + res.get('price'))
-        print('==============================delivery_price555555555===============',delivery_price)
         return {'vendor_delivery_pricei': order.currency_id.symbol + ' ' + str(round(delivery_price,2))}
     
+    #=========line group price calculate=================
     @http.route(['/calculate/vendor/international_shipping'], type='json', auth="public", website=True)
     def calculate_vendor_international_shipping(self,**post):
         order = request.website.sale_get_order()
@@ -299,18 +296,25 @@ class VendorPage(WebsiteSale):
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
         transaction_value = res_config.transaction_value
-        
+        value = {}
         for line in order.order_line:
             stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
             if not line.location_id and line.product_id.route_ids in stage_ids:
                 vendor = self.get_stock_vendor(order,line)
                 if vendor:
                     if vendor.country_id.code == country_code:
-                        symbol= order.currency_id.symbol
-                        my_price = post.get('my_delivery_price').split(symbol + ' ')[1]
-                        if my_price:
-                            lines_to_change.update({line:float(my_price)})
-                            delivery_price += float(my_price)
+                        res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,line)
+                        if res.get('error_message'):
+                            return res.get("error_message")
+                        else:
+                            currency = request.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
+                            if currency:
+                                if order.currency_id != order.company_id.currency_id:
+                                    payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
+                            handling_price = (res.get('price') *handling_charge)/100
+                            temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res.get('price') + handling_price))
+                            lines_to_change.update({line:res.get('price') + temp_price})
+                            delivery_price += (temp_price + res.get('price'))
         if lines_to_change:
             for change_line in lines_to_change:
                 line_id = request.env['sale.order.line'].sudo().browse(change_line.id)
@@ -339,9 +343,11 @@ class VendorPage(WebsiteSale):
                                                                   'delivery_price':delivery_price,
                                                                   'is_vendor_track':True
                                                                   })
-        if lines_to_change[change_line]:
-            return {'vendor_delivery_price': order.currency_id.symbol + ' ' + str(round(lines_to_change[change_line],2))}
-        else:
-            return False
-    
+                
+        order = request.website.sale_get_order()
+        order._compute_website_order_line()
+
+        value['website_sale.cart_summary'] = request.env['ir.ui.view'].render_template("website_sale.cart_summary",{'website_sale_order':order})
+        value['vendor_amount_delivery'] = order.currency_id.symbol + ' ' + str(order.vendor_amount_delivery)
+        return value
     

@@ -41,7 +41,6 @@ odoo.define('scout_stock.international_shipping', function (require) {
 //    				location.reload();
     			}
     			else{
-    				console.log("Vals--------------")
     				var main_parent = $('#cart_products').parent().parent().parent().parent()
     				$(main_parent).empty();
     				$(main_parent).append(vals['website_sale.cart_summary']);

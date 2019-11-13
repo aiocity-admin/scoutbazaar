@@ -1,3 +1,24 @@
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+#    OpenERP, Open Source Management Solution
+#    Copyright (C) 2016-Today Geminate Consultancy Services (<http://geminatecs.com>).
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
+
 from odoo import api, fields, models, _
 import datetime
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
@@ -32,7 +53,7 @@ class VendorUsers(models.Model):
                         if stage_ids:
                             res.write({'route_ids':[(6,0,stage_ids.ids)]})
         return res
-        
+    
     # @api.multi
     # def write(self,vals):
     #     res = super(VendorUsers,self).write(vals)
@@ -70,7 +91,7 @@ class VendorSaleOrder(models.Model):
         vendor_list = []
         for line in self.order_line:
             rule_location = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
-            if line.route_id == rule_location:
+            if line.product_id.route_ids in rule_location:
                 if not line.product_id.vendor_user_product.id  in vendor_list:
                     vendor_list.append(line.product_id.vendor_user_product.id)
         for vendor_user in vendor_list:
@@ -80,7 +101,7 @@ class VendorSaleOrder(models.Model):
                 if template_id:
                     template_id.sudo().write({
                         'email_to': str(vendor.email),
-                        'email_from': self.env.user.company_id.email  
+                        'email_from': template_id.email_from
                     })
                     mail_id = template_id.with_context({'vendor_name':vendor.name}).send_mail(self.id, force_send=True, raise_exception=False)
         return res
