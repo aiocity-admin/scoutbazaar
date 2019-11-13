@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 {
-    "name" : "Scount Stock",
-    "summary": 'scount stock Website Page',
+    "name" : "Scout Stock",
+    "summary": 'scout stock Website Page',
     "description":"""
         """,
     "version" : "12.0.0.4",
