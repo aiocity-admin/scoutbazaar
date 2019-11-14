@@ -4,9 +4,8 @@ var ajax = require('web.ajax')
 	
 	$(document).ready(function(){
 		var add_model = $('div.justify-content-between')
-		$(".deleteaddress").click(function(e){
-			e.preventDefault();
-			var deleteaddress = $(this).attr("id");
+		$(".deleteaddress").click(function(ev){
+	        var deleteaddress = $(this).attr("id");
 			ajax.jsonRpc("/my/delete/address", 'call', {'deleteaddress':deleteaddress}).then(function(data){
 				if (data){
 					window.location.reload();
@@ -16,6 +15,7 @@ var ajax = require('web.ajax')
 					$("#my_delete_address").modal("show");
 				}
 			});
+			ev.stopPropagation();
 		});
 	});
 });
