@@ -23,7 +23,7 @@ sAnimations.registry.WebsiteSale.include({
 	        }).then(function (data) {
 	        	if (data) {
 		            // placeholder phone_code
-		            //$("input[name='phone']").attr('placeholder', data.phone_code !== 0 ? '+'+ data.phone_code : '');
+//	        		$("input[name='phone']").attr('placeholder', data.phone_code !== 0 ? '+'+ data.phone_code : '');
 	        		$(".div_state").show();
 	        		$(".div_town").addClass('d-none');
 	        		$(".div_district").addClass('d-none');
@@ -77,4 +77,20 @@ sAnimations.registry.WebsiteSale.include({
 	        });
 	    },
 	});
+
+	$(document).ready(function(){
+	    var int_phone = $("input[name='phone']");
+	    if (int_phone){
+			int_phone.change(function(){
+				var val = int_phone.val();
+				if (val){
+					if (val.length < 10) {
+						int_phone.val('')
+						int_phone.attr('placeholder', 'Please Enter Phone number more than 10 charcter!');
+					}
+				}
+			})
+	    }
+	});
+	
 });

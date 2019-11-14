@@ -71,9 +71,9 @@ class CustomerPortalJTExress(CustomerPortal):
         town_ids = False
         district_ids = False
         ph_city_ids = False
-        town_ids = request.env['res.partner.town'].sudo().search([])
-        district_ids = request.env['res.partner.district'].sudo().search([])
-        ph_city_ids = request.env['res.partner.city'].sudo().search([])
+        town_ids = request.env['res.partner.town'].sudo().search([], order="name ASC")
+        district_ids = request.env['res.partner.district'].sudo().search([], order="name ASC")
+        ph_city_ids = request.env['res.partner.city'].sudo().search([], order="name ASC")
         res.qcontext.update({
                 'town_id':town_ids,
                 'district_id':district_ids,
@@ -105,21 +105,21 @@ class WebsiteSaleJTExress(WebsiteSale):
             country = request.env['res.country']
             country = country.browse(int(request.context.get('address_country')))
             if country.code == 'PH':
-                return ["name", "street", "country_id","town_id","district_id","city_id"]
+                return ["name", "street", "country_id","town_id","district_id","city_id","zip"]
             else:
-                return ["name", "email", "street", "country_id"]
+                return ["name", "email", "street", "country_id","zip"]
         else:
-            return ["name", "email", "street", "country_id"]
+            return ["name", "email", "street", "country_id","zip"]
     def _get_mandatory_shipping_fields(self):
         if request.context.get('address_country'):
             country = request.env['res.country']
             country = country.browse(int(request.context.get('address_country')))
             if country.code == 'PH':
-                return ["name", "street", "country_id","town_id","district_id","city_id"]
+                return ["name", "street", "country_id","town_id","district_id","city_id","zip"]
             else:
-                return ["name", "street", "city", "country_id"]
+                return ["name", "street", "city", "country_id","zip"]
         else:
-            return ["name", "street", "city", "country_id"]
+            return ["name", "street", "city", "country_id","zip"]
     
     @http.route(['/shop/address'], type='http', methods=['GET', 'POST'], auth="public", website=True)
     def address(self, **kw):
@@ -127,9 +127,9 @@ class WebsiteSaleJTExress(WebsiteSale):
         town_ids = False
         district_ids = False
         ph_city_ids = False
-        town_ids = request.env['res.partner.town'].sudo().search([])
-        district_ids = request.env['res.partner.district'].sudo().search([])
-        ph_city_ids = request.env['res.partner.city'].sudo().search([])
+        town_ids = request.env['res.partner.town'].sudo().search([], order="name ASC")
+        district_ids = request.env['res.partner.district'].sudo().search([], order="name ASC")
+        ph_city_ids = request.env['res.partner.city'].sudo().search([], order="name ASC")
         res.qcontext.update({
                 'town_id':town_ids,
                 'district_id':district_ids,

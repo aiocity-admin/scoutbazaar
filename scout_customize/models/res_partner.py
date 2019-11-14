@@ -20,11 +20,18 @@
 ##############################################################################
 
 from odoo import models, fields, api, _
-
+from odoo.exceptions import UserError, ValidationError
 
 class Respartner(models.Model):
 
     _inherit = 'res.partner'
+    
+    country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', required=True)
+    state_id = fields.Many2one("res.country.state", string='State', ondelete='restrict', domain="[('country_id', '=?', country_id)]", required=True)
+    email = fields.Char(required=True)
+    city = fields.Char(required=True)
+    zip = fields.Char(change_default=True, required=True)
+    phone = fields.Char(required=True)
     
     school_list_ids = fields.Many2many("school.list" ,string="School")
     
@@ -38,5 +45,10 @@ class Respartner(models.Model):
                                           ('patrol_leader','Patrol Leader'),
                                           ('troop_leader','Troop Leader ')
                                           ],string='Boy/Girl Scout User Rank',)
-    
-  
+    @api.constrains('phone')
+    def _check_phone_number(self):
+        for rec in self:
+            phone = int(self.phone)
+            if rec.phone and len(rec.phone) < 10:
+                raise ValidationError(_("Please Enter Phone number more than 10 charcter!"))
+            return True
