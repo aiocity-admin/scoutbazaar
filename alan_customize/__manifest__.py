@@ -12,7 +12,7 @@
     'license': 'OPL-1',
     'description': """
         """,
-    'depends': ['website_mass_mailing', 'website_blog', 'website_sale_wishlist', 'website_sale_comparison', 'website_sale_stock', 'website_crm', 'website_event'],
+    'depends': ['website_mass_mailing', 'website_blog', 'website_sale_wishlist', 'website_sale_comparison', 'website_sale_stock', 'website_event'],
     'data': [
         'views/assets.xml',
         'views/website_setting.xml',
