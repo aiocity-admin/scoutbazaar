@@ -86,7 +86,7 @@ sAnimations.registry.WebsiteSale.include({
 				if (val){
 					if (val.length < 10) {
 						int_phone.val('')
-						int_phone.attr('placeholder', 'Please Enter Phone number more than 10 charcter!');
+						int_phone.attr('placeholder', 'Please Enter Phone number more than 10 character!');
 					}
 				}
 			})

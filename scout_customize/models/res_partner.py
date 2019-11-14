@@ -50,5 +50,5 @@ class Respartner(models.Model):
         for rec in self:
             phone = int(self.phone)
             if rec.phone and len(rec.phone) < 10:
-                raise ValidationError(_("Please Enter Phone number more than 10 charcter!"))
+                raise ValidationError(_("Please Enter Phone number more than 10 character!"))
             return True
