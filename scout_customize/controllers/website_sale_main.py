@@ -145,9 +145,7 @@ class WebsiteSaleScout(WebsiteSale):
 
 
                     if search:
-                        # products_new = Product.search(domain, limit=ppg, offset=res.qcontext.get('pager')[
-                        #           'offset'], order=self._get_search_order(post))
-                        products_new =res.qcontext.get('products')
+                        products_new = res.qcontext.get('products')
                         school_id_search=[]
                         without_school_id=[]
 
@@ -161,14 +159,11 @@ class WebsiteSaleScout(WebsiteSale):
                             if not product.school_list_ids.ids:
                                 without_school_id.append(product)
                          
-                        
-
-
                         total_search_pro = school_id_search + without_school_id
                         products_new = [] 
-                        for num in total_search_pro: 
-                            if num not in products_new: 
-                                products_new    .append(num) 
+                        for dup_pro in total_search_pro: 
+                            if dup_pro not in products_new: 
+                                products_new.append(dup_pro) 
 
                     res.qcontext.update({
                                      'search': search,
@@ -215,14 +210,11 @@ class WebsiteSaleScout(WebsiteSale):
                     if restricted_products:
                         products_new = products_new.filtered(lambda p:p.id not in restricted_products)
 
-                    pager = request.website.pager(
-                        url=url, total=product_count, page=page, step=ppg, scope=7, url_args=post)    
 
                     if search:
-                        products_new = Product.search(domain, limit=ppg, offset=pager[
-                                  'offset'], order=self._get_search_order(post))
-                        school_id_search=[]
-                        without_school_id=[]
+                        products_new = res.qcontext.get('products')
+                        school_id_search = []
+                        without_school_id = []
 
                         for product in products_new:
                             for partner_school in partner.school_list_ids:
@@ -233,14 +225,12 @@ class WebsiteSaleScout(WebsiteSale):
 
                             if not product.school_list_ids.ids:
                                 without_school_id.append(product)
-                            
-                        
+                         
                         total_search_pro = school_id_search + without_school_id
                         products_new = [] 
-                        for num in total_search_pro: 
-                            if num not in products_new: 
-                                products_new.append(num) 
-
+                        for dup_pro in total_search_pro: 
+                            if dup_pro not in products_new: 
+                                products_new.append(dup_pro) 
                     res.qcontext.update({
                                      'search': search,
                                      'search_count': product_count,
