@@ -30,7 +30,20 @@ class SaleOrderLine(models.Model):
                                   'email_to': str(partner.email),
                                   'email_from': template_id.email_from,
                                 })
-                                a = template_id.with_context({'picking_id':picking_id.location_id.nso_location_id,'delivery_ref':picking_id.name,'location_id':location_id,'name':location.name}).send_mail(order.id, force_send=True, raise_exception=False)
+                                ups_list =  {'03': 'UPS Ground',
+                                            '11': 'UPS Standard',
+                                            '01': 'UPS Next Day',
+                                            '14': 'UPS Next Day AM',
+                                            '13': 'UPS Next Day Air Saver',
+                                            '02': 'UPS 2nd Day',
+                                            '59': 'UPS 2nd Day AM',
+                                            '12': 'UPS 3-day Select',
+                                            '65': 'UPS Saver',
+                                            '07': 'UPS Worldwide Express',
+                                            '08': 'UPS Worldwide Expedited',
+                                            '54': 'UPS Worldwide Express Plus',
+                                            '96': 'UPS Worldwide Express Freight'}
+                                a = template_id.with_context({'ups_list':ups_list,'picking_id':picking_id.location_id.nso_location_id,'delivery_ref':picking_id.name,'location_id':location_id,'name':location.name}).send_mail(order.id, force_send=True, raise_exception=False)
     
     @api.multi
     def _action_launch_stock_rule(self):

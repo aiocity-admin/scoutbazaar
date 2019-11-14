@@ -98,6 +98,7 @@
                                       <th style="border: 1px solid black;">Product</th>
                                       <th style="border: 1px solid black;">Quantity</th>
                                       <th style="border: 1px solid black;">Shipping Method</th>
+                                      <th style="border: 1px solid black;">Service Level</th>
                                       <th style="border: 1px solid black;">Unit Price</th>
                                       <th style="border: 1px solid black;">Total</th>
                                 </tr>
@@ -109,6 +110,14 @@
                                           <td style="border: 1px solid black;">${line.product_id.name}</td>
                                           <td style="border: 1px solid black;">${line.product_uom_qty}</td>
                                           <td style="border: 1px solid black;">${line.delivery_method.name}</td>
+                                          <td style="border: 1px solid black;">
+                                          % if line.delivery_method.easypost_default_service_id:
+                                              ${line.delivery_method.easypost_default_service_id.name}
+                                          % endif
+                                           % if line.delivery_method.ups_default_service_type:
+                                              ${ctx['ups_list'][line.delivery_method.ups_default_service_type]}
+                                          % endif
+                                          </td>
                                           <td style="border: 1px solid black;">${line.price_unit}<span> ${object.pricelist_id.currency_id.symbol}</span></td>
                                           <td style="border: 1px solid black;">${line.price_subtotal}<span> ${object.pricelist_id.currency_id.symbol}</span></td>
                                     </tr>

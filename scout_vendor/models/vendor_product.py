@@ -103,7 +103,20 @@ class VendorSaleOrder(models.Model):
                         'email_to': str(vendor.email),
                         'email_from': template_id.email_from
                     })
-                    mail_id = template_id.with_context({'vendor_name':vendor.name}).send_mail(self.id, force_send=True, raise_exception=False)
+                    ups_list =  {'03': 'UPS Ground',
+                                            '11': 'UPS Standard',
+                                            '01': 'UPS Next Day',
+                                            '14': 'UPS Next Day AM',
+                                            '13': 'UPS Next Day Air Saver',
+                                            '02': 'UPS 2nd Day',
+                                            '59': 'UPS 2nd Day AM',
+                                            '12': 'UPS 3-day Select',
+                                            '65': 'UPS Saver',
+                                            '07': 'UPS Worldwide Express',
+                                            '08': 'UPS Worldwide Expedited',
+                                            '54': 'UPS Worldwide Express Plus',
+                                            '96': 'UPS Worldwide Express Freight'}
+                    mail_id = template_id.with_context({'ups_list':ups_list,'vendor_name':vendor.name}).send_mail(self.id, force_send=True, raise_exception=False)
         return res
     
     # Get vendor======================================
