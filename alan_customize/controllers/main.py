@@ -200,7 +200,7 @@ class WebsiteSale(WebsiteSale):
             values)
 
     def _get_search_domain_ext(self, search, category, attrib_values,
-                               tag_values, brand_values):
+                               tag_values):
         domain = request.website.sale_product_domain()
         if search:
             for srch in search.split(" "):
@@ -231,8 +231,8 @@ class WebsiteSale(WebsiteSale):
         if tag_values:
             domain += [('tag_ids', 'in', tag_values)]
 
-        if brand_values:
-            domain += [('product_brand_id', 'in', brand_values)]
+        # if brand_values:
+        #     domain += [('product_brand_id', 'in', brand_values)]
 
         return domain
 
@@ -244,7 +244,7 @@ class WebsiteSale(WebsiteSale):
         '''/shop/category/<model("product.public.category", "[('website_id', 'in', (False, current_website_id))]"):category>''',
         '''/shop/category/<model("product.public.category", "[('website_id', 'in', (False, current_website_id))]"):category>/page/<int:page>'''],
         type='http', auth="public", website=True)
-    def shop(self, page=0, category=None, brand=None, search='', ppg=False, **post):
+    def shop(self, page=0, category=None,search='', ppg=False, **post):
 
         add_more = False
         max_val = 0
@@ -301,19 +301,19 @@ class WebsiteSale(WebsiteSale):
             'ceil': math.ceil
         })
 
-        if brand:
-            brand = request.env['product.brand'].search(
-                [('id', '=', int(brand))] + request.website.website_domain(), limit=1)
-            if not brand:
-                raise werkzeug.exceptions.NotFound()
-        res.qcontext.update({
-            'brand': brand
-        })
+        # if brand:
+        #     brand = request.env['product.brand'].search(
+        #         [('id', '=', int(brand))] + request.website.website_domain(), limit=1)
+        #     if not brand:
+        #         raise werkzeug.exceptions.NotFound()
+        # res.qcontext.update({
+        #     'brand': brand
+        # })
 
-        brand_list = request.httprequest.args.getlist('brands')
-        brand_values = [[str(x) for x in v.split("-")]
-                        for v in brand_list if v]
-        brand_set = set([int(v[1]) for v in brand_values])
+        # brand_list = request.httprequest.args.getlist('brands')
+        # brand_values = [[str(x) for x in v.split("-")]
+        #                 for v in brand_list if v]
+        # brand_set = set([int(v[1]) for v in brand_values])
 
         tag_list = request.httprequest.args.getlist('tags')
         tag_values = [[str(x) for x in v.split("-")] for v in tag_list if v]
@@ -329,17 +329,17 @@ class WebsiteSale(WebsiteSale):
         attrib_set = {v[1] for v in attrib_values}
 
         domain = self._get_search_domain_ext(search, category, attrib_values,
-                                             list(tag_set), list(brand_set))
+                                             list(tag_set))
 
-        if brand:
-            domain += [('product_brand_id', '=', brand.id)]
+        # if brand:
+        #     domain += [('product_brand_id', '=', brand.id)]
 
-        if post.get('brand'):
-            product_designer_obj = request.env['product.brand']
-            brand_ids = product_designer_obj.search(
-                [('id', '=', int(post.get('brand')))] + request.website.website_domain())
-            if brand_ids:
-                domain += [('product_brand_id', 'in', brand_ids.ids)]
+        # if post.get('brand'):
+        #     product_designer_obj = request.env['product.brand']
+        #     brand_ids = product_designer_obj.search(
+        #         [('id', '=', int(post.get('brand')))] + request.website.website_domain())
+        #     if brand_ids:
+        #         domain += [('product_brand_id', 'in', brand_ids.ids)]
 
         if post.get('product_collection'):
             prod_collection_rec = request.env['multitab.configure'].search(
@@ -354,7 +354,7 @@ class WebsiteSale(WebsiteSale):
 
         keep = QueryURL('/shop', category=category and int(category),
                         search=search, attrib=attrib_list,
-                        order=post.get('order'), brands=brand_list,
+                        order=post.get('order'),
                         tags=tag_list)
 
         pricelist_context = dict(request.env.context)
@@ -383,14 +383,14 @@ class WebsiteSale(WebsiteSale):
             post['attrib'] = attrib_list
         if tag_list:
             post['tags'] = tag_list
-        if brand_list:
-            post['brands'] = brand_list
-        if brand:
-            brand = request.env['product.brand'].browse(int(brand))
-            if not brand or not brand.can_access_from_current_website():
-                raise werkzeug.exceptions.NotFound()
-            else:
-                url = "/shop/brand/%s" % slug(brand)
+        # if brand_list:
+        #     post['brands'] = brand_list
+        # if brand:
+        #     brand = request.env['product.brand'].browse(int(brand))
+        #     if not brand or not brand.can_access_from_current_website():
+        #         raise werkzeug.exceptions.NotFound()
+        #     else:
+        #         url = "/shop/brand/%s" % slug(brand)
 
         Product = request.env['product.template']
         ProductPublicCategory = request.env['product.public.category']
@@ -423,7 +423,7 @@ class WebsiteSale(WebsiteSale):
 
         ProductAttribute = request.env['product.attribute']
         tags = request.env['product.tag'].search([])
-        brands = request.env['product.brand'].search([])
+        # brands = request.env['product.brand'].search([])
 
         if selected_products:
             attributes = ProductAttribute.search(
@@ -440,14 +440,14 @@ class WebsiteSale(WebsiteSale):
             'category': category,
             'attrib_values': attrib_values,
             'attrib_set': attrib_set,
-            'brands': brands,
-            'brand_values': brand_values,
-            'brand_set': brand_set,
+            # 'brands': brands,
+            # 'brand_values': brand_values,
+            # 'brand_set': brand_set,
             'tags': tags,
             'tag_values': tag_values,
             'tag_set': tag_set,
             'pager': pager,
-            # 'products': products,
+            'products': products,
             'search_count': product_count,
             'bins': TableCompute().process(products, ppg),
             'categories': categs,
@@ -633,7 +633,7 @@ class WebsiteSale(WebsiteSale):
             attrib_set = {v[1] for v in attrib_values}
 
             domain = self._get_search_domain_ext(search, category, attrib_values,
-                                                 list(tag_set), list(brand_set))
+                                                 list(tag_set))
 
             if post.get('brand'):
                 product_designer_obj = request.env['product.brand']
