@@ -21,26 +21,6 @@ import json
 
 class WebsiteSaleScout(WebsiteSale):
     
-#     delete address code=================
-    @http.route(['/my/delete/address'], type='json', auth="public")
-    def DeleteAddress(self, **kw):
-        if 'deleteaddress' in kw:
-            partner = kw.get("deleteaddress", False)
-            partner_address = request.env['res.partner'].sudo().search([('id','=',int(partner))],limit=1)
-            if partner_address:
-                sale_order_shipping = request.env['sale.order'].sudo().search([('partner_shipping_id','=',partner_address.id)])
-                sale_order_billing = request.env['sale.order'].sudo().search([('partner_id','=',partner_address.id)])
-                shipping_len = len(sale_order_shipping)
-                billing_len = len(sale_order_billing)
-                if shipping_len == 0 and billing_len == 0:
-                    partner_address.unlink()
-                    return True
-                else:
-                    return False
-            else:
-                return False
-        else:
-            return False
     
     #Storefront Shop Filters======================================
     def toggle_views(self):
@@ -61,11 +41,50 @@ class WebsiteSaleScout(WebsiteSale):
     '''/shop/brand/<model("product.brand", "[('website_id', 'in', (False, current_website_id))]"):brand>''',
     '''/shop/brand/<model("product.brand", "[('website_id', 'in', (False, current_website_id))]"):brand>/page/<int:page>''',
     ], type='http', auth="public", website=True)
-    def shop(self, page=0, category=None, search='',ppg=False,brand=None, **post):
+    def shop(self, page=0, category=None, search='',ppg=False,**post):
         res = super(WebsiteSaleScout, self).shop(
                 page, category, search, ppg, **post)
         
+        Product = request.env['product.template']
+
+        tag_list = request.httprequest.args.getlist('tags')
+        tag_values = [[str(x) for x in v.split("-")] for v in tag_list if v]
+        tag_set = set([int(v[1]) for v in tag_values])
+
+
+        attrib_list = request.httprequest.args.getlist('attrib')
+        attrib_values = [[int(x) for x in v.split("-")]
+                         for v in attrib_list if v]
+        attributes_ids = {v[0] for v in attrib_values}
+        attrib_set = {v[1] for v in attrib_values}
+
+
+        domain = self._get_search_domain_ext(search, category, attrib_values,
+                                             list(tag_set))
+
+
+        url = "/shop"
         
+        if category:
+            category = request.env['product.public.category'].search(
+                [('id', '=', int(category))], limit=1)
+            if not category or not category.can_access_from_current_website():
+                raise NotFound()
+            else:
+                url = "/shop/category/%s" % slug(category)
+
+        product_count = Product.search_count(domain)
+        
+        if post.get('product_collection'):
+            prod_collection_rec = request.env['multitab.configure'].search(
+                [('id', '=', int(post.get('product_collection')))])
+            if prod_collection_rec:
+                prod_id_list = list(
+                    {each_p.product_id.id for each_p in prod_collection_rec.product_ids})
+                domain += [('id', 'in', prod_id_list)]
+
+        search = res.qcontext.get('search')
+
         self.toggle_views()
         if category:
             request.session['my_current_category'] = category.id
@@ -83,10 +102,8 @@ class WebsiteSaleScout(WebsiteSale):
 
 
         # //rajesh 4 nov
-
         if not request.env.user._is_public():
             partner = request.env.user.partner_id
-            
             if category:
                 school_ids = request.env['product.template'].sudo().search([('school_list_ids','in', partner.school_list_ids.ids),('public_categ_ids','=',category.id)])
                 school_ids_not = request.env['product.template'].sudo().search([('school_list_ids','=', False),('public_categ_ids','=',category.id)])
@@ -125,8 +142,40 @@ class WebsiteSaleScout(WebsiteSale):
                     if restricted_products:
                         products_new = products_new.filtered(lambda p:p.id not in restricted_products)
                     
-                # else:
-                #     return False    
+
+
+                    if search:
+                        # products_new = Product.search(domain, limit=ppg, offset=res.qcontext.get('pager')[
+                        #           'offset'], order=self._get_search_order(post))
+                        products_new =res.qcontext.get('products')
+                        school_id_search=[]
+                        without_school_id=[]
+
+                        for product in products_new:
+                            for partner_school in partner.school_list_ids:
+                                for pro_school in product.school_list_ids:                                
+                                    if partner_school.name == pro_school.name: 
+                                        if product.school_list_ids.ids:
+                                            school_id_search.append(product)
+
+                            if not product.school_list_ids.ids:
+                                without_school_id.append(product)
+                         
+                        
+
+
+                        total_search_pro = school_id_search + without_school_id
+                        products_new = [] 
+                        for num in total_search_pro: 
+                            if num not in products_new: 
+                                products_new    .append(num) 
+
+                    res.qcontext.update({
+                                     'search': search,
+                                     'search_count': product_count,
+                                     'products':products_new,
+                                     'bins': TableCompute().process(products_new, int(ppg)),
+                                    })
 
             else:
                 school_ids = request.env['product.template'].sudo().search([('school_list_ids','in', partner.school_list_ids.ids)])
@@ -166,19 +215,44 @@ class WebsiteSaleScout(WebsiteSale):
                     if restricted_products:
                         products_new = products_new.filtered(lambda p:p.id not in restricted_products)
 
+                    pager = request.website.pager(
+                        url=url, total=product_count, page=page, step=ppg, scope=7, url_args=post)    
+
+                    if search:
+                        products_new = Product.search(domain, limit=ppg, offset=pager[
+                                  'offset'], order=self._get_search_order(post))
+                        school_id_search=[]
+                        without_school_id=[]
+
+                        for product in products_new:
+                            for partner_school in partner.school_list_ids:
+                                for pro_school in product.school_list_ids:                                
+                                    if partner_school.name == pro_school.name: 
+                                        if product.school_list_ids.ids:
+                                            school_id_search.append(product)
+
+                            if not product.school_list_ids.ids:
+                                without_school_id.append(product)
+                            
+                        
+                        total_search_pro = school_id_search + without_school_id
+                        products_new = [] 
+                        for num in total_search_pro: 
+                            if num not in products_new: 
+                                products_new.append(num) 
+
                     res.qcontext.update({
-                                 'products':products_new,
-                                 'bins': TableCompute().process(products_new, int(ppg)),
-                                 })
-
-
+                                     'search': search,
+                                     'search_count': product_count,
+                                     'products':products_new,
+                                     'bins': TableCompute().process(products_new, int(ppg)),
+                                    })
 
             scout_program_ids = request.env['scout.program'].sudo().search([])
             if scout_program_ids:
                 res.qcontext.update({'scout_programs': scout_program_ids})
             else:
                 res.qcontext.update({'scout_programs': False})
-                
                 
             if 'scout_program' in post:
                 program_id = post.get('scout_program')
@@ -187,7 +261,6 @@ class WebsiteSaleScout(WebsiteSale):
                 
             else:
                 res.qcontext.update({'current_program':False})
-        
         return res
     
     
