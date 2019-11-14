@@ -216,82 +216,129 @@ class SaleOrder(models.Model):
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
         transaction_value = res_config.transaction_value
+        nso_diff_country_code_group_list = {}
+        nso_same_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code == order.partner_shipping_id.country_id.code)
+        nso_diff_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code != order.partner_shipping_id.country_id.code)
         
-        for line in order.order_line:
-            if line.location_id:
-                if line.location_id.nso_location_id.country_id == order.partner_shipping_id.country_id:
-                    delivery_carrier = self.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','local')],limit=1)
-                    if not delivery_carrier:
-                        delivery_carrier = self.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','international')],limit=1)
-                    if delivery_carrier:
-                        res_price = getattr(delivery_carrier, '%s_rate_line_shipment' % delivery_carrier.delivery_type)(order,line)
-                        if not res_price.get('error_message'):
-                            
-                            currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
-                            if currency:
-                                if order.currency_id != order.company_id.currency_id:
-                                    payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
-                            handling_price = (res_price.get('price') *handling_charge)/100
-                            temp_price = payment_processing_fee + ((transaction_value/100) * (line.price_total + res_price.get('price') + handling_price))
-                            line.write({
-                                        'delivery_method':delivery_carrier.id,
-                                        'delivery_charge':res_price.get('price') + temp_price
-                                        })
-                            order.calculate_nso_lines(order)
+        
+        #Same Source Destination Code====================
+        nso_same_country_location_group = {}
+        same_carrier = False
+        same_country_id = False
+        same_delivery_price = 0.0
+        if nso_same_country_code_group:
+            same_carrier = nso_same_country_code_group[0].delivery_method
+            same_country_id = nso_same_country_code_group[0].location_id.nso_location_id.country_id
+       
+        for c_group in nso_same_country_code_group:
+            if c_group.location_id in nso_same_country_location_group:
+                nso_same_country_location_group[c_group.location_id] |= c_group
+            else:
+                nso_same_country_location_group.update({c_group.location_id:c_group})
+        for nso_loc in nso_same_country_location_group:
+            res_price = getattr(same_carrier, '%s_rate_line_shipment' % same_carrier.delivery_type)(order,nso_same_country_location_group[nso_loc])
+            if res_price.get('error_message'):
+                return res_price.get("error_message")
+            else:
+                currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
+                if currency:
+                    if order.currency_id != order.company_id.currency_id:
+                        payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
+                handling_price = (res_price.get('price') *handling_charge)/100
+                price_total = 0.0
+                for s_line in nso_same_country_location_group[nso_loc]:
+                    price_total += s_line.price_total
+                
+                temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                same_delivery_price += (temp_price + res_price.get('price'))
+                delivery_price_split = (temp_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
+                nso_same_country_location_group[nso_loc].write({
+                                                           'delivery_method':same_carrier.id,
+                                                           'delivery_charge':delivery_price_split
+                                                        })
+                order.calculate_nso_lines(order)
+        if same_country_id and same_carrier:
+            delivery_line_track_ids = self.env['delivery.line.track'].sudo().search([
+                                                                                        ('country_id','=',same_country_id.id),
+                                                                                        ('order_id','=',order.id),
+                                                                                        ('is_vendor_track','=',False)
+                                                                                    ],limit=1)
+            if delivery_line_track_ids:
+                delivery_line_track_ids.update({
+                                                'carrier_id':same_carrier.id,
+                                                'delivery_price': same_delivery_price,
+                                                'is_vendor_track': False
+                                                })
+            else:
+                self.env['delivery.line.track'].sudo().create({
+                                                                  'country_id':same_country_id.id,
+                                                                  'order_id' : order.id,
+                                                                  'carrier_id': same_carrier.id,
+                                                                  'delivery_price':same_delivery_price,
+                                                                  'is_vendor_track':False
+                                                                  })
+        
+        
+        #Different Source Destination Code====================
+        for diff_country in nso_diff_country_code_group:
+            if not diff_country.location_id.nso_location_id.country_id in nso_diff_country_code_group_list:
+                nso_diff_country_code_group_list.update({diff_country.location_id.nso_location_id.country_id:diff_country})
+            else:
+                nso_diff_country_code_group_list[diff_country.location_id.nso_location_id.country_id] |= diff_country
+        
+        
+        for nso_group_list in nso_diff_country_code_group_list:
+            nso_country_code_group = nso_diff_country_code_group_list[nso_group_list]
+            nso_country_location_group = {}
+            carrier = nso_country_code_group[0].delivery_method
+            country_id = nso_country_code_group[0].location_id.nso_location_id.country_id.id
+            delivery_price = 0.0
+            for c_group in nso_country_code_group:
+                if c_group.location_id in nso_country_location_group:
+                    nso_country_location_group[c_group.location_id] |= c_group
                 else:
-                    country_code = line.location_id.nso_location_id.country_id.code
-                    carrier = line.delivery_method if line.delivery_method else False  
-                    country_id = line.location_id.nso_location_id.country_id
-                    delivery_price = 0.0
-                    lines_to_change = {}
-                     
-                    if carrier:
-                        for so_line in order.order_line:
-                            if so_line.location_id:
-                                if so_line.location_id.nso_location_id.country_id.code == country_code:
-                                    res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,so_line)
-                                    if res.get('error_message'):
-                                        return res.get("error_message")
-                                    else:
-                                        currency = self.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
-                                        
-                                        if currency:
-                                            if order.currency_id != order.company_id.currency_id:
-                                                payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
-                                        handling_price = (res.get('price') *handling_charge)/100
-                                        temp_price = payment_processing_fee + ((transaction_value/100) * (so_line.price_total + res.get('price') + handling_price))
-                                        lines_to_change.update({so_line:res.get('price') + temp_price})
-                                        delivery_price += (res.get('price') + temp_price)
-                                         
-                        if lines_to_change:
-                            for change_line in lines_to_change:
-                                line_id = self.env['sale.order.line'].sudo().browse(change_line.id)
-                                if line_id:
-                                    line_id.write({
-                                                    'delivery_method':carrier.id,
-                                                    'delivery_charge':lines_to_change[change_line]
-                                                    })
-                                    order.calculate_nso_lines(order)
-                            delivery_line_track_ids = self.env['delivery.line.track'].sudo().search([
-                                                                                                        ('country_id','=',country_id.id),
-                                                                                                        ('order_id','=',order.id),
-                                                                                                        ('is_vendor_track','=',False)
-                                                                                                        ],limit=1)
-                            if delivery_line_track_ids:
-                                delivery_line_track_ids.update({
-                                                                'carrier_id':carrier.id,
-                                                                'delivery_price': round(delivery_price,2),
-                                                                'is_vendor_track':False,})
-                            else:
-                                self.env['delivery.line.track'].sudo().create({
-                                                                                  'country_id':country_id.id,
-                                                                                  'order_id' : order.id,
-                                                                                  'carrier_id': carrier.id,
-                                                                                  'delivery_price':round(delivery_price,2),
-                                                                                  'is_vendor_track':False,
-                                                                                  })
-                             
-    
+                    nso_country_location_group.update({c_group.location_id:c_group})
+            for nso_loc in nso_country_location_group:
+                res_price = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
+                
+                if res_price.get('error_message'):
+                    return res_price.get("error_message")
+                else:
+                    currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
+                    if currency:
+                        if order.currency_id != order.company_id.currency_id:
+                            payment_processing_fee = currency._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
+                    handling_price = (res_price.get('price') *handling_charge)/100
+                    price_total = 0.0
+                    for s_line in nso_country_location_group[nso_loc]:
+                        price_total += s_line.price_total
+                    temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                    delivery_price_split = (temp_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
+                    delivery_price += (temp_price + res_price.get('price'))
+                    nso_country_location_group[nso_loc].write({
+                                                           'delivery_method':carrier.id,
+                                                           'delivery_charge':delivery_price_split
+                                                        })
+                    order.calculate_nso_lines(order)
+            delivery_line_track_ids = self.env['delivery.line.track'].sudo().search([
+                                                                                    ('country_id','=',country_id),
+                                                                                    ('order_id','=',order.id),
+                                                                                    ('is_vendor_track','=',False)
+                                                                                ],limit=1)
+            if delivery_line_track_ids:
+                delivery_line_track_ids.update({
+                                                'carrier_id':carrier.id,
+                                                'delivery_price': delivery_price,
+                                                'is_vendor_track': False
+                                                })
+            else:
+                self.env['delivery.line.track'].sudo().create({
+                                                                  'country_id':country_id,
+                                                                  'order_id' : order.id,
+                                                                  'carrier_id': carrier.id,
+                                                                  'delivery_price':delivery_price,
+                                                                  'is_vendor_track':False
+                                                                  })
     
     def check_blank_nso_delivery_lines(self): 
         for line in self.order_line:

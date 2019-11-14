@@ -48,7 +48,7 @@ class UPSDeliveryCarrier(models.Model):
                 'warning_message': False,
                 'currency_code':order.currency_id.name}
     
-    def ups_rate_line_shipment(self, order,line):
+    def ups_rate_line_shipment(self, order,lines):
         superself = self.sudo()
         srm = UPSRequest(self.log_xml, superself.ups_username, superself.ups_passwd, superself.ups_shipper_number, superself.ups_access_number, self.prod_environment)
         ResCurrency = self.env['res.currency']
@@ -56,7 +56,7 @@ class UPSDeliveryCarrier(models.Model):
         packages = []
         total_qty = 0
         total_weight = 0
-        for line in line.filtered(lambda line: not line.is_delivery):
+        for line in lines.filtered(lambda l: not l.is_delivery):
             total_qty += line.product_uom_qty
             total_weight += line.product_id.weight * line.product_qty
 
@@ -70,7 +70,6 @@ class UPSDeliveryCarrier(models.Model):
                 packages.append(Package(self, last_package_weight))
         else:
             packages.append(Package(self, total_weight))
-
         shipment_info = {
             'total_qty': total_qty  # required when service type = 'UPS Worldwide Express Freight'
         }
@@ -84,12 +83,12 @@ class UPSDeliveryCarrier(models.Model):
         else:
             cod_info = None
         stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
-        if not line.location_id and line.product_id.route_ids in stage_ids:
+        if not lines[0].location_id and line[0].product_id.route_ids in stage_ids:
             vendor = self.get_stock_vendor(order,line)
             if vendor:
                 check_value = srm.check_required_value(vendor, vendor,order.partner_shipping_id, order=order)
         else:
-            check_value = srm.check_required_value(line.location_id.nso_location_id,line.location_id.nso_location_id, order.partner_shipping_id, order=order)
+            check_value = srm.check_required_value(lines[0].location_id.nso_location_id,lines[0].location_id.nso_location_id, order.partner_shipping_id, order=order)
 #         check_value = srm.check_required_value(line.location_id.nso_location_id,line.location_id.nso_location_id, order.partner_shipping_id, order=order)
         
         if check_value:
@@ -224,19 +223,19 @@ class UPSDeliveryCarrier(models.Model):
             res = res + [shipping_data]
         return res 
     
-    def easypost_rate_line_shipment(self, order,line):
+    def easypost_rate_line_shipment(self, order,lines):
         """ Return the rates for a quotation/SO."""
         ep = EasypostRequest(self.easypost_production_api_key if self.prod_environment else self.easypost_test_api_key, self.log_xml)
 #         response = ep.rate_request(self, order.partner_shipping_id, line.location_id.nso_location_id, order,picking=False,line=line)
         # Return error message
         response = False
         stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
-        if not line.location_id and line.product_id.route_ids in stage_ids:
-            vendor = self.get_stock_vendor(order,line)
+        if not lines[0].location_id and lines[0].product_id.route_ids in stage_ids:
+            vendor = self.get_stock_vendor(order,lines[0])
             if vendor:
-                response = ep.rate_request(self, order.partner_shipping_id, vendor, order,picking=False,line=line)
+                response = ep.rate_request(self, order.partner_shipping_id, vendor, order,picking=False,line=lines)
         else:
-            response = ep.rate_request(self, order.partner_shipping_id, line.location_id.nso_location_id, order,picking=False,line=line)
+            response = ep.rate_request(self, order.partner_shipping_id, lines[0].location_id.nso_location_id, order,picking=False,line=lines)
         
         if response.get('error_message'):
             return {
@@ -253,7 +252,6 @@ class UPSDeliveryCarrier(models.Model):
         else:
             quote_currency = self.env['res.currency'].search([('name', '=', rate['currency'])], limit=1)
             price = quote_currency._convert(float(rate['rate']), order.currency_id, self.env['res.users']._get_company(), fields.Date.today())
-
         return {
             'success': True,
             'price': price,
@@ -308,7 +306,7 @@ class UPSDeliveryCarrier(models.Model):
     
 class EasypostRequest(EasypostRequest):
     
-    def _prepare_order_shipments(self, carrier, order,line):
+    def _prepare_order_shipments(self, carrier, order,lines):
         """ Method used in order to estimate delivery
         cost for a quotation. It estimates the price with
         the default package defined on the carrier.
@@ -322,7 +320,9 @@ class EasypostRequest(EasypostRequest):
         # Max weight for carrier default package
         max_weight = carrier._easypost_convert_weight(carrier.easypost_default_packaging_id.max_weight)
         # Order weight
-        total_weight = carrier._easypost_convert_weight(line.product_id.weight * line.product_uom_qty)
+        total_weight = 0.0
+        for line in lines:
+            total_weight += carrier._easypost_convert_weight(line.product_id.weight * line.product_uom_qty)
         # Create shipments
         shipments = {}
         if max_weight and total_weight > max_weight:
