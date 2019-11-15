@@ -129,7 +129,7 @@ class JTDeliveryCarrier(models.Model):
                     rate = max_shipping_rate.rate
                     return {'rate':rate,'remain':total_weight_remain}
     
-    def _get_jt_price_available(self,order,line):
+    def _get_jt_price_available(self,order,lines):
         self.ensure_one()
         destination_id = order.partner_shipping_id.state_id
         origin_id = False
@@ -139,7 +139,7 @@ class JTDeliveryCarrier(models.Model):
         total_delivery_cost = 0.0
         total_rate =0.0
         big_product_price = order.carrier_id.big_size_price
-        for line in line:
+        for line in lines:
             stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
             if not line.location_id and line.product_id.route_ids in stage_ids:
                 vendor = self.get_stock_vendor_jt(order,line)
@@ -172,10 +172,10 @@ class JTDeliveryCarrier(models.Model):
                     
             if big_product_count > 0:
                 total_delivery_cost += (big_product_count * big_product_price)
-            
+        
         return total_delivery_cost
     
-    def base_on_jt_configuration_rate_line_shipment(self, order, line):
+    def base_on_jt_configuration_rate_line_shipment(self, order, lines):
         carrier = self._match_address(order.partner_shipping_id)
         currency = self.env['res.currency'].sudo().search([('name','=','PHP')])
         if not carrier:
@@ -185,7 +185,7 @@ class JTDeliveryCarrier(models.Model):
                     'warning_message': False}
 
         try:
-            price_unit = self._get_jt_price_available(order,line)
+            price_unit = self._get_jt_price_available(order,lines)
         except UserError as e:
             return {'success': False,
                     'price': 0.0,
@@ -194,7 +194,6 @@ class JTDeliveryCarrier(models.Model):
         price_unit = currency._convert(price_unit,order.currency_id,order.company_id,fields.Date.today())
 #         if order.company_id.currency_id.id != order.pricelist_id.currency_id.id:
 #             price_unit = order.company_id.currency_id.with_context(date=order.date_order).compute(price_unit, order.pricelist_id.currency_id)
-
         return {'success': True,
                 'price': price_unit,
                 'error_message': False,
