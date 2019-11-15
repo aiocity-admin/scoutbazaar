@@ -154,4 +154,42 @@ class WebsiteSaleJTExress(WebsiteSale):
         else:
             return False
         
-        
+    @http.route('/filter/ph_servicable_area', type='json', auth="public", website=True)
+    def filter_servicable_area(self, city_id):
+        value = {}
+        district_list = []
+        town_list = []
+        if city_id:
+            servicable_area = request.env['jt.servicable.areas'].sudo().search([('city_id','=',int(city_id))])
+            for ids in servicable_area:
+                if not [ids.district_id.id,ids.district_id.name] in district_list:
+                    district_list.append([ids.district_id.id,ids.district_id.name])
+
+                if not [ids.town_id.id,ids.town_id.name] in town_list:
+                    town_list.append([ids.town_id.id,ids.town_id.name])
+                    
+            if district_list and town_list:
+                return district_list,town_list
+                
+            else:
+                return False
+        else:
+            return False
+    
+    @http.route('/filter/ph_servicable_area/district', type='json', auth="public", website=True)
+    def filter_servicable_area_district(self, district_id):
+        value = {}
+        town_list = []
+        if district_id:
+            servicable_area = request.env['jt.servicable.areas'].sudo().search([('district_id','=',int(district_id))])
+            for ids in servicable_area:
+                if not [ids.town_id.id,ids.town_id.name] in town_list:
+                    town_list.append([ids.town_id.id,ids.town_id.name])
+                    
+            if town_list:
+                return town_list
+                
+            else:
+                return False
+        else:
+            return False
