@@ -115,63 +115,65 @@
                                         </div>
                                     </t>
                                     <!-- h-col h-setting -->
-                                    <div class="h-col h-setting">
-                                        <i class="ti-settings"></i>
-                                        <t t-esc="current_language"/>
-                                        <div class="h-col-hover">
-                                            <div class="form-language hed-drop">
-                                                <h4 t-if="(request.is_frontend_multilang)">Language</h4>
-                                                <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
-                                                    <li>
-                                                        <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
-                                                            <t t-foreach="languages" t-as="lgs">
-                                                                <t t-if="request.lang and request.lang==lgs[0]">
-                                                                    <t t-esc="lgs[1].split('/').pop()"/></t>
-                                                            </t>
-                                                            <i class="fa fa-angle-down"></i>
-                                                        </label>
-                                                        <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
-                                                            <t t-foreach="languages" t-as="lg">
-                                                                <li t-att-class="'active' if request.lang== lg[0] else None">
-                                                                    <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
-                                                                        <t t-esc="lg[1].split('/').pop()"/>
+                                    <t t-if="not request.env.user._is_public()">
+                                        <div class="h-col h-setting" groups="base.user_admin">
+                                            <i class="ti-settings"></i>
+                                            <t t-esc="current_language"/>
+                                            <div class="h-col-hover">
+                                                <div class="form-language hed-drop">
+                                                    <h4 t-if="(request.is_frontend_multilang)">Language</h4>
+                                                    <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
+                                                        <li>
+                                                            <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
+                                                                <t t-foreach="languages" t-as="lgs">
+                                                                    <t t-if="request.lang and request.lang==lgs[0]">
+                                                                        <t t-esc="lgs[1].split('/').pop()"/></t>
+                                                                </t>
+                                                                <i class="fa fa-angle-down"></i>
+                                                            </label>
+                                                            <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
+                                                                <t t-foreach="languages" t-as="lg">
+                                                                    <li t-att-class="'active' if request.lang== lg[0] else None">
+                                                                        <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
+                                                                            <t t-esc="lg[1].split('/').pop()"/>
+                                                                        </a>
+                                                                    </li>
+                                                                </t>
+                                                                <li groups="website.group_website_publisher">
+                                                                    <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
+                                                                    <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
+                                                                        <i class="fa fa-plus-circle"/>Add...
+                                      
                                                                     </a>
                                                                 </li>
-                                                            </t>
-                                                            <li groups="website.group_website_publisher">
-                                                                <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
-                                                                <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
-                                                                    <i class="fa fa-plus-circle"/>Add...
-                                  
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <!-- .form-language hed-drop -->
-                                            <div class="price-list hed-drop">
-                                                <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
-                                                <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
-                                                    <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
-                                                    <h4>Currency</h4>
-                                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                                        <t t-esc="curr_pl and curr_pl.name or ' - '" />
-                                                        <span class="fa fa-angle-down"></span>
-                                                    </a>
-                                                    <ul class="dropdown-menu" role="menu">
-                                                        <li t-foreach="website_sale_pricelists" t-as="pl" >
-                                                            <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
-                                                                <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
-                                                            </a>
+                                                            </ul>
                                                         </li>
                                                     </ul>
                                                 </div>
+                                                <!-- .form-language hed-drop -->
+                                                <div class="price-list hed-drop">
+                                                    <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
+                                                    <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
+                                                        <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
+                                                        <h4>Currency</h4>
+                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                            <t t-esc="curr_pl and curr_pl.name or ' - '" />
+                                                            <span class="fa fa-angle-down"></span>
+                                                        </a>
+                                                        <ul class="dropdown-menu" role="menu">
+                                                            <li t-foreach="website_sale_pricelists" t-as="pl" >
+                                                                <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
+                                                                    <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <!--.price-list hed-drop  -->
                                             </div>
-                                            <!--.price-list hed-drop  -->
+                                            <!--.h-col-hover  -->
                                         </div>
-                                        <!--.h-col-hover  -->
-                                    </div>
+                                    </t>
                                     <!-- .h-col h-setting -->
                                 </div>
                                 <!-- .ht-right -->
@@ -288,63 +290,65 @@
                                         </div>
                                     </div>
                                     <!-- h-col h-setting -->
-                                    <div class="h-col h-setting">
-                                        <i class="ti-settings hc-icon"></i>
-                                        <t t-esc="current_language"/>
-                                        <div class="h-col-hover">
-                                            <div class="form-language hed-drop">
-                                                <h4 t-if="(request.is_frontend_multilang)">Language</h4>
-                                                <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
-                                                    <li>
-                                                        <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
-                                                            <t t-foreach="languages" t-as="lgs">
-                                                                <t t-if="request.lang and request.lang==lgs[0]">
-                                                                    <t t-esc="lgs[1].split('/').pop()"/></t>
-                                                            </t>
-                                                            <i class="fa fa-angle-down"></i>
-                                                        </label>
-                                                        <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
-                                                            <t t-foreach="languages" t-as="lg">
-                                                                <li t-att-class="'active' if request.lang== lg[0] else None">
-                                                                    <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
-                                                                        <t t-esc="lg[1].split('/').pop()"/>
+                                    <t t-if="not request.env.user._is_public()">
+                                        <div class="h-col h-setting" groups="base.user_admin">
+                                            <i class="ti-settings hc-icon"></i>
+                                            <t t-esc="current_language"/>
+                                            <div class="h-col-hover">
+                                                <div class="form-language hed-drop">
+                                                    <h4 t-if="(request.is_frontend_multilang)">Language</h4>
+                                                    <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
+                                                        <li>
+                                                            <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
+                                                                <t t-foreach="languages" t-as="lgs">
+                                                                    <t t-if="request.lang and request.lang==lgs[0]">
+                                                                        <t t-esc="lgs[1].split('/').pop()"/></t>
+                                                                </t>
+                                                                <i class="fa fa-angle-down"></i>
+                                                            </label>
+                                                            <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
+                                                                <t t-foreach="languages" t-as="lg">
+                                                                    <li t-att-class="'active' if request.lang== lg[0] else None">
+                                                                        <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
+                                                                            <t t-esc="lg[1].split('/').pop()"/>
+                                                                        </a>
+                                                                    </li>
+                                                                </t>
+                                                                <li groups="website.group_website_publisher">
+                                                                    <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
+                                                                    <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
+                                                                        <i class="fa fa-plus-circle"/>Add...
+                                      
                                                                     </a>
                                                                 </li>
-                                                            </t>
-                                                            <li groups="website.group_website_publisher">
-                                                                <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
-                                                                <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
-                                                                    <i class="fa fa-plus-circle"/>Add...
-                                  
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <!-- .form-language hed-drop -->
-                                            <div class="price-list hed-drop">
-                                                <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
-                                                <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
-                                                    <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
-                                                    <h4>Currency</h4>
-                                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                                        <t t-esc="curr_pl and curr_pl.name or ' - '" />
-                                                        <span class="fa fa-angle-down"></span>
-                                                    </a>
-                                                    <ul class="dropdown-menu" role="menu">
-                                                        <li t-foreach="website_sale_pricelists" t-as="pl" >
-                                                            <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
-                                                                <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
-                                                            </a>
+                                                            </ul>
                                                         </li>
                                                     </ul>
                                                 </div>
+                                                <!-- .form-language hed-drop -->
+                                                <div class="price-list hed-drop">
+                                                    <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
+                                                    <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
+                                                        <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
+                                                        <h4>Currency</h4>
+                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                            <t t-esc="curr_pl and curr_pl.name or ' - '" />
+                                                            <span class="fa fa-angle-down"></span>
+                                                        </a>
+                                                        <ul class="dropdown-menu" role="menu">
+                                                            <li t-foreach="website_sale_pricelists" t-as="pl" >
+                                                                <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
+                                                                    <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <!--.price-list hed-drop  -->
                                             </div>
-                                            <!--.price-list hed-drop  -->
+                                            <!--.h-col-hover  -->
                                         </div>
-                                        <!--.h-col-hover  -->
-                                    </div>
+                                    </t>
                                     <!-- .h-col h-setting -->
                                     <div class="mobile-toggle">
                                         <button class="mobile_toggle_menu">
@@ -415,63 +419,65 @@
                                             </div>
                                         </div>
                                         <!-- h-col h-setting -->
-                                        <div class="h-col h-setting">
-                                            <i class="ti-settings hc-icon"></i>
-                                            <t t-esc="current_language"/>
-                                            <div class="h-col-hover">
-                                                <div class="form-language hed-drop">
-                                                    <h4 t-if="(request.is_frontend_multilang)">Language</h4>
-                                                    <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
-                                                        <li>
-                                                            <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
-                                                                <t t-foreach="languages" t-as="lgs">
-                                                                    <t t-if="request.lang and request.lang==lgs[0]">
-                                                                        <t t-esc="lgs[1].split('/').pop()"/></t>
-                                                                </t>
-                                                                <i class="fa fa-angle-down"></i>
-                                                            </label>
-                                                            <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
-                                                                <t t-foreach="languages" t-as="lg">
-                                                                    <li t-att-class="'active' if request.lang== lg[0] else None">
-                                                                        <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
-                                                                            <t t-esc="lg[1].split('/').pop()"/>
+                                        <t t-if="not request.env.user._is_public()">
+                                            <div class="h-col h-setting" groups="base.user_admin">
+                                                <i class="ti-settings hc-icon"></i>
+                                                <t t-esc="current_language"/>
+                                                <div class="h-col-hover">
+                                                    <div class="form-language hed-drop">
+                                                        <h4 t-if="(request.is_frontend_multilang)">Language</h4>
+                                                        <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
+                                                            <li>
+                                                                <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
+                                                                    <t t-foreach="languages" t-as="lgs">
+                                                                        <t t-if="request.lang and request.lang==lgs[0]">
+                                                                            <t t-esc="lgs[1].split('/').pop()"/></t>
+                                                                    </t>
+                                                                    <i class="fa fa-angle-down"></i>
+                                                                </label>
+                                                                <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
+                                                                    <t t-foreach="languages" t-as="lg">
+                                                                        <li t-att-class="'active' if request.lang== lg[0] else None">
+                                                                            <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
+                                                                                <t t-esc="lg[1].split('/').pop()"/>
+                                                                            </a>
+                                                                        </li>
+                                                                    </t>
+                                                                    <li groups="website.group_website_publisher">
+                                                                        <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
+                                                                        <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
+                                                                            <i class="fa fa-plus-circle"/>Add...
+                                      
                                                                         </a>
                                                                     </li>
-                                                                </t>
-                                                                <li groups="website.group_website_publisher">
-                                                                    <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
-                                                                    <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
-                                                                        <i class="fa fa-plus-circle"/>Add...
-                                  
-                                                                    </a>
-                                                                </li>
-                                                            </ul>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                <!-- .form-language hed-drop -->
-                                                <div class="price-list hed-drop">
-                                                    <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
-                                                    <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
-                                                        <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
-                                                        <h4>Currency</h4>
-                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                                            <t t-esc="curr_pl and curr_pl.name or ' - '" />
-                                                            <span class="fa fa-angle-down"></span>
-                                                        </a>
-                                                        <ul class="dropdown-menu" role="menu">
-                                                            <li t-foreach="website_sale_pricelists" t-as="pl" >
-                                                                <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
-                                                                    <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
-                                                                </a>
+                                                                </ul>
                                                             </li>
                                                         </ul>
                                                     </div>
+                                                    <!-- .form-language hed-drop -->
+                                                    <div class="price-list hed-drop">
+                                                        <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
+                                                        <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
+                                                            <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
+                                                            <h4>Currency</h4>
+                                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                                <t t-esc="curr_pl and curr_pl.name or ' - '" />
+                                                                <span class="fa fa-angle-down"></span>
+                                                            </a>
+                                                            <ul class="dropdown-menu" role="menu">
+                                                                <li t-foreach="website_sale_pricelists" t-as="pl" >
+                                                                    <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
+                                                                        <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <!--.price-list hed-drop  -->
                                                 </div>
-                                                <!--.price-list hed-drop  -->
+                                                <!--.h-col-hover  -->
                                             </div>
-                                            <!--.h-col-hover  -->
-                                        </div>
+                                        </t>
                                         <!-- .h-col h-setting -->
                                         <div class="mobile-toggle">
                                             <button class="mobile_toggle_menu">
@@ -508,64 +514,66 @@
                                 <div class="ht-right">
                                     <t t-set="website_sale_order" t-value="website.sale_get_order()" />
                                     <!-- h-col h-setting -->
-                                    <div class="h-col h-setting">
-                                        <i class="ti-settings hc-icon"></i>
-                                        <span class="h-col-label">Settings</span>
-                                        <t t-esc="current_language"/>
-                                        <div class="h-col-hover">
-                                            <div class="form-language hed-drop">
-                                                <h4 t-if="(request.is_frontend_multilang)">Language</h4>
-                                                <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
-                                                    <li>
-                                                        <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
-                                                            <t t-foreach="languages" t-as="lgs">
-                                                                <t t-if="request.lang and request.lang==lgs[0]">
-                                                                    <t t-esc="lgs[1].split('/').pop()"/></t>
-                                                            </t>
-                                                            <i class="fa fa-angle-down"></i>
-                                                        </label>
-                                                        <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
-                                                            <t t-foreach="languages" t-as="lg">
-                                                                <li t-att-class="'active' if request.lang== lg[0] else None">
-                                                                    <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
-                                                                        <t t-esc="lg[1].split('/').pop()"/>
+                                    <t t-if="not request.env.user._is_public()">
+                                        <div class="h-col h-setting" groups="base.user_admin">
+                                            <i class="ti-settings hc-icon"></i>
+                                            <span class="h-col-label">Settings</span>
+                                            <t t-esc="current_language"/>
+                                            <div class="h-col-hover">
+                                                <div class="form-language hed-drop">
+                                                    <h4 t-if="(request.is_frontend_multilang)">Language</h4>
+                                                    <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
+                                                        <li>
+                                                            <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
+                                                                <t t-foreach="languages" t-as="lgs">
+                                                                    <t t-if="request.lang and request.lang==lgs[0]">
+                                                                        <t t-esc="lgs[1].split('/').pop()"/></t>
+                                                                </t>
+                                                                <i class="fa fa-angle-down"></i>
+                                                            </label>
+                                                            <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
+                                                                <t t-foreach="languages" t-as="lg">
+                                                                    <li t-att-class="'active' if request.lang== lg[0] else None">
+                                                                        <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
+                                                                            <t t-esc="lg[1].split('/').pop()"/>
+                                                                        </a>
+                                                                    </li>
+                                                                </t>
+                                                                <li groups="website.group_website_publisher">
+                                                                    <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
+                                                                    <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
+                                                                        <i class="fa fa-plus-circle"/>Add...
+                                      
                                                                     </a>
                                                                 </li>
-                                                            </t>
-                                                            <li groups="website.group_website_publisher">
-                                                                <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
-                                                                <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
-                                                                    <i class="fa fa-plus-circle"/>Add...
-                                  
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <!-- .form-language hed-drop -->
-                                            <div class="price-list hed-drop">
-                                                <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
-                                                <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
-                                                    <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
-                                                    <h4>Currency</h4>
-                                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                                        <t t-esc="curr_pl and curr_pl.name or ' - '" />
-                                                        <span class="fa fa-angle-down"></span>
-                                                    </a>
-                                                    <ul class="dropdown-menu" role="menu">
-                                                        <li t-foreach="website_sale_pricelists" t-as="pl" >
-                                                            <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
-                                                                <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
-                                                            </a>
+                                                            </ul>
                                                         </li>
                                                     </ul>
                                                 </div>
+                                                <!-- .form-language hed-drop -->
+                                                <div class="price-list hed-drop">
+                                                    <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
+                                                    <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
+                                                        <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
+                                                        <h4>Currency</h4>
+                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                            <t t-esc="curr_pl and curr_pl.name or ' - '" />
+                                                            <span class="fa fa-angle-down"></span>
+                                                        </a>
+                                                        <ul class="dropdown-menu" role="menu">
+                                                            <li t-foreach="website_sale_pricelists" t-as="pl" >
+                                                                <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
+                                                                    <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <!--.price-list hed-drop  -->
                                             </div>
-                                            <!--.price-list hed-drop  -->
+                                            <!--.h-col-hover  -->
                                         </div>
-                                        <!--.h-col-hover  -->
-                                    </div>
+                                    </t>
                                     <!-- .h-col h-setting -->
                                     <div class="h-col h-search">
                                         <i class="flaticon-magnifying-glass search_open"></i>
@@ -714,63 +722,65 @@
                                             </div>
                                         </t>
                                         <!-- h-col h-setting -->
-                                        <div class="h-col h-setting">
-                                            <i class="ti-settings hc-icon"></i>
-                                            <t t-esc="current_language"/>
-                                            <div class="h-col-hover">
-                                                <div class="form-language hed-drop">
-                                                    <h4 t-if="(request.is_frontend_multilang)">Language</h4>
-                                                    <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
-                                                        <li>
-                                                            <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
-                                                                <t t-foreach="languages" t-as="lgs">
-                                                                    <t t-if="request.lang and request.lang==lgs[0]">
-                                                                        <t t-esc="lgs[1].split('/').pop()"/></t>
-                                                                </t>
-                                                                <i class="fa fa-angle-down"></i>
-                                                            </label>
-                                                            <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
-                                                                <t t-foreach="languages" t-as="lg">
-                                                                    <li t-att-class="'active' if request.lang== lg[0] else None">
-                                                                        <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
-                                                                            <t t-esc="lg[1].split('/').pop()"/>
+                                        <t t-if="not request.env.user._is_public()">
+                                            <div class="h-col h-setting" groups="base.user_admin">]
+                                                <i class="ti-settings hc-icon"></i>
+                                                <t t-esc="current_language"/>
+                                                <div class="h-col-hover">
+                                                    <div class="form-language hed-drop">
+                                                        <h4 t-if="(request.is_frontend_multilang)">Language</h4>
+                                                        <ul id="lang" t-if="(request.is_frontend_multilang and len(languages) &gt; 1) or editable" class="js_language_selector">
+                                                            <li>
+                                                                <label data-toggle="dropdown" type="button" data-caret="true" class="dropdown-toggle">
+                                                                    <t t-foreach="languages" t-as="lgs">
+                                                                        <t t-if="request.lang and request.lang==lgs[0]">
+                                                                            <t t-esc="lgs[1].split('/').pop()"/></t>
+                                                                    </t>
+                                                                    <i class="fa fa-angle-down"></i>
+                                                                </label>
+                                                                <ul role="menu" class="dropdown-menu dropdown-menu-right js_language_selector">
+                                                                    <t t-foreach="languages" t-as="lg">
+                                                                        <li t-att-class="'active' if request.lang== lg[0] else None">
+                                                                            <a  class="js_change_lang" t-att-data-lang="lg[0]" t-att-href="url_for(request.httprequest.path + '?' + keep_query(), lang=lg[0])">
+                                                                                <t t-esc="lg[1].split('/').pop()"/>
+                                                                            </a>
+                                                                        </li>
+                                                                    </t>
+                                                                    <li groups="website.group_website_publisher">
+                                                                        <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
+                                                                        <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
+                                                                            <i class="fa fa-plus-circle"/>Add...
+                                      
                                                                         </a>
                                                                     </li>
-                                                                </t>
-                                                                <li groups="website.group_website_publisher">
-                                                                    <t t-set="url_return" t-value="url_for('', '[lang]') + '?' + keep_query()"/>
-                                                                    <a t-attf-href="/web#action=base.action_view_base_language_install&amp;website_id=#{website.id}&amp;url_return=#{url_return}">
-                                                                        <i class="fa fa-plus-circle"/>Add...
-                                  
-                                                                    </a>
-                                                                </li>
-                                                            </ul>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                <!-- .form-language hed-drop -->
-                                                <div class="price-list hed-drop">
-                                                    <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
-                                                    <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
-                                                        <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
-                                                        <h4>Currency</h4>
-                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                                            <t t-esc="curr_pl and curr_pl.name or ' - '" />
-                                                            <span class="fa fa-angle-down"></span>
-                                                        </a>
-                                                        <ul class="dropdown-menu" role="menu">
-                                                            <li t-foreach="website_sale_pricelists" t-as="pl" >
-                                                                <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
-                                                                    <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
-                                                                </a>
+                                                                </ul>
                                                             </li>
                                                         </ul>
                                                     </div>
+                                                    <!-- .form-language hed-drop -->
+                                                    <div class="price-list hed-drop">
+                                                        <t t-set="website_sale_pricelists" t-value="website.get_pricelist_available(show_visible=True)"/>
+                                                        <div t-attf-class="#{website_sale_pricelists and len(website_sale_pricelists)>1 and 'dropdown' or 'd-none'}">
+                                                            <t t-set="curr_pl" t-value="website.get_current_pricelist()"/>
+                                                            <h4>Currency</h4>
+                                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                                <t t-esc="curr_pl and curr_pl.name or ' - '" />
+                                                                <span class="fa fa-angle-down"></span>
+                                                            </a>
+                                                            <ul class="dropdown-menu" role="menu">
+                                                                <li t-foreach="website_sale_pricelists" t-as="pl" >
+                                                                    <a t-att-href="'/shop/change_pricelist/%s' % pl.id">
+                                                                        <span class='switcher_pricelist' t-att-data-pl_id="pl.id" t-esc="pl.name"/>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <!--.price-list hed-drop  -->
                                                 </div>
-                                                <!--.price-list hed-drop  -->
+                                                <!--.h-col-hover  -->
                                             </div>
-                                            <!--.h-col-hover  -->
-                                        </div>
+                                        </t>
                                         <!-- .h-col h-setting -->
                                     </div>
                                     <!-- .ht-right -->

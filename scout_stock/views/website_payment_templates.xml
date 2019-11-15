@@ -16,11 +16,11 @@
 	   				</t>
 	    			<t t-if="international_shipping_methods">
 		    			<span><b> Scout Bazaar Delivery Methods for International Shipments</b></span>
-		    			<div class="card">
+		    			<div class="card" style="margin-top:2%">
 		    				<t t-foreach="international_shipping_methods" t-as="shipping">
-		    					<div class="card_body">
+		    					<div class="card_body" style="margin-top: 2%;margin-left:18px;">
 		    						<t t-set="c_name" t-value="website_sale_order.get_country_by_code(shipping)"/>
-		    						<h4>Shipping From <t t-esc="c_name"/></h4>
+		    						<h4 class='card_shipping'>Shipping From <t t-esc="c_name"/></h4>
 	    							<t t-foreach="international_shipping_methods[shipping]" t-as="delivery_method">
 	    								<div class="col-sm-12">
 	    									<t t-if="shipping in order_delivery_track_lines_dict">
@@ -50,9 +50,9 @@
 	    			</t>
 	    			
 	    			<t t-if="international_shipping_methods or is_domestic_products">
-	    				<div class="col-sm-12">
+	    				<div class="col-sm-12" style="margin-top:-24px">
 	    					<span>
-		    					<b>Scout Bazaar Total Shipping and Handling Fees</b>
+		    					<b class="scout_shipping">Scout Bazaar Total Shipping and Handling Fees</b>
 		    				</span>
 	    					<span class="nso_amount_delivery" t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(website_sale_order.nso_amount_delivery)" style="float:right;"/>
 	    				</div>

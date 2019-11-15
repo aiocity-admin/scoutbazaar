@@ -8,7 +8,7 @@
 		<field name="arch" type="xml">
 			<xpath expr="//field[@name='categ_id']" position="after">
 	           	<field name="is_vendor_product" invisible="1"/>
-	           	<field name="nso_partner_id" attrs="{'invisible': [('is_vendor_product','=',True)] , 'required': [('is_vendor_product','=',False)]}"/>
+	           	<field name="nso_partner_id" attrs="{'invisible': [('is_vendor_product','=',True)] , 'required': [('is_vendor_product','=',False),('type', '!=', 'service')]}"/>
 			</xpath>
 		</field>
 	</record>

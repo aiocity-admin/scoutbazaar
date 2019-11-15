@@ -14,3 +14,19 @@
 #products_grid_before > ul.nav li.nav-item a:after {
     display: none !important;
 }
+
+
+@media (min-width: 411px) and (max-width:735px) {
+
+.scout_shipping{
+	font-size: 12px;
+	}
+}
+
+.card_shipping{
+	font-size: 16px;
+}
+
+#o_payment_form_acq_7{
+	margin-top: 8px;
+}
