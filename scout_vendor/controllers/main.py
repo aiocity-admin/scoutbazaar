@@ -79,7 +79,7 @@ class VendorPage(WebsiteSale):
         if order.partner_shipping_id:
             for line in order.order_line:
                 stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
-                if not line.location_id and line.product_id.route_ids in stage_ids:
+                if not line.location_id and line.product_id.route_ids in stage_ids and line.product_id.product_tmpl_id.type != 'service':
                     vendor = self.get_stock_vendor(order,line)
                     if vendor:
                         if vendor.country_id == order.partner_shipping_id.country_id:

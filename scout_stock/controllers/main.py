@@ -132,7 +132,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         if partner_shipping_id:
             for line in order.order_line:
                 stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
-                if line.product_id.public_categ_ids and not line.product_id.route_ids in stage_ids:
+                if line.product_id.public_categ_ids and not line.product_id.route_ids in stage_ids and line.product_id.product_tmpl_id.type != 'service':
                     stock_locations = request.env['stock.location'].sudo().search([('nso_location_id','=',line.product_id.product_tmpl_id.nso_partner_id.id)])
                     if stock_locations:
                         stock_scout_loc = request.env['scout.stock'].sudo().search([('location_id','in',stock_locations.ids)])
