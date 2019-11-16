@@ -105,8 +105,8 @@ class WebsiteSaleScout(WebsiteSale):
         if not request.env.user._is_public():
             partner = request.env.user.partner_id
             if category:
-                school_ids = request.env['product.template'].sudo().search([('school_list_ids','in', partner.school_list_ids.ids),('public_categ_ids','=',category.id)])
-                school_ids_not = request.env['product.template'].sudo().search([('school_list_ids','=', False),('public_categ_ids','=',category.id)])
+                school_ids = request.env['product.template'].search([('school_list_ids','in', partner.school_list_ids.ids),('public_categ_ids','=',category.id),('website_published', '=', True)])
+                school_ids_not = request.env['product.template'].search([('school_list_ids','=', False),('public_categ_ids','=',category.id),('website_published', '=', True)])
                 products = school_ids + school_ids_not
                 if products and not request.env.user._is_public():
                     partner = request.env.user.partner_id
@@ -173,8 +173,8 @@ class WebsiteSaleScout(WebsiteSale):
                                     })
 
             else:
-                school_ids = request.env['product.template'].sudo().search([('school_list_ids','in', partner.school_list_ids.ids)])
-                school_ids_not = request.env['product.template'].sudo().search([('school_list_ids','=', False)])
+                school_ids = request.env['product.template'].search([('school_list_ids','in', partner.school_list_ids.ids),('website_published', '=', True)])
+                school_ids_not = request.env['product.template'].search([('school_list_ids','=', False),('website_published', '=', True)])
                 products = school_ids + school_ids_not
                 if products and not request.env.user._is_public():
                     partner = request.env.user.partner_id
@@ -319,7 +319,7 @@ class WebsiteSaleScout(WebsiteSale):
     @http.route(['/check/gift'], type='json', auth="public", website=True,methods=['GET', 'POST'])
     def check_gift_product(self,p_id, **post):
         order = request.website.sale_get_order()
-        p_id = request.env['product.product'].sudo().search([('id','=',int(p_id))])
+        p_id = request.env['product.product'].search([('id','=',int(p_id)),('website_published', '=', True)])
         if p_id.product_tmpl_id:
             if p_id.product_tmpl_id.is_gift_product:
                 return True
