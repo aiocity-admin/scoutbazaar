@@ -5,7 +5,7 @@
     "summary": 'scout stock Website Page',
     "description":"""
         """,
-    "version" : "12.0.0.4",
+    "version" : "12.0.0.5",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
     "depends" : ['scout_vendor','scout_customize','jt_express','delivery_ups','payment_paymaya','delivery_easypost'],
