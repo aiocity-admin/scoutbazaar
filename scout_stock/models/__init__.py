@@ -9,6 +9,4 @@ from . import sale_order
 from . import stock_move
 from . import delivery_line_track
 from . import shipping_address
-#from . import account_invoice
-#from . import sale_order_scheduler
 

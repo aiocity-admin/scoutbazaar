@@ -48,7 +48,7 @@ class Respartner(models.Model):
     @api.constrains('phone')
     def _check_phone_number(self):
         for rec in self:
-            phone = int(self.phone)
-            if rec.phone and len(rec.phone) < 10:
+            phone = ''.join(i for i in rec.phone if i.isdigit())
+            if rec.phone and len(phone) < 10:
                 raise ValidationError(_("Please Enter Phone number more than 10 character!"))
             return True

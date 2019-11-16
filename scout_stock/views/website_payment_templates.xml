@@ -9,6 +9,9 @@
 		    					<span>
 			    					<b>Scout Bazaar Domestic Shipping and Handling Fees</b>
 			    				</span>
+                                <t t-if="vendor_domestic_fees_nso_error">
+                                    <span class="is_nso_error_domestic" t-esc="str(vendor_domestic_fees_nso_error)" style="color:red;text-align: center;font-size: 11px;"></span>
+                                </t>
 		    					<span t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(domestic_fees)" style="float:right;"/>
 		    				</div>
 		    				<br/>
@@ -27,7 +30,8 @@
 		    									<input type="radio" class="int_shippping" t-att-name="'int_ship_' + shipping" t-att-id="delivery_method.id" 
 		    									t-att-checked="'checked' if order_delivery_track_lines_dict[shipping][0] == delivery_method else None"/>
 		    									<span t-esc="delivery_method.name"/>
-		    									<span style="float:right;" class="delivery_price">
+		    									<span style="color:red;text-align: center;font-size: 11px;" class="is_nso_error"></span>
+                                                <span style="float:right;" class="delivery_price">
 		    									<t t-if="order_delivery_track_lines_dict[shipping][0] == delivery_method">
 		    										<t t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(order_delivery_track_lines_dict[shipping][1])"/>
 		    									</t>
@@ -37,6 +41,7 @@
 	    									<t t-else="">
 		    									<input type="radio" class="int_shippping" t-att-name="'int_ship_' + shipping" t-att-id="delivery_method.id"/>
 		    									<span t-esc="delivery_method.name"/>
+                                                <span style="color:red;text-align: center;font-size: 11px;" class="is_nso_error"></span>
 		    									<span style="float:right;" class="delivery_price"></span>
 	    									</t>
 	    								</div>

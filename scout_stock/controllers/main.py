@@ -134,6 +134,8 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         domestic_price = 0.0
         is_domestic_products = False
         domestic_carrier = False
+        is_domestic_include_nso_error = False
+        vendor_domestic_fees_nso_error = False
         res_config = request.env['payment.handling.config'].sudo().search([],limit=1)
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
@@ -191,7 +193,9 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                     if same_carrier:
                         res_price = getattr(same_carrier, '%s_rate_line_shipment' % same_carrier.delivery_type)(order,nso_same_country_location_group[nso_loc])
                         if res_price.get('error_message'):
-                            return res_price.get("error_message")
+                            is_domestic_products = True
+                            is_domestic_include_nso_error = True
+                            vendor_domestic_fees_nso_error = res_price.get("error_message")
                         else:
                             is_domestic_products = True
                             domestic_carrier = same_carrier
@@ -215,7 +219,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             order.calculate_nso_lines(order)
                 
                                     
-        if is_domestic_products:
+        if is_domestic_products and not is_domestic_include_nso_error:
             delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
                                                                                         ('country_id','=',order.partner_shipping_id.country_id.id),
                                                                                         ('order_id','=',order.id),
@@ -232,8 +236,13 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                   'delivery_price':domestic_price,
                                                                   'is_vendor_track':False
                                                                   })
-            res.qcontext.update({'domestic_fees': round(domestic_price,2)})
-        
+            res.qcontext.update({'domestic_fees': round(domestic_price,2),
+                                 'vendor_domestic_fees_nso_error': vendor_domestic_fees_nso_error,
+                                 })
+        if is_domestic_products and is_domestic_include_nso_error:
+            res.qcontext.update({'domestic_fees': round(domestic_price,2),
+                                 'vendor_domestic_fees_nso_error': vendor_domestic_fees_nso_error,
+                                 })
         
         
         
@@ -275,7 +284,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                     for nso_loc in nso_country_location_group:
                         res_price = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
                         if res_price.get('error_message'):
-                            return res_price.get("error_message")
+                            res_price.get("error_message")
                         else:
                             currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
                             if currency:
@@ -361,7 +370,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         for nso_loc in nso_country_location_group:
             res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
             if res.get('error_message'):
-                return res.get("error_message")
+                return res
             else:
                 currency = request.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
                 if currency:
@@ -388,6 +397,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         payment_processing_fee = res_config.payment_processing_fee
         transaction_value = res_config.transaction_value
         value = {}
+        is_error_in_change_input = False
         nso_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code == country_code)
         nso_country_location_group = {}
         for c_group in nso_country_code_group:
@@ -398,7 +408,14 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         for nso_loc in nso_country_location_group:
             res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
             if res.get('error_message'):
-                return res.get("error_message")
+                nso_country_location_group[nso_loc].write({
+                                                           'delivery_method':carrier.id,
+                                                           'delivery_charge':0.0
+                                                        })
+                order.calculate_nso_lines(order)
+                order = request.website.sale_get_order()
+                order._compute_website_order_line()
+                return res
             else:
                 currency = request.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
                 if currency:

@@ -242,7 +242,7 @@ class SaleOrder(models.Model):
             if same_carrier:
                 res_price = getattr(same_carrier, '%s_rate_line_shipment' % same_carrier.delivery_type)(order,nso_same_country_location_group[nso_loc])
                 if res_price.get('error_message'):
-                    return res_price.get("error_message")
+                    res_price.get("error_message")
                 else:
                     currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
                     if currency:
@@ -310,7 +310,7 @@ class SaleOrder(models.Model):
                     res_price = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
                     
                     if res_price.get('error_message'):
-                        return res_price.get("error_message")
+                        res_price.get("error_message")
                     else:
                         currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
                         if currency:
