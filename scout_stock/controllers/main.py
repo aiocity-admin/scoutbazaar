@@ -98,9 +98,16 @@ class WebsiteSaleCountrySelect(WebsiteSale):
     def prepare_international_shipping_dict(self,order,order_delivery_track_lines_dict):
         
         order_delivery_track_lines_dict_new = {}
+        track_line_to_delete = []
         for t_line in order_delivery_track_lines_dict:
             country_name = request.env['res.country'].sudo().search([('code','=',t_line)],limit=1)
+            nso_code_line = order.order_line.filtered(lambda m:m.location_id and m.location_id.nso_location_id.country_id.code == t_line)
             nso_delivery_line = order.order_line.filtered(lambda r:r.is_nso_delivery_line and r.name == "Total Shipping and Handling Fees(" + country_name.name + ")")
+            
+            if nso_code_line:
+                if order.partner_shipping_id.country_id.code != t_line and nso_code_line[0].delivery_method.shipping_range == 'local':
+                    track_line_to_delete.append(t_line)
+            
             if nso_delivery_line:
                 order_delivery_track_lines_dict_new.update({
                                                             t_line : [order_delivery_track_lines_dict[t_line],nso_delivery_line.price_total]
@@ -109,6 +116,11 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 order_delivery_track_lines_dict_new.update({
                                                             t_line : [order_delivery_track_lines_dict[t_line],False]
                                                             })
+        
+        if track_line_to_delete:
+            for del_line in track_line_to_delete:
+                del order_delivery_track_lines_dict_new[del_line]
+        
         return order_delivery_track_lines_dict_new
         
     #Set Location id on orderline and calculate delivery cost code===============================================================
@@ -166,7 +178,6 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 same_carrier = False
                 same_delivery_price = 0.0
                 if nso_same_country_code_group:
-                    same_carrier = nso_same_country_code_group[0].delivery_method
                     if not same_carrier:
                         same_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','local')],limit=1)
                         if not same_carrier:

@@ -105,7 +105,7 @@ class WebsiteSaleScout(WebsiteSale):
         if not request.env.user._is_public():
             partner = request.env.user.partner_id
             if category:
-                school_ids = request.env['product.template'].search([('school_list_ids','in', partner.school_list_ids.ids),('public_categ_ids','=',category.id),('website_published', '=', True)])
+                school_ids = request.env['product.template'].search([('school_list_ids','!=', False),('school_list_ids','in', partner.school_list_ids.ids),('public_categ_ids','=',category.id),('website_published', '=', True)])
                 school_ids_not = request.env['product.template'].search([('school_list_ids','=', False),('public_categ_ids','=',category.id),('website_published', '=', True)])
                 products = school_ids + school_ids_not
                 if products and not request.env.user._is_public():
@@ -113,7 +113,7 @@ class WebsiteSaleScout(WebsiteSale):
                     restricted_products = []
                     products_new = False
                     if partner.school_list_ids:
-                        products_order_by = request.env['product.template'].search([('school_list_ids','in',partner.school_list_ids.ids)])
+                        products_order_by = request.env['product.template'].search([('school_list_ids','!=', False),('school_list_ids','in',partner.school_list_ids.ids)])
                         if products_order_by and school_ids:
                             product_new_list = []
                             product_old_list = []
@@ -173,7 +173,7 @@ class WebsiteSaleScout(WebsiteSale):
                                     })
 
             else:
-                school_ids = request.env['product.template'].search([('school_list_ids','in', partner.school_list_ids.ids),('website_published', '=', True)])
+                school_ids = request.env['product.template'].search([('school_list_ids','!=', False),('school_list_ids','in', partner.school_list_ids.ids),('website_published', '=', True)])
                 school_ids_not = request.env['product.template'].search([('school_list_ids','=', False),('website_published', '=', True)])
                 products = school_ids + school_ids_not
                 if products and not request.env.user._is_public():
@@ -181,7 +181,7 @@ class WebsiteSaleScout(WebsiteSale):
                     restricted_products = []
                     products_new = False
                     if partner.school_list_ids:
-                        products_order_by = request.env['product.template'].search([('school_list_ids','in',partner.school_list_ids.ids)])
+                        products_order_by = request.env['product.template'].search([('school_list_ids','!=', False),('school_list_ids','in',partner.school_list_ids.ids)])
                         if products_order_by and school_ids:
                             product_new_list = []
                             product_old_list = []

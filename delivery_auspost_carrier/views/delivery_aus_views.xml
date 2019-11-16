@@ -10,13 +10,13 @@
         		<page string="Aus Post Configuration" attrs="{'invisible': [('delivery_type', '!=', 'auspost')]}">
         			<group>
                         <group>
-                        	<field name="pac_api_key" attrs="{'invisible': [('delivery_type', '!=', 'auspost')]}" /> 
-                        	<field name="aus_service_type" attrs="{'invisible': [('delivery_type', '!=', 'auspost')]}"/>
+                        	<field name="pac_api_key" attrs="{'invisible': [('delivery_type', '!=', 'auspost')],'required': [('delivery_type', '=', 'auspost')]}" /> 
+                        	<field name="aus_service_type" attrs="{'invisible': [('delivery_type', '!=', 'auspost')] , 'required': [('delivery_type', '=', 'auspost')]}"/>
 <!--                         	<field name="aus_default_packaging_id" attrs="{'invisible': [('delivery_type', '!=', 'auspost')]}"/> -->
-                        	<field name="letter_min_weight"/>
-                        	<field name="letter_max_weight"/>
-                        	<field name="parcel_min_weight" attrs="{'invisible' : [('aus_service_type','!=','INT_PARCEL_AIR_OWN_PACKAGING')]}"/>
-                        	<field name="parcel_max_weight" attrs="{'invisible' : [('aus_service_type','!=','INT_PARCEL_AIR_OWN_PACKAGING')]}"/>
+                        	<field name="letter_min_weight" attrs="{'required': [('delivery_type', '=', 'auspost')]}" />
+                        	<field name="letter_max_weight" attrs="{'required': [('delivery_type', '=', 'auspost')]}" />
+                        	<field name="parcel_min_weight" attrs="{'invisible' : [('aus_service_type','!=','INT_PARCEL_AIR_OWN_PACKAGING')] ,'required': [('aus_service_type','=','INT_PARCEL_AIR_OWN_PACKAGING'),('delivery_type', '=', 'auspost')]}"/>
+                        	<field name="parcel_max_weight" attrs="{'invisible' : [('aus_service_type','!=','INT_PARCEL_AIR_OWN_PACKAGING')], 'required': [('aus_service_type','=','INT_PARCEL_AIR_OWN_PACKAGING'),('delivery_type', '=', 'auspost')]}"/>
                         </group>
                     </group>
         		</page>

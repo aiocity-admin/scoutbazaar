@@ -48,17 +48,34 @@ class ProviderAUS(models.Model):
         for so_line in lines:
             total_weight += ((so_line.product_uom_qty) * (so_line.product_id.weight))
         
+        total_weight *= 1000
         if self.aus_service_type == 'INT_PARCEL_AIR_OWN_PACKAGING':
             service_code = self.aus_service_type
             if total_weight >= self.parcel_min_weight and total_weight <= self.parcel_max_weight:
                 api_url = "https://digitalapi.auspost.com.au/postage/parcel/international/calculate.json"
+                total_weight = total_weight/1000
             elif total_weight >= self.letter_min_weight and total_weight <= self.letter_max_weight:
-                total_weight = total_weight * 100
                 api_url = "https://digitalapi.auspost.com.au/postage/letter/international/calculate.json"
             elif total_weight > self.parcel_max_weight:
                 api_url = "https://digitalapi.auspost.com.au/postage/parcel/international/calculate.json"
-                no_of_parcels = int(total_weight / max_weight)
+                no_of_parcels = int(total_weight / self.parcel_max_weight)
                 total_weight = self.parcel_max_weight
+                total_weight = total_weight/1000
+                
+            params.update({
+                           'country_code':order.partner_shipping_id.country_id.code,
+                           'weight':total_weight,
+                           'service_code': service_code
+                           })
+        
+            if api_url and params and headers:
+                result = requests.get(url=api_url,params=params,headers=headers)
+                result = json.loads(result.text)
+            else:
+                return {'success': False,
+                    'price': 0.0,
+                    'error_message': 'Configuration Error!',
+                    'warning_message': False}
         
         elif self.aus_service_type == 'AUS_LETTER_REGULAR_LARGE':
             service_code = self.aus_service_type
@@ -66,27 +83,39 @@ class ProviderAUS(models.Model):
                 api_url = "https://digitalapi.auspost.com.au/postage/letter/domestic/calculate.json"
             elif total_weight > self.letter_max_weight:
                 api_url = "https://digitalapi.auspost.com.au/postage/letter/domestic/calculate.json"
-                no_of_parcels = int(total_weight / max_weight)
+                no_of_parcels = int(total_weight / self.letter_max_weight)
                 total_weight = self.letter_max_weight
         
-        params.update({
-                       'country_code':order.partner_shipping_id.country_id.code,
-                       'weight':total_weight,
-                       'service_code': service_code
-                       })
+            params.update({
+                           'weight':total_weight,
+                           'service_code': service_code
+                           })
         
-        if api_url and params and headers:
-            result = requests.get(url=api_url,params=params,headers=headers)
-            result = json.loads(result.text) 
-        
-            print("Result===================",result)  
-            5/0
-        if result.get('error_message'):
+            if api_url and params and headers:
+                result = requests.get(url=api_url,params=params,headers=headers)
+                result = json.loads(result.text)
+                
+            else:
+                return {'success': False,
+                    'price': 0.0,
+                    'error_message': 'Configuration Error!',
+                    'warning_message': False}
+            
+        if result.get('error'):
             return {'success': False,
                     'price': 0.0,
-                    'error_message': _('Error:\n%s') % result['error_message'],
+                    'error_message': _('Error:\n%s') % result['error']['errorMessage'],
                     'warning_message': False}
         else:
+            
+            if order.currency_id.name == 'AUD':
+                price = float(result['postage_result']['total_cost']) * no_of_parcels
+            else:
+                price = float(result['postage_result']['total_cost']) * no_of_parcels
+                quote_currency = ResCurrency.search([('name', '=', 'AUD')], limit=1)
+                price = quote_currency._convert(
+                    price, order.currency_id, order.company_id,fields.Date.today())
+            
             return {'success': True,
                     'price': price,
                     'error_message': False,

@@ -227,7 +227,6 @@ class SaleOrder(models.Model):
         same_country_id = False
         same_delivery_price = 0.0
         if nso_same_country_code_group:
-            same_carrier = nso_same_country_code_group[0].delivery_method
             if not same_carrier:
                 same_carrier = self.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','local')],limit=1)
                 if not same_carrier:
