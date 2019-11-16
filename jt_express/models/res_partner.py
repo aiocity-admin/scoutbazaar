@@ -35,13 +35,15 @@ class ResPartner(models.Model):
     district_id = fields.Many2one('res.partner.district',string='City / Municipality')
     town_id = fields.Many2one('res.partner.town',string='Barangay')
     
-    
     @api.onchange('city_id')
     def onchange_city(self):
+        
         district_list = []
-        city_id = self.city_id.id
-        if self.town_id and self.city_id and self.district_id:
-            if self.country_id.code == 'PH':
+        city_id = self.city_id and self.city_id.id or False
+        
+        if self.country_id.code == 'PH':
+            self.city = self.city_id.name
+            if self.town_id and self.city_id and self.district_id:
                 servicable_area = self.env['jt.servicable.areas'].sudo().search([
                                                               ('town_id','=',int(self.town_id)),
                                                               ('city_id','=',int(self.city_id)),
@@ -49,21 +51,23 @@ class ResPartner(models.Model):
                                                               ],limit=1)
                 if servicable_area:
                     self.state_id = servicable_area.state_id.id
-                  
-        if city_id:
-            servicable_area = self.env['jt.servicable.areas'].sudo().search([('city_id','=',int(city_id))])
-            for ids in servicable_area:
-                if not ids.district_id.id in district_list:
-                    district_list.append(ids.district_id.id)
-            return {'domain': {'district_id': [('id','in',district_list)]}}
-        
+
+            if city_id:
+                servicable_area = self.env['jt.servicable.areas'].sudo().search([('city_id','=',int(city_id))])
+                for ids in servicable_area:
+                    if not ids.district_id.id in district_list:
+                        district_list.append(ids.district_id.id)
+                return {'domain': {'district_id': [('id','in',district_list)]}}
+    
     @api.onchange('district_id')
     def onchange_district(self):
+
         town_list = []
         district_id = self.district_id.id
         
-        if self.town_id and self.city_id and self.district_id:
-            if self.country_id.code == 'PH':
+        if self.country_id.code == 'PH':
+            if self.town_id and self.city_id and self.district_id:
+
                 servicable_area = self.env['jt.servicable.areas'].sudo().search([
                                                               ('town_id','=',int(self.town_id)),
                                                               ('city_id','=',int(self.city_id)),
@@ -72,21 +76,21 @@ class ResPartner(models.Model):
                 if servicable_area:
                     self.state_id = servicable_area.state_id.id
                     
-        if self.city_id.id:
-            if district_id:
-                servicable_area = self.env['jt.servicable.areas'].sudo().search([('district_id','=',int(district_id))])
-                for ids in servicable_area:
-                    if not ids.town_id.id in town_list:
-                        town_list.append(ids.town_id.id)
-                return {'domain': {'town_id': [('id','in',town_list)]}}
-        else:
-            raise ValidationError(_("Please Select Province!"))
-    
-    
+            if self.city_id and self.city_id.id:
+                if district_id:
+                    servicable_area = self.env['jt.servicable.areas'].sudo().search([('district_id','=',int(district_id))])
+                    for ids in servicable_area:
+                        if not ids.town_id.id in town_list:
+                            town_list.append(ids.town_id.id)
+                    return {'domain': {'town_id': [('id','in',town_list)]}}
+            else:
+                raise ValidationError(_("Please Select Province!"))
+        
     @api.onchange('town_id')
     def onchange_town(self):
-        if self.town_id and self.city_id and self.district_id:
-            if self.country_id.code == 'PH':
+
+        if self.country_id.code == 'PH':
+            if self.town_id and self.city_id and self.district_id:
                 servicable_area = self.env['jt.servicable.areas'].sudo().search([
                                                               ('town_id','=',int(self.town_id)),
                                                               ('city_id','=',int(self.city_id)),
@@ -95,11 +99,12 @@ class ResPartner(models.Model):
                 if servicable_area:
                     self.state_id = servicable_area.state_id.id
 
-        if not self.district_id and not self.city_id:
-            raise ValidationError(_("Please Select Province!"))   
+            
+            if not self.district_id and not self.city_id:
+                raise ValidationError(_("Please Select Province!"))
 
-        if not self.district_id:
-            raise ValidationError(_("Please Select City / Municipality !"))  
+            if not self.district_id:
+                raise ValidationError(_("Please Select City / Municipality !"))  
 
     @api.multi
     def write(self,values):
@@ -200,7 +205,7 @@ class ResPartner(models.Model):
             if 'city_id' in vals:
                 city_id = vals.get('city_id')
             else:
-                if self.city_id.id:
+                if self.city_id and self.city_id.id:
                     city_id = self.city_id.id
             
             
