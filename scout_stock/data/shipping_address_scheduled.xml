@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+		<record id="ir_cron_scheduler_payment_tranfer_shipping" model="ir.cron">
+			<field name="name">Payment Transfer Shipping</field>
+			<field name="interval_number">1</field>
+			<field name="interval_type">months</field>
+			<field name="numbercall">-1</field>
+			<field name="doall" eval="False"/>
+			<field name="model_id" ref="model_sale_order"/>
+			<field name="code">model._run_payment_transfer_shipping()</field>
+			<field name="state">code</field>
+		</record>
+
+</odoo>
