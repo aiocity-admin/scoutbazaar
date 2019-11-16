@@ -103,7 +103,9 @@ class SaleOrder(models.Model):
         compute='_compute_nso_amount_delivery', digits=0,
         string='NSO Delivery Amount',
         help="The amount without tax.", store=True, track_visibility='always')
-    
+
+    is_settled = fields.Boolean("Is settled?")
+        
     # User in order line mail Send ==================
     @api.multi
     def action_confirm(self):
