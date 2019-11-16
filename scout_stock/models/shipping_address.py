@@ -9,7 +9,7 @@ class SaleOrderLine(models.Model):
 class SaleOrderShipping(models.Model):
 	_inherit = 'sale.order'
 
-	is_settled = fields.Boolean("Is settled?")
+	# is_settled = fields.Boolean("Is settled?")
 	
 	@api.onchange('partner_shipping_id')
 	def partner_shipping_onchange(self):
