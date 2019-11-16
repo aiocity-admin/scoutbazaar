@@ -3,8 +3,6 @@ from odoo import api, models, fields, _
 class SaleOrderShipping(models.Model):
 	_inherit = 'sale.order'
 
-	is_settled = fields.Boolean("Is settled?")
-	
 	@api.onchange('partner_shipping_id')
 	def partner_shipping_onchange(self):
 		for order in self.order_line:
