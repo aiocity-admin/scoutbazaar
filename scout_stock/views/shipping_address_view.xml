@@ -7,8 +7,19 @@
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_shipping_id']" position="after">
-                    <button name="button_culate_nso_lines_order" string="Calculate" type="object" class="btn-primary"/>
+                    <button name="button_culate_nso_lines_order" string="Calcult" type="object" class="btn-primary"/>
                 </xpath>
+                <xpath expr="//field[@name='order_line']//field[@name='delivery_method']" position="after">
+                	<field name="shipping_charge"/>
+                	<field name="extra_charge_product"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree//field[@name='delivery_method']" position="after">
+                	<field name="shipping_charge"/>
+                	<field name="extra_charge_product"/>
+                </xpath>
+                <xpath expr="//form/sheet/group/group/field[@name='payment_term_id']" position="after">
+		            <field name="is_settled"/>
+        		</xpath>
             </field>
         </record>
   </data>
