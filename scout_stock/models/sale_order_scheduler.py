@@ -13,7 +13,7 @@ class SaleOrder(models.Model):
         sale_transaction_id = self.env['sale.order'].sudo().search([
                                                                     ('state','=','sale'),
                                                                     ('transaction_ids','!=',False),
-                                                                    ('is_settled','=',False),
+                                                                    #('is_settled','=',False),
                                                                     ])
         sale_transaction_state_id = self.env['sale.order'].sudo()
         for tran_order in sale_transaction_id:
@@ -27,7 +27,7 @@ class SaleOrder(models.Model):
                     
         sale_invoice_id = self.env['sale.order'].sudo().search([
                                                               ('transaction_ids','=',False),
-                                                              ('is_settled','=',False),
+                                                             # ('is_settled','=',False),
                                                               ('state','=','sale'),
                                                               ])
         
@@ -156,7 +156,7 @@ class SaleOrder(models.Model):
                 move_payment_acquirer = AccountMove.with_context(ctx).create(move_vals_payment_acquirer)
                 move_payment_acquirer.post()
                     
-            order.update({'is_settled':True})
+            #order.update({'is_settled':True})
             
         for invoice_order in sale_invoice:
             invoice_order_total = invoice_order.amount_total
@@ -263,4 +263,4 @@ class SaleOrder(models.Model):
                     move_payment_acquirer = AccountMove.with_context(ctx).create(move_vals_payment_acquirer)
                     move_payment_acquirer.post()
                     
-            invoice_order.update({'is_settled':True})
+            #invoice_order.update({'is_settled':True})
