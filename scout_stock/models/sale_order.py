@@ -99,7 +99,6 @@ class SaleOrderLine(models.Model):
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
  
-    settled = fields.Boolean("Is settled?")   
     nso_amount_delivery = fields.Monetary(
         compute='_compute_nso_amount_delivery', digits=0,
         string='NSO Delivery Amount',
