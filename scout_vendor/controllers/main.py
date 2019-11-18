@@ -46,20 +46,38 @@ class VendorPage(WebsiteSale):
     #========= set delivery line track group===============
     def prepare_international_shipping_vendor_dict(self,order,order_delivery_track_lines_dict):
         order_delivery_track_lines_dict_new = {}
+        track_line_to_delete = []
         for t_line in order_delivery_track_lines_dict:
-            track_id = request.env['delivery.line.track'].sudo().search([
-                                                                            ('country_id.code','=',t_line),
-                                                                            ('order_id','=',order.id),
-                                                                            ('is_vendor_track','=',True)
-                                                                            ],limit=1)
-            if track_id:
+            vendor_line_obj = request.env['sale.order.line'].sudo()
+            for vendor_line in order.order_line:
+                stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+                if not vendor_line.location_id and vendor_line.product_id.route_ids in stage_ids and vendor_line.product_id.product_tmpl_id.type != 'service':
+                    vendor = self.get_stock_vendor(order,vendor_line)
+                    if vendor.country_id.code == t_line:
+                        vendor_line_obj |= vendor_line
+                        
+            country_name = request.env['res.country'].sudo().search([('code','=',t_line)],limit=1)
+            vendor_delivery_line = order.order_line.filtered(lambda r:r.is_vendor_delivery_line and r.name == "Total Shipping and Handling Charges(Dropshipper)")
+            
+            
+            if vendor_line_obj:
+                if order.partner_shipping_id.country_id.code != t_line and vendor_line_obj[0].delivery_method.shipping_range == 'local':
+                    track_line_to_delete.append(t_line)
+            
+            if vendor_delivery_line:
                 order_delivery_track_lines_dict_new.update({
-                                                            t_line : [order_delivery_track_lines_dict[t_line],track_id.delivery_price]
+                                                            t_line : [order_delivery_track_lines_dict[t_line],vendor_delivery_line.price_total]
                                                             })
             else:
                 order_delivery_track_lines_dict_new.update({
                                                             t_line : [order_delivery_track_lines_dict[t_line],False]
                                                             })
+                
+        if track_line_to_delete:
+            for del_line in track_line_to_delete:
+                del order_delivery_track_lines_dict_new[del_line]
+                
+                
         return order_delivery_track_lines_dict_new
     
     #Set Location id on orderline and calculate delivery cost code===============================================================
@@ -192,7 +210,6 @@ class VendorPage(WebsiteSale):
                                 shipping_lines.update({'delivery_method':t_line.carrier_id})
         order = request.website.sale_get_order()
         order_delivery_track_lines_vendor_dict = self.prepare_international_shipping_vendor_dict(order,order_delivery_track_lines_vendor_dict)
-        
         len_list = len(international_vendor_shipping_methods)
         if len_list:
             for inter_line in international_vendor_shipping_methods:
