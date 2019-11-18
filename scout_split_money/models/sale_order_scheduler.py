@@ -35,7 +35,6 @@ class SaleOrder(models.Model):
         for inv_order in sale_invoice_id:
             invoice_state = True
             amount = 0.0
-            amount_total = round(amount)
             for in_id in inv_order.invoice_ids:
                 if not in_id.state == 'paid':
                     invoice_state = False
@@ -43,6 +42,7 @@ class SaleOrder(models.Model):
                     amount_total_inv = in_id.amount_total_signed
                     amount += amount_total_inv
                     invoice_state = True
+            amount_total = round(amount)
             if invoice_state:
                 if inv_order.amount_total <= amount_total:
                     sale_invoice_state_id |= inv_order
