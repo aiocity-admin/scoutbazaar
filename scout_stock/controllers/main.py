@@ -196,6 +196,11 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             is_domestic_products = True
                             is_domestic_include_nso_error = True
                             vendor_domestic_fees_nso_error = res_price.get("error_message")
+                            nso_same_country_location_group[nso_loc].write({
+                                                                       'delivery_method':same_carrier.id,
+                                                                       'delivery_charge':0.0
+                                                                    })
+                            order.calculate_nso_lines(order)
                         else:
                             is_domestic_products = True
                             domestic_carrier = same_carrier
@@ -217,8 +222,6 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                        'delivery_charge':delivery_price_split
                                                                     })
                             order.calculate_nso_lines(order)
-                
-                                    
         if is_domestic_products and not is_domestic_include_nso_error:
             delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
                                                                                         ('country_id','=',order.partner_shipping_id.country_id.id),
@@ -285,6 +288,11 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                         res_price = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
                         if res_price.get('error_message'):
                             res_price.get("error_message")
+                            nso_country_location_group[nso_loc].write({
+                                                                       'delivery_method':carrier.id,
+                                                                       'delivery_charge':0.0
+                                                                    })
+                            order.calculate_nso_lines(order)
                         else:
                             currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
                             if currency:

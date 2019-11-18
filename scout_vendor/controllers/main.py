@@ -120,6 +120,11 @@ class VendorPage(WebsiteSale):
                             is_domestic_vendor_products = True
                             is_domestic_include_error = True
                             vendor_domestic_fees_error = res_price.get("error_message")
+                            vendor_country_based_group[v_cnt].write({
+                                                                   'delivery_method':same_carrier.id,
+                                                                   'delivery_charge':0.0
+                                                                })
+                            order.calculate_vendor_lines(order)
                         else:
                             is_domestic_vendor_products = True
                             domestic_vendor_carrier = same_carrier
@@ -138,7 +143,7 @@ class VendorPage(WebsiteSale):
                                                                    'delivery_method':same_carrier.id,
                                                                    'delivery_charge':delivery_price_split
                                                                 })
-                    order.calculate_vendor_lines(order)
+                            order.calculate_vendor_lines(order)
         if is_domestic_vendor_products and not is_domestic_include_error:
             delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
                                                                                         ('country_id','=',order.partner_shipping_id.country_id.id),
@@ -223,6 +228,11 @@ class VendorPage(WebsiteSale):
                                 inside_int_include_error = res_price.get('error_message')
                                 is_international_include_error = True
                                 res_price.get("error_message")
+                                vendor_country_based_group[v_cnt].write({
+                                                                       'delivery_method':carrier.id,
+                                                                       'delivery_charge':0.0
+                                                                    })
+                                order.calculate_vendor_lines(order)
                             else:
                                 currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
                                 if currency:
