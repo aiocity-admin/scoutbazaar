@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 {
-    "name" : "Scout Money",
+    "name" : "Scout Money Spilt",
     "summary": 'scout money Website Page',
     "description":"""
         """,
