@@ -20,3 +20,8 @@ class AccountInvoice(models.Model):
     
     payment_journal_id = fields.Many2one('account.journal','Payment Journal')
 
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+    
+    shipping_charge = fields.Float("Shipping Charge")
+    extra_charge_product = fields.Float("Extra Charge")

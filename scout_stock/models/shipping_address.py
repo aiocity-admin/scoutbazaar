@@ -1,11 +1,5 @@
 from odoo import api, models, fields, _
 
-class SaleOrderLine(models.Model):
-	_inherit = 'sale.order.line'
-	
-	shipping_charge = fields.Float("Shipping Charge")
-	extra_charge_product = fields.Float("Extra Charge")
-
 class SaleOrderShipping(models.Model):
 	_inherit = 'sale.order'
 	
@@ -51,7 +45,7 @@ class SaleOrderShipping(models.Model):
 					if delivery_charge > 0:
 						sale_order_line_obj.create(vals)
 	@api.multi
-	def button_calculate_nso_lines_order(self,order):						
+	def button_calculate_nso_lines_order(self,order):
 		nso_delivery_lines = self.order_line.filtered(lambda r:r.is_nso_delivery_line)
 		nso_delivery_lines.update({'delivery_charge':0.0})
 		res_config = self.env['payment.handling.config'].sudo().search([],limit=1)
