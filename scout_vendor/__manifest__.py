@@ -19,7 +19,7 @@
 #
 ##############################################################################
 {
-    "name" : "Scout Vendor",
+    "name" : "Scout Vendor ",
     "version" : "12.0.0.2",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
