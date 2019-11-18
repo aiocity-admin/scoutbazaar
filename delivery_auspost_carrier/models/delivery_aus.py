@@ -30,7 +30,7 @@ class ProviderAUS(models.Model):
     letter_min_weight = fields.Integer('Letter Minimum Weight (in grams)')
     letter_max_weight = fields.Integer('Letter Maximum Weight (in grams)')
     parcel_min_weight = fields.Integer('Parcel Minimum Weight (in grams)')
-    parcel_max_weight = fields.Integer('Parcel Minimum Weight (in grams)')
+    parcel_max_weight = fields.Integer('Parcel Maximum Weight (in grams)')
     
     def auspost_rate_line_shipment(self, order,lines):
         
