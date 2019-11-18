@@ -42,7 +42,7 @@ odoo.define('scout_stock.international_shipping', function (require) {
 					if(count == shipping_length){
 						$.unblockUI();
 					}
-					if ($(self).is(":checked")){
+					if ($(self).is(":checked") || vendor_domestic_error.length > 0 || nso_domestic_error.length > 0){
     					pay_now_button.prop("disabled", true);
     				}
 				}
@@ -71,11 +71,10 @@ odoo.define('scout_stock.international_shipping', function (require) {
     				$(self).parent().find('.vendor_delivery_price').text('$ 0.0')
     				error_count += 1;
     				count += 1;
-					console.log('=============is checked=====',$(self).is(":checked"))
     				if(count == shipping_length){
 						$.unblockUI();
 					}
-					if ($(self).is(":checked")){
+					if ($(self).is(":checked") || vendor_domestic_error.length > 0 || nso_domestic_error.length > 0){
     					pay_now_button.prop("disabled", true);
     				}
     			}
@@ -102,7 +101,10 @@ odoo.define('scout_stock.international_shipping', function (require) {
     			if(vals['error_message']){
     				$(self).parent().find('.is_nso_error').text(' ')
     				$(self).parent().find('.is_nso_error').text(vals['error_message'])
-//    				$(self).parent().parent().find('.delivery_price').text('$ 0.0')
+    				var main_parent = $('#cart_products').parent().parent().parent().parent()
+    				$(main_parent).empty();
+    				$(main_parent).append(vals['website_sale.cart_summary']);
+    				$('.nso_amount_delivery').text(vals['nso_amount_delivery'])
     				error_count += 1
     				if ($(self).is(":checked")){
     					pay_now_button.prop("disabled", true);
@@ -114,10 +116,6 @@ odoo.define('scout_stock.international_shipping', function (require) {
     				$(main_parent).empty();
     				$(main_parent).append(vals['website_sale.cart_summary']);
     				$('.nso_amount_delivery').text(vals['nso_amount_delivery'])
-    				
-    				
-    				
-    				
     				var vendor_radio_checked = int_vendor_shippping
     				var nso_radio_checked = int_shippping
     				var vendor_radio_error = false;
@@ -126,7 +124,7 @@ odoo.define('scout_stock.international_shipping', function (require) {
     					_.each(nso_radio_checked,function(value){
     						if($(value).is(":checked")){
     							var check_error_text = $(value).parent().find('.is_nso_error');
-    							if (check_error_text.length > 0){
+    							if (check_error_text.text()){
     								nso_radio_error = true
     							}
     						}
@@ -137,14 +135,12 @@ odoo.define('scout_stock.international_shipping', function (require) {
     					_.each(vendor_radio_checked,function(value){
     						if($(value).is(":checked")){
     							var check_error_text = $(value).parent().find('.is_my_error');
-    							if (check_error_text.length > 0){
+    							if (check_error_text.text()){
     								vendor_radio_error = true
     							}
     						}
     					})
     				}
-    				
-    				console.log("Error===============",nso_radio_error,vendor_radio_error)
     				
     				if(nso_radio_error || vendor_radio_error || vendor_domestic_error.length > 0 || nso_domestic_error.length > 0){
     					pay_now_button.prop("disabled", true);
@@ -173,8 +169,11 @@ odoo.define('scout_stock.international_shipping', function (require) {
     				$(self).parent().find('.is_my_error').text(' ')
     				$(self).parent().find('.is_my_error').text(vals['error_message'])
     				$(self).parent().find('.vendor_delivery_price').text('$ 0.0')
+    				var main_parent = $('#cart_products').parent().parent().parent().parent()
+    				$(main_parent).empty();
+    				$(main_parent).append(vals['website_sale.cart_summary']);
+    				$('.vendor_amount_delivery').text(vals['vendor_amount_delivery'])
     				error_count += 1
-    				console.log('=============is checked=====',$(self).is(":checked"))
     				if ($(self).is(":checked")){
     					pay_now_button.prop("disabled", true);
     				}
@@ -194,7 +193,7 @@ odoo.define('scout_stock.international_shipping', function (require) {
     					_.each(nso_radio_checked,function(value){
     						if($(value).is(":checked")){
     							var check_error_text = $(value).parent().find('.is_nso_error');
-    							if (check_error_text.length > 0){
+    							if (check_error_text.text()){
     								nso_radio_error = true
     							}
     						}
@@ -205,14 +204,12 @@ odoo.define('scout_stock.international_shipping', function (require) {
     					_.each(vendor_radio_checked,function(value){
     						if($(value).is(":checked")){
     							var check_error_text = $(value).parent().find('.is_my_error');
-    							if (check_error_text.length > 0){
+    							if (check_error_text.text()){
     								vendor_radio_error = true
     							}
     						}
     					})
     				}
-    				
-    				console.log("Error===============",nso_radio_error,vendor_radio_error)
     				
     				if(nso_radio_error || vendor_radio_error || vendor_domestic_error.length > 0 || nso_domestic_error.length > 0){
     					pay_now_button.prop("disabled", true);
@@ -224,8 +221,7 @@ odoo.define('scout_stock.international_shipping', function (require) {
     			}
     		})
     	});
-    	console.log('=========vendor and nso====',vendor_domestic_error.length,nso_domestic_error.length)
-		if (vendor_domestic_error.length > 0 || nso_domestic_error.length > 0){
+		if (vendor_domestic_error.length == 1 || nso_domestic_error.length == 1){
 			pay_now_button.prop("disabled", true);
 		}
     })

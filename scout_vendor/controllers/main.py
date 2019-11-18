@@ -116,7 +116,6 @@ class VendorPage(WebsiteSale):
                 for v_cnt in vendor_country_based_group:
                     if v_cnt.country_id.code == order.partner_shipping_id.country_id.code:
                         res_price = getattr(same_carrier, '%s_rate_line_shipment' % same_carrier.delivery_type)(order,vendor_country_based_group[v_cnt])
-                        print('==============================error_message=========2===',res_price)
                         if res_price.get('error_message'):
                             is_domestic_vendor_products = True
                             is_domestic_include_error = True
@@ -223,7 +222,6 @@ class VendorPage(WebsiteSale):
                             if res_price.get('error_message'):
                                 inside_int_include_error = res_price.get('error_message')
                                 is_international_include_error = True
-                                print('==============================error_message=========1===',res_price)
                                 res_price.get("error_message")
                             else:
                                 currency = request.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
@@ -281,10 +279,7 @@ class VendorPage(WebsiteSale):
                              'is_domestic_vendor_products':is_domestic_vendor_products,
                              'international_vendor_shipping_methods':international_vendor_shipping_methods,
                              'order_delivery_track_lines_vendor_dict':order_delivery_track_lines_vendor_dict,
-#                              'is_international_include_error':is_international_include_error,
-#                              'inside_int_include_error':inside_int_include_error,
-                             
-                             })  
+                             })
         order = request.website.sale_get_order()
         order._compute_website_order_line()
         order.recalculate_vendor_lines(order)
@@ -319,7 +314,6 @@ class VendorPage(WebsiteSale):
             if v_cnt.country_id.code == country_code:
                 res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,vendor_country_based_group[v_cnt])
                 if res.get('error_message'):
-                    print('==============================error_message=========3===',res)
                     return res
                 else:
                     currency = request.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])
@@ -366,7 +360,6 @@ class VendorPage(WebsiteSale):
             if v_cnt.country_id.code == country_code:
                 res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,vendor_country_based_group[v_cnt])
                 if res.get('error_message'):
-                    print('==============================error_message=========4===',res)
                     vendor_country_based_group[v_cnt].write({
                                                            'delivery_method':carrier.id,
                                                            'delivery_charge':0.0
@@ -374,6 +367,8 @@ class VendorPage(WebsiteSale):
                     order.calculate_vendor_lines(order)
                     order = request.website.sale_get_order()
                     order._compute_website_order_line()
+                    res['website_sale.cart_summary'] = request.env['ir.ui.view'].render_template("website_sale.cart_summary",{'website_sale_order':order})
+                    res['vendor_amount_delivery'] = order.currency_id.symbol + ' ' + str(order.vendor_amount_delivery)
                     return res
                 else:
                     currency = request.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])

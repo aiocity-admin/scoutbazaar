@@ -197,7 +197,6 @@ class VendorSaleOrder(models.Model):
             if v_cnt.country_id.code == order.partner_shipping_id.country_id.code:
                 res_price = getattr(same_carrier, '%s_rate_line_shipment' % same_carrier.delivery_type)(order,vendor_same_country_based_group[v_cnt])
                 if res_price.get('error_message'):
-                    print('==============================error_message=========5===',res_price)
                     res_price.get("error_message")
                 else:
                     currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])
@@ -248,7 +247,6 @@ class VendorSaleOrder(models.Model):
             if carrier:
                 res_price = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,vendor_diff_country_based_group[v_diff_cnt])
                 if res_price.get('error_message'):
-                    print('==============================error_message=========6===',res_price)
                     res_price.get("error_message")
                 else:
                     currency = self.env['res.currency'].sudo().search([('name','=',res_price.get('currency_code'))])

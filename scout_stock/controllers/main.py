@@ -415,6 +415,8 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 order.calculate_nso_lines(order)
                 order = request.website.sale_get_order()
                 order._compute_website_order_line()
+                res['website_sale.cart_summary'] = request.env['ir.ui.view'].render_template("website_sale.cart_summary",{'website_sale_order':order})
+                res['nso_amount_delivery'] = order.currency_id.symbol + ' ' + str(order.nso_amount_delivery)
                 return res
             else:
                 currency = request.env['res.currency'].sudo().search([('name','=',res.get('currency_code'))])

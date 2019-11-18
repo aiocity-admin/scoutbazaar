@@ -2,8 +2,8 @@ odoo.define('scout_vendor.vendor_international_shipping', function (require) {
     'use strict';
     var ajax = require('web.ajax');
     $(document).ready(function(){
-    	var int_shippping = $("input.vendor_int_shippping")
-    	var pay_now_button1 = $('#o_payment_form_pay')
+//    	var int_shippping = $("input.vendor_int_shippping")
+//    	var pay_now_button1 = $('#o_payment_form_pay')
 //    	var error_count = 0
     	
 //    	int_shippping.change(function(e){
