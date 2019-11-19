@@ -260,7 +260,7 @@ class WebsiteSale(WebsiteSale):
         if dynamic_product_ppg:
             dynamic_product_ppg = dynamic_product_ppg[-1]
 
-            main.PPG = dynamic_product_ppg.product_integer
+            main.PPG = dynamic_product_ppg.product_count_page
             PPG = main.PPG
             
         if ppg:
