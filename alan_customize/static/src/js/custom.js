@@ -250,15 +250,15 @@ $(document).ready(function() {
 
     });
 
-   /*$("#pro_detail_zoom").owlCarousel({
+   $("#pro_detail_zoom").owlCarousel({
         items:4,
         margin: 10,
         navigation: true,
         pagination: false
-    });*/
+    });
 
     
-    /*$('.thumbnails-slides').slick({
+    $('.thumbnails-slides').slick({
       dots: false,
       vertical: true,
       infinite: true,
@@ -268,50 +268,50 @@ $(document).ready(function() {
       verticalSwiping: true,
       nextArrow: '<button type="button" class="next ti-angle-down"></button>',
       prevArrow: '<button type="button" class="prev ti-angle-up"></button>'
-    });*/
-
-    /*$("#as_accessory_product").owlCarousel({
-        items: 4,
-        margin: 0,
-        navigation: true,
-        pagination: false,
-        responsive: {
-            0: {
-                items: 1,
-            },
-            481: {
-                items: 2,
-            },
-            768: {
-                items: 3,
-            },
-            1024: {
-                items: 4,
-            }
-        }
     });
 
-    $("#as_alternative").owlCarousel({
-        items: 4,
-        margin: 0,
-        navigation: true,
-        pagination: false,
-        responsive: {
-            0: {
-                items: 1,
-            },
-            481: {
-                items: 2,
-            },
-            768: {
-                items: 3,
-            },
-            1024: {
-                items: 4,
-            }
-        }
-    });
-*/
+    // $("#as_accessory_product").owlCarousel({
+    //     items: 4,
+    //     margin: 0,
+    //     navigation: true,
+    //     pagination: false,
+    //     responsive: {
+    //         0: {
+    //             items: 1,
+    //         },
+    //         481: {
+    //             items: 2,
+    //         },
+    //         768: {
+    //             items: 3,
+    //         },
+    //         1024: {
+    //             items: 4,
+    //         }
+    //     }
+    // });
+
+    // $("#as_alternative").owlCarousel({
+    //     items: 4,
+    //     margin: 0,
+    //     navigation: true,
+    //     pagination: false,
+    //     responsive: {
+    //         0: {
+    //             items: 1,
+    //         },
+    //         481: {
+    //             items: 2,
+    //         },
+    //         768: {
+    //             items: 3,
+    //         },
+    //         1024: {
+    //             items: 4,
+    //         }
+    //     }
+    // });
+
 
     /* list grid view 
     ===================*/
