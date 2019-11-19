@@ -247,7 +247,9 @@ class SaleOrder(models.Model):
                     res_price.get("error_message")
                     nso_same_country_location_group[nso_loc].write({
                                                                'delivery_method':same_carrier.id,
-                                                               'delivery_charge':0.0
+                                                               'delivery_charge':0.0,
+                                                               'shipping_charge':0.0,
+                                                               'extra_charge_product':0.0,
                                                             })
                     order.calculate_nso_lines(order)
                 else:
@@ -263,9 +265,13 @@ class SaleOrder(models.Model):
                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                     same_delivery_price += (temp_price + res_price.get('price'))
                     delivery_price_split = (temp_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
+                    shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
+                    extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
                     nso_same_country_location_group[nso_loc].write({
                                                                'delivery_method':same_carrier.id,
-                                                               'delivery_charge':delivery_price_split
+                                                               'delivery_charge':delivery_price_split,
+                                                               'shipping_charge':shipping_price_split,
+                                                               'extra_charge_product':extra_charge_split,
                                                             })
                     order.calculate_nso_lines(order)
                     
@@ -320,7 +326,9 @@ class SaleOrder(models.Model):
                         res_price.get("error_message")
                         nso_country_location_group[nso_loc].write({
                                                                'delivery_method':carrier.id,
-                                                               'delivery_charge':0.0
+                                                               'delivery_charge':0.0,
+                                                               'shipping_charge':0.0,
+                                                               'extra_charge_product':0.0,
                                                             })
                         order.calculate_nso_lines(order)
                     else:
@@ -335,9 +343,13 @@ class SaleOrder(models.Model):
                         temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                         delivery_price_split = (temp_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
                         delivery_price += (temp_price + res_price.get('price'))
+                        shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
+                        extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
                         nso_country_location_group[nso_loc].write({
                                                                'delivery_method':carrier.id,
-                                                               'delivery_charge':delivery_price_split
+                                                               'delivery_charge':delivery_price_split,
+                                                               'shipping_charge':shipping_price_split,
+                                                               'extra_charge_product':extra_charge_split,
                                                             })
                         order.calculate_nso_lines(order)
             

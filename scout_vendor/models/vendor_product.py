@@ -200,7 +200,9 @@ class VendorSaleOrder(models.Model):
                     res_price.get("error_message")
                     vendor_same_country_based_group[v_cnt].write({
                                                            'delivery_method':same_carrier.id,
-                                                           'delivery_charge':0.0
+                                                           'delivery_charge':0.0,
+                                                           'shipping_charge':0.0,
+                                                           'extra_charge_product':0.0,
                                                         })
                     order.calculate_vendor_lines(order)
                 else:
@@ -215,9 +217,13 @@ class VendorSaleOrder(models.Model):
                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                     same_delivery_price += (temp_price + res_price.get('price'))
                     delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_same_country_based_group[v_cnt])
+                    shipping_price_split = res_price.get('price')/len(vendor_same_country_based_group[v_cnt])
+                    extra_charge_split = temp_price/len(vendor_same_country_based_group[v_cnt])
                     vendor_same_country_based_group[v_cnt].write({
                                                            'delivery_method':same_carrier.id,
-                                                           'delivery_charge':delivery_price_split
+                                                           'delivery_charge':delivery_price_split,
+                                                           'shipping_charge':shipping_price_split,
+                                                           'extra_charge_product':extra_charge_split,
                                                         })
                     order.calculate_vendor_lines(order)
         
@@ -255,7 +261,9 @@ class VendorSaleOrder(models.Model):
                     res_price.get("error_message")
                     vendor_diff_country_based_group[v_diff_cnt].write({
                                                            'delivery_method':carrier.id,
-                                                           'delivery_charge':0.0
+                                                           'delivery_charge':0.0,
+                                                           'shipping_charge':0.0,
+                                                           'extra_charge_product':0.0,
                                                         })
                     order.calculate_vendor_lines(order)
                 else:
@@ -270,9 +278,13 @@ class VendorSaleOrder(models.Model):
                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                     delivery_price += (temp_price + res_price.get('price'))
                     delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_diff_country_based_group[v_diff_cnt])
+                    shipping_price_split = res_price.get('price')/len(vendor_diff_country_based_group[v_diff_cnt])
+                    extra_charge_split = temp_price/len(vendor_diff_country_based_group[v_diff_cnt])
                     vendor_diff_country_based_group[v_diff_cnt].write({
                                                            'delivery_method':carrier.id,
-                                                           'delivery_charge':delivery_price_split
+                                                           'delivery_charge':delivery_price_split,
+                                                           'shipping_charge':shipping_price_split,
+                                                           'extra_charge_product':extra_charge_split,
                                                         })
                     order.calculate_vendor_lines(order)
                     

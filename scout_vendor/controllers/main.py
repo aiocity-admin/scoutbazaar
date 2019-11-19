@@ -140,7 +140,9 @@ class VendorPage(WebsiteSale):
                             vendor_domestic_fees_error = res_price.get("error_message")
                             vendor_country_based_group[v_cnt].write({
                                                                    'delivery_method':same_carrier.id,
-                                                                   'delivery_charge':0.0
+                                                                   'delivery_charge':0.0,
+                                                                   'shipping_charge':0.0,
+                                                                   'extra_charge_product':0.0,
                                                                 })
                             order.calculate_vendor_lines(order)
                         else:
@@ -157,9 +159,13 @@ class VendorPage(WebsiteSale):
                             temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                             domestic_vendor_price += (temp_price + res_price.get('price'))
                             delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
+                            shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
+                            extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
                             vendor_country_based_group[v_cnt].write({
                                                                    'delivery_method':same_carrier.id,
-                                                                   'delivery_charge':delivery_price_split
+                                                                   'delivery_charge':delivery_price_split,
+                                                                   'shipping_charge':shipping_price_split,
+                                                                   'extra_charge_product':extra_charge_split,
                                                                 })
                             order.calculate_vendor_lines(order)
         if is_domestic_vendor_products and not is_domestic_include_error:
@@ -247,7 +253,9 @@ class VendorPage(WebsiteSale):
                                 res_price.get("error_message")
                                 vendor_country_based_group[v_cnt].write({
                                                                        'delivery_method':carrier.id,
-                                                                       'delivery_charge':0.0
+                                                                       'delivery_charge':0.0,
+                                                                       'shipping_charge':0.0,
+                                                                       'extra_charge_product':0.0,
                                                                     })
                                 order.calculate_vendor_lines(order)
                             else:
@@ -262,9 +270,13 @@ class VendorPage(WebsiteSale):
                                 temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                                 delivery_price += (temp_price + res_price.get('price'))
                                 delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
+                                shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
+                                extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
                                 vendor_country_based_group[v_cnt].write({
                                                                        'delivery_method':carrier.id,
-                                                                       'delivery_charge':delivery_price_split
+                                                                       'delivery_charge':delivery_price_split,
+                                                                       'shipping_charge':shipping_price_split,
+                                                                       'extra_charge_product':extra_charge_split,
                                                                     })
                                 order.calculate_vendor_lines(order)
                         delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
@@ -389,7 +401,9 @@ class VendorPage(WebsiteSale):
                 if res.get('error_message'):
                     vendor_country_based_group[v_cnt].write({
                                                            'delivery_method':carrier.id,
-                                                           'delivery_charge':0.0
+                                                           'delivery_charge':0.0,
+                                                           'shipping_charge':0.0,
+                                                           'extra_charge_product':0.0,
                                                         })
                     order.calculate_vendor_lines(order)
                     order = request.website.sale_get_order()
@@ -409,9 +423,14 @@ class VendorPage(WebsiteSale):
                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
                     delivery_price += (temp_price + res.get('price'))
                     delivery_price_split = (temp_price + res.get('price'))/len(vendor_country_based_group[v_cnt])
+                    shipping_price_split = res.get('price')/len(vendor_country_based_group[v_cnt])
+                    extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
+                    
                     vendor_country_based_group[v_cnt].write({
                                                            'delivery_method':carrier.id,
-                                                           'delivery_charge':delivery_price_split
+                                                           'delivery_charge':delivery_price_split,
+                                                           'shipping_charge':shipping_price_split,
+                                                           'extra_charge_product':extra_charge_split,
                                                         })
                     order.calculate_vendor_lines(order)
 

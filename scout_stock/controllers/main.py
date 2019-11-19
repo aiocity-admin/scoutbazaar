@@ -198,7 +198,9 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             vendor_domestic_fees_nso_error = res_price.get("error_message")
                             nso_same_country_location_group[nso_loc].write({
                                                                        'delivery_method':same_carrier.id,
-                                                                       'delivery_charge':0.0
+                                                                       'delivery_charge':0.0,
+                                                                       'shipping_charge':0.0,
+                                                                       'extra_charge_product':0.0,
                                                                     })
                             order.calculate_nso_lines(order)
                         else:
@@ -216,10 +218,15 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                             same_delivery_price += (temp_price + res_price.get('price'))
                             delivery_price_split = (temp_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
+                            shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
+                            extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
+                            
                             domestic_price += (temp_price + res_price.get('price'))
                             nso_same_country_location_group[nso_loc].write({
                                                                        'delivery_method':same_carrier.id,
-                                                                       'delivery_charge':delivery_price_split
+                                                                       'delivery_charge':delivery_price_split,
+                                                                       'shipping_charge':shipping_price_split,
+                                                                       'extra_charge_product':extra_charge_split,
                                                                     })
                             order.calculate_nso_lines(order)
         if is_domestic_products and not is_domestic_include_nso_error:
@@ -290,7 +297,9 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             res_price.get("error_message")
                             nso_country_location_group[nso_loc].write({
                                                                        'delivery_method':carrier.id,
-                                                                       'delivery_charge':0.0
+                                                                       'delivery_charge':0.0,
+                                                                       'shipping_charge':0.0,
+                                                                       'extra_charge_product':0.0,
                                                                     })
                             order.calculate_nso_lines(order)
                         else:
@@ -306,9 +315,13 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                             delivery_price += (temp_price + res_price.get('price'))
                             delivery_price_split = (temp_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
+                            shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
+                            extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
                             nso_country_location_group[nso_loc].write({
                                                                        'delivery_method':carrier.id,
-                                                                       'delivery_charge':delivery_price_split
+                                                                       'delivery_charge':delivery_price_split,
+                                                                       'shipping_charge':shipping_price_split,
+                                                                       'extra_charge_product':extra_charge_split,
                                                                     })
                             order.calculate_nso_lines(order)
                     delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
@@ -418,7 +431,9 @@ class WebsiteSaleCountrySelect(WebsiteSale):
             if res.get('error_message'):
                 nso_country_location_group[nso_loc].write({
                                                            'delivery_method':carrier.id,
-                                                           'delivery_charge':0.0
+                                                           'delivery_charge':0.0,
+                                                           'shipping_charge':0.0,
+                                                           'extra_charge_product':0.0,
                                                         })
                 order.calculate_nso_lines(order)
                 order = request.website.sale_get_order()
@@ -439,9 +454,13 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
                 delivery_price += (temp_price + res.get('price'))
                 delivery_price_split = (temp_price + res.get('price'))/len(nso_country_location_group[nso_loc])
+                shipping_price_split = res.get('price')/len(nso_country_location_group[nso_loc])
+                extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
                 nso_country_location_group[nso_loc].write({
                                                            'delivery_method':carrier.id,
-                                                           'delivery_charge':delivery_price_split
+                                                           'delivery_charge':delivery_price_split,
+                                                           'shipping_charge':shipping_price_split,
+                                                           'extra_charge_product':extra_charge_split,
                                                         })
                 order.calculate_nso_lines(order)
         delivery_line_track_ids = request.env['delivery.line.track'].sudo().search([
