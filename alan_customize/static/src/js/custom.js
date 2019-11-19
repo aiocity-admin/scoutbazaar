@@ -258,59 +258,59 @@ $(document).ready(function() {
     });
 
     
-    $('.thumbnails-slides').slick({
-      dots: false,
-      vertical: true,
-      infinite: true,
-      speed: 300,
-      slidesToShow: 5,
-      centerMode: false,
-      verticalSwiping: true,
-      nextArrow: '<button type="button" class="next ti-angle-down"></button>',
-      prevArrow: '<button type="button" class="prev ti-angle-up"></button>'
+    // $('.thumbnails-slides').slick({
+    //   dots: false,
+    //   vertical: true,
+    //   infinite: true,
+    //   speed: 300,
+    //   slidesToShow: 4,
+    //   centerMode: false,
+    //   verticalSwiping: true,
+    //   nextArrow: '<button type="button" class="next ti-angle-down"></button>',
+    //   prevArrow: '<button type="button" class="prev ti-angle-up"></button>'
+    // });
+
+    $("#as_accessory_product").owlCarousel({
+        items: 4,
+        margin: 0,
+        navigation: true,
+        pagination: false,
+        responsive: {
+            0: {
+                items: 1,
+            },
+            481: {
+                items: 2,
+            },
+            768: {
+                items: 3,
+            },
+            1024: {
+                items: 4,
+            }
+        }
     });
 
-    // $("#as_accessory_product").owlCarousel({
-    //     items: 4,
-    //     margin: 0,
-    //     navigation: true,
-    //     pagination: false,
-    //     responsive: {
-    //         0: {
-    //             items: 1,
-    //         },
-    //         481: {
-    //             items: 2,
-    //         },
-    //         768: {
-    //             items: 3,
-    //         },
-    //         1024: {
-    //             items: 4,
-    //         }
-    //     }
-    // });
-
-    // $("#as_alternative").owlCarousel({
-    //     items: 4,
-    //     margin: 0,
-    //     navigation: true,
-    //     pagination: false,
-    //     responsive: {
-    //         0: {
-    //             items: 1,
-    //         },
-    //         481: {
-    //             items: 2,
-    //         },
-    //         768: {
-    //             items: 3,
-    //         },
-    //         1024: {
-    //             items: 4,
-    //         }
-    //     }
-    // });
+    $("#as_alternative").owlCarousel({
+        items: 4,
+        margin: 0,
+        navigation: true,
+        pagination: false,
+        responsive: {
+            0: {
+                items: 1,
+            },
+            481: {
+                items: 2,
+            },
+            768: {
+                items: 3,
+            },
+            1024: {
+                items: 4,
+            }
+        }
+    });
 
 
     /* list grid view 
