@@ -23,11 +23,11 @@
     "version" : "12.0.0.2",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
-    "depends" : ['scout_stock'],
+    "depends" : ['sale'],
     'data': [
              
-             'data/scout_access_role.xml',
-             'security/ir.model.access.csv',
+             'security/scout_access_role.xml',
+#              'security/ir.model.access.csv',
              'views/sale_order_view.xml',
              ],
     'demo':[],

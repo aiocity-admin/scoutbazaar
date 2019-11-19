@@ -28,4 +28,4 @@ class SetAllLineUser(models.Model):
     
     _inherit='sale.order'
     
-    all_line_users = fields.Many2many('res.users',string="All line User") 
+    all_line_users = fields.Many2many('res.users',string="Order line Users")

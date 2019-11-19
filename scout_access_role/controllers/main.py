@@ -23,8 +23,6 @@ from odoo import fields
 from odoo import http
 from odoo.http import request
 from odoo.addons.website_sale.controllers.main import WebsiteSale
-# from odoo.addons.website_scout_baazar.controllers.main import WebsiteSaleCountrySelect
-# from odoo.addons.alan_customize.controllers.main import WebsiteSale as WebsiteSaleAlan
 
 class GetAllLinesUser(WebsiteSale):
     
@@ -35,8 +33,8 @@ class GetAllLinesUser(WebsiteSale):
         order = request.website.sale_get_order()
         user_group = []
         for line in order.order_line:
-            if line.location_id:
-                if line.product_id.nso_partner_id and not line.product_id.is_vendor_product:
+            if line.product_id:
+                if line.product_id.nso_partner_id and not line.product_id.is_vendor_product  and line.product_id.product_tmpl_id.type != 'service':
                     nso_user = request.env['res.users'].sudo().search([('partner_id','=',line.product_id.nso_partner_id.id)],limit=1)
                     if nso_user:
                         user_group.append(nso_user.id)
@@ -46,6 +44,5 @@ class GetAllLinesUser(WebsiteSale):
                     vendor_user = line.product_id.vendor_user_product
                     if vendor_user:
                         user_group.append(vendor_user.id)
-        print('===================all user--=========',user_group)
         order.write({'all_line_users' :[(6,0,user_group)]})
         return res

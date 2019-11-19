@@ -7,7 +7,7 @@
     "version" : "12.0.0.5",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
-    "depends" : ['alan_customize'],
+    "depends" : ['alan_customize','scout_access_role'],
     'data': [
              'security/return_order_security.xml',
              'security/ir.model.access.csv',
