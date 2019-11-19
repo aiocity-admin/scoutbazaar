@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models
+from odoo.exceptions import UserError, ValidationError
 
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
-    product_count_page = fields.Integer(string='Product set')
+    product_count_page = fields.Integer(string='Product set', default=4)
 
 
     @api.model
@@ -23,6 +24,8 @@ class ResConfigSettings(models.TransientModel):
 
     def set_values(self):
         super(ResConfigSettings, self).set_values()
-        
-        self.env['ir.config_parameter'].set_param('scout_customize.product_count_page', str(self.product_count_page))
-        
+
+        if self.product_count_page <= 0:
+            raise ValidationError('Product Count is required and must be greater than 0.')
+        else:
+            self.env['ir.config_parameter'].set_param('scout_customize.product_count_page', str(self.product_count_page))

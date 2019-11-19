@@ -17,6 +17,10 @@ import base64
 import uuid
 import werkzeug
 
+# main.PPG = 12
+# PPG = main.PPG
+
+
 
 
 class Web_Editor(Web_Editor):
@@ -243,7 +247,6 @@ class WebsiteSale(WebsiteSale):
         '''/shop/category/<model("product.public.category", "[('website_id', 'in', (False, current_website_id))]"):category>/page/<int:page>'''],
         type='http', auth="public", website=True)
     def shop(self, page=0, category=None,search='', ppg=False, **post):
-
         add_more = False
         max_val = 0
         min_val = 0
@@ -259,10 +262,12 @@ class WebsiteSale(WebsiteSale):
         dynamic_product_ppg = request.env['res.config.settings'].sudo().search([('website_id','=',request._context.get('website_id'))])
         if dynamic_product_ppg:
             dynamic_product_ppg = dynamic_product_ppg[-1]
-
             main.PPG = dynamic_product_ppg.product_count_page
-            PPG = main.PPG
-            
+            if main.PPG:
+                PPG = main.PPG
+            else: 
+                PPG = 18
+
         if ppg:
             try:
                 ppg = int(ppg)
