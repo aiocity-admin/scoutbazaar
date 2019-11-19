@@ -42,9 +42,8 @@ class SaleOrder(models.Model):
                     amount_total_inv = in_id.amount_total_signed
                     amount += amount_total_inv
                     invoice_state = True
-            amount_total = round(amount)
             if invoice_state:
-                if inv_order.amount_total <= amount_total:
+                if inv_order.amount_total <= amount:
                     sale_invoice_state_id |= inv_order
                      
         sale_transaction = []
@@ -67,18 +66,26 @@ class SaleOrder(models.Model):
                 if not l_loc.location_id.nso_location_id in nso_group:
                     product_shipping_charge = l_loc.shipping_charge
                     product_extra_charge= l_loc.extra_charge_product
-                    product_extra_charge_ph += product_extra_charge
                     product_handlind = (product_shipping_charge * handling_charge)/100
-                    product_sum = product_shipping_charge - product_handlind
+                    product_charge = product_shipping_charge - product_handlind
+                    company_charge = order.company_id.vendor_account_id.transfer_margin
+                    product_price = l_loc.price_subtotal
+                    company_charge_sum = (product_price * company_charge)/100
+                    product_sum = product_charge + company_charge_sum
                     product_ph_sum += product_sum
+                    product_extra_charge_ph += product_extra_charge
                     nso_group.update({l_loc.location_id.nso_location_id:product_ph_sum})
                 else:
                     product_shipping_charge = l_loc.shipping_charge
                     product_extra_charge= l_loc.extra_charge_product
-                    product_extra_charge_ph += product_extra_charge 
                     product_handlind = (product_shipping_charge * handling_charge)/100
-                    product_sum = product_shipping_charge - product_handlind
+                    product_charge = product_shipping_charge - product_handlind
+                    company_charge = order.company_id.vendor_account_id.transfer_margin
+                    product_price = l_loc.price_subtotal
+                    company_charge_sum = (product_price * company_charge)/100
+                    product_sum = product_charge + company_charge_sum
                     product_ph_sum += product_sum
+                    product_extra_charge_ph += product_extra_charge
                     nso_group[l_loc.location_id.nso_location_id] += product_ph_sum
             main_journal_id = order.invoice_ids.payment_move_line_ids.mapped('move_id')
             if nso_group:
@@ -92,16 +99,28 @@ class SaleOrder(models.Model):
                     nso_transfer = (nso_amount * nso_margin)/100
                     amount = nso_group[nso_partner]
                     amount += nso_transfer
-                    credit_move_line_src = {
-                                        'name':order.name + '/' + 'Credit' or '/',
-                                        'debit':False,
-                                        'credit':amount,
-                                        'account_id':nso_partner.property_account_receivable_id.id,
-                                        'currency_id':order.currency_id.id,
-                                        'date':fields.Date().today(),
-                                        'date_maturity':fields.Date().today(),
-                                        }
-                    lines.append((0,0,credit_move_line_src))
+                    if nso_partner.parent_id and nso_partner.is_nso:
+                        credit_move_line_src = {
+                                            'name':order.name + '/' + 'Credit' or '/',
+                                            'debit':False,
+                                            'credit':amount,
+                                            'account_id':nso_partner.child_account_id.id,
+                                            'currency_id':order.currency_id.id,
+                                            'date':fields.Date().today(),
+                                            'date_maturity':fields.Date().today(),
+                                            }
+                        lines.append((0,0,credit_move_line_src))
+                    else:
+                        credit_move_line_src = {
+                                            'name':order.name + '/' + 'Credit' or '/',
+                                            'debit':False,
+                                            'credit':amount,
+                                            'account_id':nso_partner.property_account_receivable_id.id,
+                                            'currency_id':order.currency_id.id,
+                                            'date':fields.Date().today(),
+                                            'date_maturity':fields.Date().today(),
+                                            }
+                        lines.append((0,0,credit_move_line_src))
                     debit_move_line_src = {
                                        'name':order.name + '/' + 'Debit' or '/',
                                        'debit':amount,
@@ -164,6 +183,7 @@ class SaleOrder(models.Model):
                 percentage = (invoice_total * 100)/invoice_order_total
                 line_location = invoice_order.order_line.filtered(lambda r:r.location_id)
                 nso_group = {}
+                company_account_tranfer = 0.0
                 product_extra_charge_ph = 0.0
                 for l_loc in line_location:
                     product_ph_sum = 0.0
@@ -171,20 +191,33 @@ class SaleOrder(models.Model):
                     if not l_loc.location_id.nso_location_id in nso_group:
                         product_shipping_charge = l_loc.shipping_charge
                         product_extra_charge= l_loc.extra_charge_product
-                        product_extra_charge_ph += product_extra_charge
                         product_handlind = (product_shipping_charge * handling_charge)/100
-                        product_sum = product_shipping_charge - product_handlind
+                        product_charge = product_shipping_charge - product_handlind
+                        company_charge = invoice_order.company_id.vendor_account_id.transfer_margin
+                        product_price = l_loc.price_unit
+                        company_charge_sum = (product_price * company_charge)/100
+                        product_sum = product_charge + company_charge_sum
                         product_ph_sum += product_sum
+                        product_extra_charge_ph += product_extra_charge
+                        company_margin = invoice_order.company_id.vendor_transfer_margin_id
+                        company_total = (product_price * company_margin)/100
+                        company_account_tranfer += company_total
                         nso_group.update({l_loc.location_id.nso_location_id:product_ph_sum})
                     else:
                         product_shipping_charge = l_loc.shipping_charge
                         product_extra_charge= l_loc.extra_charge_product
-                        product_extra_charge_ph += product_extra_charge 
                         product_handlind = (product_shipping_charge * handling_charge)/100
-                        product_sum = product_shipping_charge - product_handlind
+                        product_charge = product_shipping_charge - product_handlind
+                        company_charge = invoice_order.company_id.vendor_account_id.transfer_margin
+                        product_price = l_loc.price_subtotal
+                        company_charge_sum = (product_price * company_charge)/100
+                        product_sum = product_charge + company_charge_sum
                         product_ph_sum += product_sum
+                        product_extra_charge_ph += product_extra_charge
+                        company_margin = invoice_order.company_id.vendor_transfer_margin_id
+                        company_total = (product_price * company_margin)/100
+                        company_account_tranfer += company_total
                         nso_group[l_loc.location_id.nso_location_id] += product_ph_sum
-                
                 main_journal_id = invoice.payment_move_line_ids.mapped('move_id')
                 if nso_group:
                     lines = []
@@ -198,16 +231,28 @@ class SaleOrder(models.Model):
                         nso_transfer = (nso_amount * nso_margin)/100
                         amount += nso_transfer
                         price_invoice_nso = (amount * percentage)/100
-                        credit_move_line_src = {
-                                        'name':invoice_order.name + '/' + 'Credit' or '/',
-                                        'debit':False,
-                                        'credit':price_invoice_nso,
-                                        'account_id':nso_partner.property_account_receivable_id.id,
-                                        'currency_id':invoice_order.currency_id.id,
-                                        'date':fields.Date().today(),
-                                        'date_maturity':fields.Date().today(),
-                                        }
-                        lines.append((0,0,credit_move_line_src))
+                        if nso_partner.parent_id and nso_partner.is_nso:
+                            credit_move_line_src = {
+                                            'name':invoice_order.name + '/' + 'Credit' or '/',
+                                            'debit':False,
+                                            'credit':price_invoice_nso,
+                                            'account_id':nso_partner.child_account_id.id,
+                                            'currency_id':invoice_order.currency_id.id,
+                                            'date':fields.Date().today(),
+                                            'date_maturity':fields.Date().today(),
+                                            }
+                            lines.append((0,0,credit_move_line_src))
+                        else:
+                            credit_move_line_src = {
+                                            'name':invoice_order.name + '/' + 'Credit' or '/',
+                                            'debit':False,
+                                            'credit':price_invoice_nso,
+                                            'account_id':nso_partner.property_account_receivable_id.id,
+                                            'currency_id':invoice_order.currency_id.id,
+                                            'date':fields.Date().today(),
+                                            'date_maturity':fields.Date().today(),
+                                            }
+                            lines.append((0,0,credit_move_line_src))
                         debit_move_line_src = {
                                        'name':invoice_order.name + '/' + 'Debit' or '/',
                                        'debit':price_invoice_nso,
@@ -228,6 +273,42 @@ class SaleOrder(models.Model):
                     ctx['company_id'] = invoice_order.company_id.id
                     move = AccountMove.with_context(ctx).create(move_vals)
                     move.post()
+                    
+                if company_account_tranfer:
+                    lines_payment_company = []
+                    price_invoice_company_extra = (company_account_tranfer * percentage)/100
+                    print("\n\n--------------price_invoice_company_extra---------------",price_invoice_company_extra)
+                    credit_move_line_src_payment_company = {
+                                    'name':invoice_order.name + '/' + 'Credit' or '/',
+                                    'debit':False,
+                                    'credit':price_invoice_company_extra,
+                                    'account_id':invoice_order.company_id.vendor_account_id.property_account_receivable_id.id,
+                                    'currency_id':invoice_order.currency_id.id,
+                                    'date':fields.Date().today(),
+                                    'date_maturity':fields.Date().today(),
+                                    }
+                    debit_move_line_src_payment_company = {
+                                   'name':invoice_order.name + '/' + 'Debit' or '/',
+                                   'debit':price_invoice_company_extra,
+                                   'credit':False,
+                                   'account_id':main_journal_id.journal_id.default_debit_account_id.id,
+                                   'currency_id':invoice_order.currency_id.id,
+                                   'date': fields.Date().today(),
+                                   'date_maturity': fields.Date().today(),
+                                   }
+                    ctx ={}
+                    lines_payment_company.append((0,0,credit_move_line_src_payment_company))
+                    lines_payment_company.append((0,0,debit_move_line_src_payment_company))
+                    move_vals_payment_acquirer = {
+                         'ref':invoice_order.name,
+                         'line_ids':lines_payment_company,
+                         'journal_id': main_journal_id.journal_id.id,
+                         'date':fields.Date().today(),
+                         }
+                    ctx['company_id'] = invoice_order.company_id.id
+                    move_payment_acquirer = AccountMove.with_context(ctx).create(move_vals_payment_acquirer)
+                    move_payment_acquirer.post()
+                    
                 if product_extra_charge_ph:
                     lines_payment_acquirer = []
                     price_invoice_extra = (product_extra_charge_ph * percentage)/100
