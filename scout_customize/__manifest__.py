@@ -26,7 +26,8 @@
              'views/res_company_views.xml',
              'views/return_order_view.xml',
              'views/sale_order_report_view.xml',
-             'views/vendor_account.xml'
+             'views/vendor_account.xml',
+             'views/res_config_setting.xml'
              ],
     'installable': True,
     'auto_install': False,

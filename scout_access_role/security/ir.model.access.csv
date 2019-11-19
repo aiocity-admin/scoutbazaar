@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_order_user_nso,sale.order.line.user.manager,sale.model_sale_order,group_sale_salesman_nso_user,1,1,1,1

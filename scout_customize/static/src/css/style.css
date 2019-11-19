@@ -30,3 +30,28 @@
 #o_payment_form_acq_7{
 	margin-top: 8px;
 }
+
+/*geminatecs nov18*/
+.js_subscribe_btn:hover{
+    background: black !important;
+    color:white !important;
+}
+
+.middle-footer .fot-col ul li a{
+    color:#1d5861 !important;
+}
+
+.middle-footer .fot-col ul li:after{
+    border-top: 1px solid #1d5861 !important;
+    border-right: 1px solid #1d5861 !important;
+}
+
+.middle-footer .fot-col address > div > div i{
+    
+    color:#1d5861 !important;
+}
+
+.middle-footer .fot-col address{
+    color:#1d5861 !important;
+}
+/*geminatecs nov18*/

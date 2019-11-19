@@ -37,10 +37,12 @@
                 <xpath  expr="//group//label[@for='street']" position="before">
              
                     	<field name="vendor_account_id"/>
-                    	<field name="vendor_transfer_margin_id" attrs="{'invisible': [('vendor_account_id', '=', False)]}"/>
-                	
+                        <label for="vendor_transfer_margin_id" attrs="{'invisible': [('vendor_account_id', '=', False)]}"/>
+                        <div>
+                            <field name="vendor_transfer_margin_id" attrs="{'invisible': [('vendor_account_id', '=', False)]}"/>
+                            <span class="o_form_label oe_inline" attrs="{'invisible': [('vendor_account_id', '=', False)]}">%</span>
+                        </div>
                 </xpath>
-            
             </field>
         </record>
 

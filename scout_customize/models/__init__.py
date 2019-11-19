@@ -10,3 +10,4 @@ from . import survey
 from . import res_company
 from . import return_order
 from . import vendor_account
+from . import res_config_setting

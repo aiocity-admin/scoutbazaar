@@ -17,8 +17,6 @@ import base64
 import uuid
 import werkzeug
 
-main.PPG = 18
-PPG = main.PPG
 
 
 class Web_Editor(Web_Editor):
@@ -254,8 +252,17 @@ class WebsiteSale(WebsiteSale):
         quantities_per_page = None
         if website.shop_product_loader == 'infinite_loader':
             add_more = True
+        
         quantities_per_page = request.env[
             'product.qty_per_page'].search([], order='sequence')
+        
+        dynamic_product_ppg = request.env['res.config.settings'].sudo().search([('website_id','=',request._context.get('website_id'))])
+        if dynamic_product_ppg:
+            dynamic_product_ppg = dynamic_product_ppg[-1]
+
+            main.PPG = dynamic_product_ppg.product_integer
+            PPG = main.PPG
+            
         if ppg:
             try:
                 ppg = int(ppg)
