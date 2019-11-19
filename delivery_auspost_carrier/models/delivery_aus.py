@@ -6,6 +6,7 @@ from odoo.tools import pdf
 import base64
 import json
 import requests
+import math
 
 
 class ProductPackaging(models.Model):
@@ -58,7 +59,7 @@ class ProviderAUS(models.Model):
                 api_url = "https://digitalapi.auspost.com.au/postage/letter/international/calculate.json"
             elif total_weight > self.parcel_max_weight:
                 api_url = "https://digitalapi.auspost.com.au/postage/parcel/international/calculate.json"
-                no_of_parcels = int(total_weight / self.parcel_max_weight)
+                no_of_parcels = math.ceil(total_weight /self.parcel_max_weight)
                 total_weight = self.parcel_max_weight
                 total_weight = total_weight/1000
                 
@@ -85,7 +86,7 @@ class ProviderAUS(models.Model):
                 api_url = "https://digitalapi.auspost.com.au/postage/letter/domestic/calculate.json"
                 no_of_parcels = int(total_weight / self.letter_max_weight)
                 total_weight = self.letter_max_weight
-        
+                
             params.update({
                            'weight':total_weight,
                            'service_code': service_code
@@ -107,7 +108,6 @@ class ProviderAUS(models.Model):
                     'error_message': _('Error:\n%s') % result['error']['errorMessage'],
                     'warning_message': False}
         else:
-            
             if order.currency_id.name == 'AUD':
                 price = float(result['postage_result']['total_cost']) * no_of_parcels
             else:
@@ -115,7 +115,6 @@ class ProviderAUS(models.Model):
                 quote_currency = ResCurrency.search([('name', '=', 'AUD')], limit=1)
                 price = quote_currency._convert(
                     price, order.currency_id, order.company_id,fields.Date.today())
-            
             return {'success': True,
                     'price': price,
                     'error_message': False,
