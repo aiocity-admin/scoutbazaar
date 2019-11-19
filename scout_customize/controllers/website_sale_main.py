@@ -9,11 +9,12 @@ import logging
 from odoo.http import request
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 
-PPG = 20  # Products Per Page
-PPR = 4   # Products Per Row
+# PPG = 20  # Products Per Page
+# PPR = 4   # Products Per Row
 
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare, float_round
 from werkzeug.exceptions import Forbidden
+from odoo.addons.website_sale.controllers import main
 from odoo.addons.http_routing.models.ir_http import slug
 from odoo.addons.website_sale.controllers.main import TableCompute
 from odoo.addons.website_sale.controllers.main import QueryURL
@@ -62,6 +63,14 @@ class WebsiteSaleScout(WebsiteSale):
         domain = self._get_search_domain_ext(search, category, attrib_values,
                                              list(tag_set))
 
+        dynamic_product_ppg = request.env['res.config.settings'].sudo().search([('website_id','=',request._context.get('website_id'))])
+        if dynamic_product_ppg:
+            dynamic_product_ppg = dynamic_product_ppg[-1]
+            main.PPG = dynamic_product_ppg.product_count_page
+            if main.PPG:
+                PPG = main.PPG
+            else: 
+                PPG = 18
 
         url = "/shop"
         
