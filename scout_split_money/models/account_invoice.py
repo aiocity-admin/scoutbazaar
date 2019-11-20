@@ -25,3 +25,8 @@ class SaleOrderLine(models.Model):
     
     shipping_charge = fields.Float("Shipping Charge")
     extra_charge_product = fields.Float("Extra Charge")
+    
+class ResPatner(models.Model):
+    _inherit = 'res.partner'
+    
+    child_account_id = fields.Many2one('account.account','Account')

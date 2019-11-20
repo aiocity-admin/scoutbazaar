@@ -16,6 +16,7 @@ class SaleOrder(models.Model):
                                                                     ('transaction_ids','!=',False),
                                                                     ('is_settled','=',False),
                                                                     ])
+        amount_transferred_history_obj = self.env['amount.transferred.history'].sudo()
         sale_transaction_state_id = self.env['sale.order'].sudo()
         for tran_order in sale_transaction_id:
             transaction_state = True
@@ -60,6 +61,7 @@ class SaleOrder(models.Model):
             line_location = order.order_line.filtered(lambda r:r.location_id)
             nso_group = {}
             product_extra_charge_ph = 0.0
+            company_account_tranfer = 0.0
             for l_loc in line_location:
                 product_ph_sum = 0.0
                 account_id_nso = l_loc.location_id.nso_location_id.property_account_receivable_id.id
@@ -74,6 +76,9 @@ class SaleOrder(models.Model):
                     product_sum = product_charge + company_charge_sum
                     product_ph_sum += product_sum
                     product_extra_charge_ph += product_extra_charge
+                    company_margin = order.company_id.vendor_transfer_margin_id
+                    company_total = (product_price * company_margin)/100
+                    company_account_tranfer += company_total
                     nso_group.update({l_loc.location_id.nso_location_id:product_ph_sum})
                 else:
                     product_shipping_charge = l_loc.shipping_charge
@@ -86,6 +91,9 @@ class SaleOrder(models.Model):
                     product_sum = product_charge + company_charge_sum
                     product_ph_sum += product_sum
                     product_extra_charge_ph += product_extra_charge
+                    company_margin = order.company_id.vendor_transfer_margin_id
+                    company_total = (product_price * company_margin)/100
+                    company_account_tranfer += company_total
                     nso_group[l_loc.location_id.nso_location_id] += product_ph_sum
             main_journal_id = order.invoice_ids.payment_move_line_ids.mapped('move_id')
             if nso_group:
@@ -110,6 +118,15 @@ class SaleOrder(models.Model):
                                             'date_maturity':fields.Date().today(),
                                             }
                         lines.append((0,0,credit_move_line_src))
+                        
+                        #History Code===========================
+                        amount_transferred_history_obj.create({
+                                                       'account_received_id':nso_partner.child_account_id.id,
+                                                       'order_id':order.id,
+                                                       'partner_id':nso_partner.id,
+                                                       'payment_reference':'nso',
+                                                       'amount':amount
+                                                       })
                     else:
                         credit_move_line_src = {
                                             'name':order.name + '/' + 'Credit' or '/',
@@ -121,6 +138,15 @@ class SaleOrder(models.Model):
                                             'date_maturity':fields.Date().today(),
                                             }
                         lines.append((0,0,credit_move_line_src))
+                        
+                        #History Code===========================
+                        amount_transferred_history_obj.create({
+                                                       'account_received_id':nso_partner.property_account_receivable_id.id,
+                                                       'order_id':order.id,
+                                                       'partner_id':nso_partner.id,
+                                                       'payment_reference':'nso',
+                                                       'amount':amount
+                                                       })
                     debit_move_line_src = {
                                        'name':order.name + '/' + 'Debit' or '/',
                                        'debit':amount,
@@ -141,6 +167,50 @@ class SaleOrder(models.Model):
                 ctx['company_id'] = order.company_id.id
                 move = AccountMove.with_context(ctx).create(move_vals)
                 move.post()
+                
+            if company_account_tranfer:
+                lines_payment_company = []
+                price_invoice_company_extra = (company_account_tranfer * percentage)/100
+                credit_move_line_src_payment_company = {
+                                'name':order.name + '/' + 'Credit' or '/',
+                                'debit':False,
+                                'credit':price_invoice_company_extra,
+                                'account_id':order.company_id.vendor_account_id.property_account_receivable_id.id,
+                                'currency_id':order.currency_id.id,
+                                'date':fields.Date().today(),
+                                'date_maturity':fields.Date().today(),
+                                }
+                debit_move_line_src_payment_company = {
+                               'name':order.name + '/' + 'Debit' or '/',
+                               'debit':price_invoice_company_extra,
+                               'credit':False,
+                               'account_id':main_journal_id.journal_id.default_debit_account_id.id,
+                               'currency_id':order.currency_id.id,
+                               'date': fields.Date().today(),
+                               'date_maturity': fields.Date().today(),
+                               }
+                ctx ={}
+                lines_payment_company.append((0,0,credit_move_line_src_payment_company))
+                lines_payment_company.append((0,0,debit_move_line_src_payment_company))
+                
+                #History Code===========================
+                amount_transferred_history_obj.create({
+                                               'account_received_id':order.company_id.vendor_account_id.property_account_receivable_id.id,
+                                               'order_id':order.id,
+                                               'partner_id':False,
+                                               'payment_reference':'market_place',
+                                               'amount':price_invoice_company_extra,
+                                               })
+                move_vals_payment_company = {
+                     'ref':invoice_order.name,
+                     'line_ids':lines_payment_company,
+                     'journal_id': main_journal_id.journal_id.id,
+                     'date':fields.Date().today(),
+                     }
+                ctx['company_id'] = invoice_order.company_id.id
+                move_payment_company = AccountMove.with_context(ctx).create(move_vals_payment_company)
+                move_payment_company.post()
+                
             if product_extra_charge_ph:
                 lines_payment_acquirer = []
                 credit_move_line_src_payment_acquirer = {
@@ -172,6 +242,16 @@ class SaleOrder(models.Model):
                          }
                 ctx['company_id'] = order.company_id.id
                 move_payment_acquirer = AccountMove.with_context(ctx).create(move_vals_payment_acquirer)
+                
+                
+                #History Code===========================
+                amount_transferred_history_obj.create({
+                                               'account_received_id':order.transaction_ids.acquirer_id.payment_acquirer_id.id,
+                                               'order_id':order.id,
+                                               'partner_id':False,
+                                               'payment_reference':'acquirer',
+                                               'amount':product_extra_charge_ph,
+                                               })
                 move_payment_acquirer.post()
                     
             order.update({'is_settled':True})
@@ -242,6 +322,15 @@ class SaleOrder(models.Model):
                                             'date_maturity':fields.Date().today(),
                                             }
                             lines.append((0,0,credit_move_line_src))
+                            
+                            #History Code===========================
+                            amount_transferred_history_obj.create({
+                                                           'account_received_id':nso_partner.child_account_id.id,
+                                                           'order_id':invoice_order.id,
+                                                           'partner_id':nso_partner.id,
+                                                           'payment_reference':'nso',
+                                                           'amount':price_invoice_nso,
+                                                           })
                         else:
                             credit_move_line_src = {
                                             'name':invoice_order.name + '/' + 'Credit' or '/',
@@ -253,6 +342,15 @@ class SaleOrder(models.Model):
                                             'date_maturity':fields.Date().today(),
                                             }
                             lines.append((0,0,credit_move_line_src))
+                            
+                            #History Code===========================
+                            amount_transferred_history_obj.create({
+                                                           'account_received_id':nso_partner.property_account_receivable_id.id,
+                                                           'order_id':invoice_order.id,
+                                                           'partner_id':nso_partner.id,
+                                                           'payment_reference':'nso',
+                                                           'amount':price_invoice_nso,
+                                                           })
                         debit_move_line_src = {
                                        'name':invoice_order.name + '/' + 'Debit' or '/',
                                        'debit':price_invoice_nso,
@@ -297,6 +395,15 @@ class SaleOrder(models.Model):
                                    'date_maturity': fields.Date().today(),
                                    }
                     ctx ={}
+                    
+                    #History Code===========================
+                    amount_transferred_history_obj.create({
+                                                   'account_received_id':invoice_order.company_id.vendor_account_id.property_account_receivable_id.id,
+                                                   'order_id':invoice_order.id,
+                                                   'partner_id':invoice_order.company_id.vendor_account_id.id,
+                                                   'payment_reference':'market_place',
+                                                   'amount':price_invoice_company_extra,
+                                                   })
                     lines_payment_company.append((0,0,credit_move_line_src_payment_company))
                     lines_payment_company.append((0,0,debit_move_line_src_payment_company))
                     move_vals_payment_acquirer = {
@@ -333,6 +440,15 @@ class SaleOrder(models.Model):
                     ctx ={}
                     lines_payment_acquirer.append((0,0,credit_move_line_src_payment_acquirer))
                     lines_payment_acquirer.append((0,0,debit_move_line_src_payment_acquirer))
+                    
+                    #History Code===========================
+                    amount_transferred_history_obj.create({
+                                                   'account_received_id':invoice.payment_journal_id.default_credit_account_id.id,
+                                                   'order_id':invoice_order.id,
+                                                   'partner_id':False,
+                                                   'payment_reference':'acquirer',
+                                                   'amount':price_invoice_extra,
+                                                   })
                     move_vals_payment_acquirer = {
                          'ref':invoice_order.name,
                          'line_ids':lines_payment_acquirer,

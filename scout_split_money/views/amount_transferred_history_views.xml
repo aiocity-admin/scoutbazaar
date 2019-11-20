@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<odoo>
+	<record id="amount_transferred_history_tree_view" model="ir.ui.view">
+		<field name="name">amount.transferred.history.tree.view</field>
+		<field name="model">amount.transferred.history</field>
+		<field name="arch" type="xml">
+			<tree string="Amount Transferred History">
+				<field name="order_id"/>
+				<field name="account_received_id"/>
+				<field name="partner_id"/>
+				<field name="payment_reference"/>
+				<field name="amount" widget="monetary" sum="Total"/>
+				<field name="currency_id" invisible="1"/>
+			</tree>
+		</field>
+	</record>
+	
+	
+	<record id="amount_transferred_history_form_view" model="ir.ui.view">
+		<field name="name">amount.transferred.history.form.view</field>
+		<field name="model">amount.transferred.history</field>
+		<field name="arch" type="xml">
+			<form string="Amount Transferred History">
+				<sheet>
+					<group>
+						<group>
+							<field name="account_received_id"/>
+							<field name="order_id"/>
+							<field name="partner_id"/>
+						</group>
+						<group>
+							<field name="payment_reference"/>
+							<field name="amount"/>
+							<field name="order_date"/>
+						</group>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+	
+	<record id="amount_transferred_history_search_view" model="ir.ui.view">
+			<field name="name">amount.transferred.history.search.view</field>
+			<field name="model">amount.transferred.history</field>
+			<field name="arch" type="xml">
+				<search string="Search Amount Transfer History">
+					<group expand="0" string="Group By">
+	                        <filter string="Orders" name="order_reference" domain="[]" context="{'group_by':'order_id'}"/>
+	                        <filter name="payment_reference" string="Payment Reference" domain="[]" context="{'group_by':'payment_reference'}"/>
+	                        <filter string="Vendor / NSO" name="partner_ref" domain="[]" context="{'group_by':'partner_id'}"/>
+	                </group>
+                </search>
+			</field>
+		</record>
+	
+	<record id="amount_transferred_history_action_view" model = "ir.actions.act_window">
+		<field name="name">Amount Transferred History</field>
+		<field name="res_model">amount.transferred.history</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="view_type">form</field>
+		<field name="view_mode">tree,form</field>
+	</record>
+	
+	
+	 <menuitem id="scout_bazaar_amount_transferred_history_menu"
+              name="Amount Transferred History"
+              sequence ="3"
+              action="amount_transferred_history_action_view"
+              parent="scout_stock.scout_bazaar_menu_root"
+              />
+</odoo>

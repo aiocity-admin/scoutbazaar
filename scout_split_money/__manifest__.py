@@ -8,10 +8,12 @@
     "version" : "12.0.0.1",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
-    "depends" : ['scout_vendor','scout_customize','jt_express','delivery_ups','payment_paymaya','delivery_easypost'],
+    "depends" : ['scout_stock'],
     'data': [
+             'security/ir.model.access.csv',
              'data/order_data_scheduled.xml',
              'views/account_payment_view.xml',
+             'views/amount_transferred_history_views.xml',
              ],
     'installable': True,
     'auto_install': False,
