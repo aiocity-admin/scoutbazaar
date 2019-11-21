@@ -4,7 +4,7 @@
     "summary": 'Scout Customization - Backend and Frontend',
     "description":"""
         """,
-    "version" : "12.0.0.6",
+    "version" : "12.0.0.7",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
     "depends" : ['alan_customize'],

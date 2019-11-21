@@ -67,7 +67,7 @@
 	                   		<t t-if="o_line.is_nso_delivery_line">
 	                               <td class='' colspan="2" t-if="not o_line.product_id.product_tmpl_id"></td>
 	                               <td class='td-img' t-if="o_line.product_id.product_tmpl_id">
-	                                   <span t-field="o_line.product_id.image_small" t-options="{'widget': 'image', 'class': 'rounded'}" />
+	                                   <span t-field="website_sale_order.company_id.delivery_product_image" t-options="{'widget': 'image', 'class': 'rounded'}" />
 	                               </td>
 	                               <td class='td-product_name' t-if="o_line.product_id.product_tmpl_id">
 	                                   <div>

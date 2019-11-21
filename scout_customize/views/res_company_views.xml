@@ -18,6 +18,10 @@
 					</group>
 				</page>
 			</xpath>
+			
+			<xpath expr="//field[@name='email']" position="after">
+				<field name="delivery_product_image" widget="image" class="oe_avatar"/>
+			</xpath>
 		</field>
 	</record>
 </odoo>

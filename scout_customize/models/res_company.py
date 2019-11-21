@@ -17,3 +17,4 @@ class ResCompany(models.Model):
     refund_policy = fields.Html(string='Refund Policy')
     term_of_use = fields.Html(string='Term of use')
     privacy = fields.Html(string='Privacy Policy')
+    delivery_product_image = fields.Binary('Shipping Products Image')
