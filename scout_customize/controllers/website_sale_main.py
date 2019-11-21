@@ -110,7 +110,6 @@ class WebsiteSaleScout(WebsiteSale):
                         return request.render('scout_customize.not_category_msg')
 
 
-        # //rajesh 4 nov
         if not request.env.user._is_public():
             partner = request.env.user.partner_id
             if category:
@@ -263,7 +262,6 @@ class WebsiteSaleScout(WebsiteSale):
         return res
     
     
-        # //rajesh 4 nov    
     
     #Check shop url======================================
     @http.route(['/get/shop/url'], type='json', auth="public", website=True,methods=['GET', 'POST'])

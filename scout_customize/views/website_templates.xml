@@ -305,7 +305,6 @@
      <!--================== Product Filter -->
 
 
-    <!-- //rajesh 4 nov -->
     <template id="product_program_scout" inherit_id="website_sale.products_attributes" name="Product Attribute's Filters">
         <xpath expr="//div[@id='products_grid_before']//form[hasclass('js_attributes')]/ul" position="after">
             
@@ -343,7 +342,6 @@
             </t>
         </xpath> 
     </template>
-    <!-- //rajesh 4 nov -->
     <!--================== Product Filter -->
     
     <template id="address_kanban_inherit_div" name="Kanban address" inherit_id="website_sale.address_kanban">

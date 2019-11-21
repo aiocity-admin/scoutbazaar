@@ -16,8 +16,6 @@ $(document).ready(function () {
 	}
 
 	// Product filter scout program wise
-	//rajesh 4 nov
-
 
 	$("#products_grid_before .js_attributes .clear_program_filter").on("click", function(e){
 		$("input[name='scout_program']").each(function(){
@@ -34,5 +32,4 @@ $(document).ready(function () {
         $("form.js_attributes").submit();
 	});
 
-	//rajesh 4 nov
 });

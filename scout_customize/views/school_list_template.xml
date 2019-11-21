@@ -21,7 +21,6 @@
                 </select> 
             </div>
 
-            <!-- //rajesh 4 nov  -->
             <div t-attf-class="form-group col-xl-6">
                 <label class="col-form-label">Boy Scout</label>
                 <select name="boy_scout" t-attf-class="form-control #{error.get('boy_scout') and 'is-invalid' or ''}">
@@ -42,14 +41,9 @@
                 </select>
             </div>
             
-            <!-- //rajesh 4 nov  -->
-
         </xpath>
         
-        <!-- Replace Vat Number Rajesh Nov12-->
-        <xpath expr="//div[7]" position="replace">
-        </xpath>         
-        <!-- Replace Vat Number Rajesh Nov12-->
+        <xpath expr="//div[7]" position="replace"></xpath>         
     
     </template>
 
