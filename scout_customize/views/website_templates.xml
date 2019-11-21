@@ -355,4 +355,10 @@
         </xpath>
     </template>
 
+    <template id="power_by_odoo" name="website" inherit_id="portal.portal_record_sidebar">
+        <xpath expr="//div/div/div[hasclass('card-footer')]" position="replace">
+            <span></span>
+        </xpath>
+    </template>    
+
 </odoo>
