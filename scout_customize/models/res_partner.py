@@ -28,7 +28,7 @@ class Respartner(models.Model):
     
     country_id = fields.Many2one('res.country', string='Country', ondelete='restrict')
     state_id = fields.Many2one("res.country.state", string='State', ondelete='restrict', domain="[('country_id', '=?', country_id)]")
-    email = fields.Char(required=True)
+#     email = fields.Char(required=True)
 #     city = fields.Char(required=True)
 #     zip = fields.Char(change_default=True, required=True)
 #     phone = fields.Char(required=True)

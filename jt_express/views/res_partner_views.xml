@@ -53,6 +53,10 @@
                     <field name="phone" widget="phone" required="1"/>
                 </xpath>
                 
+                <xpath expr="//field[@name='email']" position="replace">
+                    <field name="email" widget="email" context="{'gravatar_image': True}" attrs="{'required': [('type', '!=', 'delivery')]}"/>
+                </xpath>
+                
 	        </field>	
 	</record>
 </odoo>
