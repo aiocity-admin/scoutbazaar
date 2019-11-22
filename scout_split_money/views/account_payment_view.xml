@@ -48,9 +48,9 @@
         	<field name="inherit_id" ref="base.view_partner_form"/>
         	<field name="arch" type="xml">
         		<xpath expr="//field[@name='vat']" position="after">
+        			<field name="supplier" invisible="1"/>
         			<field name="is_nso" invisible="1"/>
-        			<field name="parent_id" invisible="1"/>
-        			<field name="child_account_id" attrs="{'invisible': ['|',('parent_id', '=', False),('is_nso','=',False)]}"/>
+        			<field name="child_account_id" attrs="{'invisible': [('is_nso', '=', False),('supplier','=',False)], 'required':['|',('is_nso','=',True),('supplier','=',True)]}"/>
         		</xpath>
         	</field>
         </record>

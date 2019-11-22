@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
             <field name="arch" type="xml">
                 <xpath  expr="//group//label[@for='delivery_type']" position="before">
-                    <field name="delivery_account_id"/>
+                    <field name="delivery_account_id" attrs="{'required' : [('delivery_type','not in',['fixed','base_on_rule'])]}"/>
                 </xpath>
             
             </field>
@@ -21,7 +21,7 @@
             <field name="arch" type="xml">
                 
                 <xpath  expr="//field[@name='provider']" position="after">
-                    <field name="payment_acquirer_id"/>
+                    <field name="payment_acquirer_id" required="1"/>
                 </xpath>
             
             </field>
@@ -35,7 +35,7 @@
                 
                 <xpath  expr="//group//label[@for='street']" position="before">
              
-                    	<field name="vendor_account_id"/>
+                    	<field name="vendor_account_id" required="1"/>
                         <label for="vendor_transfer_margin_id" attrs="{'invisible': [('vendor_account_id', '=', False)]}"/>
                         <div>
                             <field name="vendor_transfer_margin_id" attrs="{'invisible': [('vendor_account_id', '=', False)]}"/>

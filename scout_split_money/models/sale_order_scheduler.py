@@ -138,7 +138,7 @@ class SaleOrder(models.Model):
                     product_cost_price = vendor_line.product_id.standard_price
                     vendor_product_cost_price += product_cost_price
                     vendor_cost_price[vendor_line.product_id.vendor_user_product] += vendor_product_cost_price
-            main_journal_id = order.invoice_ids.payment_move_line_ids.mapped('move_id')
+            main_journal_id = order.invoice_ids[0]
             if nso_group:
                 lines = []
                 for nso_partner in nso_group:
@@ -217,7 +217,7 @@ class SaleOrder(models.Model):
                                 'name':order.name + '/' + 'Credit' or '/',
                                 'debit':False,
                                 'credit':company_account_tranfer,
-                                'account_id':order.company_id.vendor_account_id.property_account_receivable_id.id,
+                                'account_id':order.company_id.vendor_account_id.child_account_id.id,
                                 'currency_id':order.currency_id.id,
                                 'date':fields.Date().today(),
                                 'date_maturity':fields.Date().today(),
@@ -237,11 +237,11 @@ class SaleOrder(models.Model):
                 
                 #History Code===========================
                 amount_transferred_history_obj.create({
-                                               'account_received_id':order.company_id.vendor_account_id.property_account_receivable_id.id,
+                                               'account_received_id':order.company_id.vendor_account_id.child_account_id.id,
                                                'order_id':order.id,
-                                               'partner_id':order.company_id.vendor_account_id,
+                                               'partner_id':order.company_id.vendor_account_id.id,
                                                'payment_reference':'market_place',
-                                               'amount':price_invoice_company_extra,
+                                               'amount':company_account_tranfer,
                                                })
                 move_vals_payment_company = {
                      'ref':order.name,
@@ -390,7 +390,7 @@ class SaleOrder(models.Model):
                                 'name':order.name + '/' + 'Credit' or '/',
                                 'debit':False,
                                 'credit':vendor_company_tranfer,
-                                'account_id':order.company_id.vendor_account_id.property_account_receivable_id.id,
+                                'account_id':order.company_id.vendor_account_id.child_account_id.id,
                                 'currency_id':order.currency_id.id,
                                 'date':fields.Date().today(),
                                 'date_maturity':fields.Date().today(),
@@ -408,7 +408,7 @@ class SaleOrder(models.Model):
                 
                 #History Code===========================
                 amount_transferred_history_obj.create({
-                                                   'account_received_id':order.company_id.vendor_account_id.property_account_receivable_id.id,
+                                                   'account_received_id':order.company_id.vendor_account_id.child_account_id.id,
                                                    'order_id':order.id,
                                                    'partner_id':order.company_id.vendor_account_id.id,
                                                    'payment_reference':'market_place',
@@ -553,7 +553,7 @@ class SaleOrder(models.Model):
                         product_cost_price = vendor_line.product_id.standard_price
                         vendor_product_cost_price += product_cost_price
                         vendor_cost_price[vendor_line.product_id.vendor_user_product] += vendor_product_cost_price
-                main_journal_id = invoice.payment_move_line_ids.mapped('move_id')
+                main_journal_id = invoice
                 if nso_group:
                     lines = []
                     for nso_partner in nso_group:

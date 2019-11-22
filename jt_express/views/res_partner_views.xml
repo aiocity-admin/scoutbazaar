@@ -10,7 +10,7 @@
 	        	<xpath expr="//field[@name='country_id']" position="replace">
 	        	</xpath>
 	        	<xpath expr="//field[@name='street']" position="before">
-	        		<field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
+	        		<field name="country_id"  required="1" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
 	        	</xpath>
 	            <xpath expr="//field[@name='zip']" position="after">
                     <field name="country_code" invisible="1"/>
@@ -19,12 +19,12 @@
                     <field placeholder="Barangay" name="town_id" class="o_address_town" attrs="{'invisible': [('country_code','!=','PH')] , 'required':[('country_code','=','PH')]}"/>
 	            </xpath>
 	            <xpath expr="//field[@name='child_ids']/form/sheet/group/group//field[@name='state_id']" position="replace">
-	     			<field name="state_id" attrs="{'invisible':[('country_code','=','PH')]}" class="o_address_state" placeholder="State" options='{"no_open": True}' context="{'country_id': country_id, 'zip': zip}"/>       
+	     			<field name="state_id"  required="1" attrs="{'invisible':[('country_code','=','PH')]}" class="o_address_state" placeholder="State" options='{"no_open": True}' context="{'country_id': country_id, 'zip': zip}"/>
 	            </xpath>
 	            <xpath expr="//field[@name='child_ids']/form/sheet/group/group//field[@name='country_id']" position="replace">
 	            </xpath>
 	            <xpath expr="//field[@name='child_ids']/form/sheet/group/group//field[@name='street']" position="before" string="Country">
-	            	<field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
+	            	<field name="country_id"  required="1" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
 	            </xpath>
 	            <xpath expr="//field[@name='child_ids']/form/sheet/group/group//field[@name='zip']" position="after">
 	            	<field name="country_code" invisible="1"/>
@@ -33,9 +33,8 @@
 	            	<field placeholder="Barangay" name="town_id" attrs="{'invisible':[('country_code','!=','PH')], 'required':[('country_code','=','PH')]}"/>
 	            </xpath>
                 
-                
                 <xpath expr="//field[@name='zip']" position="replace">
-                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                    <field name="zip" placeholder="ZIP" class="o_address_zip" required="1"/>
                 </xpath>
                 <xpath expr="//field[@name='street']" position="replace">
                     <field name="street" placeholder="Street..." class="o_address_street"/>
@@ -44,11 +43,16 @@
                     <field name="street2" placeholder="Street 2..." class="o_address_street"/>
                 </xpath>
                 <xpath expr="//field[@name='city']" position="replace">
-                    <field name="city" placeholder="City" class="o_address_city"/>
+                    <field name="city" placeholder="City" class="o_address_city" required="1"/>
                 </xpath>
                 <xpath expr="//field[@name='state_id']" position="replace">
-                    <field name="state_id" class="o_address_state" placeholder="State" options='{"no_open": True}' context="{'country_id': country_id, 'zip': zip}"/>
+                    <field name="state_id"  required="1" class="o_address_state" placeholder="State" options='{"no_open": True}' context="{'country_id': country_id, 'zip': zip}"/>
                 </xpath>
+                
+                <xpath expr="//field[@name='phone']" position="replace">
+                    <field name="phone" widget="phone" required="1"/>
+                </xpath>
+                
 	        </field>	
 	</record>
 </odoo>

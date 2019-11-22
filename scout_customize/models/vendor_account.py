@@ -14,8 +14,8 @@ class paymentacquirer(models.Model):
 class vendoraccount(models.Model):
 	_inherit="res.company"
 
-	vendor_account_id = fields.Many2one('res.partner',string="Transfer Vendor")
-	vendor_transfer_margin_id=fields.Float(string="Vendor Transfer Margin")
+	vendor_account_id = fields.Many2one('res.partner',string="SB Partner")
+	vendor_transfer_margin_id=fields.Float(string="SB Partner Margin")
 	
 class transfermargin(models.Model):
    
