@@ -23,16 +23,16 @@ from odoo import models,fields,_,api
 ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id', 'country_id','territories_id')
 
 class HKResPartner(models.Model):
-    
+     
     _inherit = 'res.partner'
-    
+     
     territories_id = fields.Many2one('res.partner.territories', string="Territories")
     name_building = fields.Char('Name of Building')
-    
-    @api.model
-    def _address_fields(self):
-        """Returns the list of address fields that are synced from the parent."""
-        return list(ADDRESS_FIELDS)
+     
+#     @api.model
+#     def _address_fields(self):
+#         """Returns the list of address fields that are synced from the parent."""
+#         return list(ADDRESS_FIELDS)
     
 class HKPartnerTerritories(models.Model):
     
