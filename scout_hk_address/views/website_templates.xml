@@ -19,7 +19,7 @@
                 <select id="territories_id" name="territories_id" t-attf-class="form-control #{error.get('territories_id') and 'is-invalid' or ''}" data-init="1">
                     <option value="">Territories...</option>
                     <t t-foreach="territories_id or []" t-as="s">
-                        <option t-att-value="s.id" t-att-selected="'territories_id' in checkout and int(checkout['territories_id'])">
+                        <option t-att-value="s.id" t-att-selected="'territories_id' in checkout and len(checkout['territories_id']) > 0  and int(checkout['territories_id'])">
                             <t t-esc="s.name"/>
                         </option>
                     </t>

@@ -22,15 +22,13 @@
 from odoo import models,fields,_,api
 from odoo.exceptions import UserError, ValidationError
 
-ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id','country_id','town_id','district_id','city_id','territories_id','name_building')
+ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id','country_id','town_id','district_id','city_id')
 
 class ResPartner(models.Model):
     
     
     _inherit = 'res.partner'
     
-    territories_id = fields.Many2one('res.partner.territories', string="Territories")
-    name_building = fields.Char('Name of Building')
     country_code = fields.Char('Country Code',related='country_id.code')
     city_id = fields.Many2one('res.partner.city',string="Province")
     district_id = fields.Many2one('res.partner.district',string='City / Municipality')
@@ -218,7 +216,6 @@ class ResPartner(models.Model):
                                                                           ],limit=1)
                 
                 if servicable_area:
-                   
                     vals.update({'state_id':servicable_area.state_id.id})
                 else:
                     vals.update({'state_id':False})
@@ -229,6 +226,5 @@ class ResPartner(models.Model):
     @api.model
     def _address_fields(self):
         """Returns the list of address fields that are synced from the parent."""
-        print('====================meme======_address_fields===',list(ADDRESS_FIELDS))
         return list(ADDRESS_FIELDS)
     

@@ -107,9 +107,9 @@ class WebsiteSaleJTExress(WebsiteSale):
             if country.code == 'PH':
                 return ["name", "street", "country_id","town_id","district_id","city_id","zip"]
             else:
-                return ["name", "email", "street", "country_id","zip"]
+                return ["name", "email", "street", "country_id","zip", "city"]
         else:
-            return ["name", "email", "street", "country_id","zip"]
+            return ["name", "email", "street", "country_id","zip", "city"]
     def _get_mandatory_shipping_fields(self):
         if request.context.get('address_country'):
             country = request.env['res.country']

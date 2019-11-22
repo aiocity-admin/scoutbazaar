@@ -85,25 +85,25 @@ class WebsiteSaleHK(WebsiteSaleJTExress):
             country = request.env['res.country']
             country = country.browse(int(request.context.get('address_country')))
             if country.code == 'PH':
-                return ["name", "street", "country_id","town_id","district_id","city_id"]
+                return ["name", "street", "country_id","town_id","district_id","city_id","zip"]
             elif country.code == 'HK':
-                return ["name", "street", "street2","country_id","name_building"]
+                return ["name", "street", "street2","country_id","name_building","zip", "city"]
             else:
-                return ["name", "email", "street", "country_id"]
+                return ["name", "email", "street", "country_id","zip", "city"]
         else:
-            return ["name", "email", "street", "country_id"]
+            return ["name", "email", "street", "country_id","zip", "city"]
     def _get_mandatory_shipping_fields(self):
         if request.context.get('address_country'):
             country = request.env['res.country']
             country = country.browse(int(request.context.get('address_country')))
             if country.code == 'PH':
-                return ["name", "street", "country_id","town_id","district_id","city_id"]
+                return ["name", "street", "country_id","town_id","district_id","city_id","zip"]
             elif country.code == 'HK':
-                return ["name", "street", "street2","country_id","name_building"]
+                return ["name", "street", "street2","country_id","name_building","zip", "city"]
             else:
-                return ["name", "street", "city", "country_id"]
+                return ["name", "street", "city", "country_id","zip"]
         else:
-            return ["name", "street", "city", "country_id"]
+            return ["name", "street", "city", "country_id","zip"]
     
     @http.route(['/shop/address'], type='http', methods=['GET', 'POST'], auth="public", website=True)
     def address(self, **kw):
