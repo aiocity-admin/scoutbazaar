@@ -222,7 +222,10 @@ odoo.define('scout_stock.international_shipping', function (require) {
     		})
     	});
 		if (vendor_domestic_error.length == 1 || nso_domestic_error.length == 1){
-			pay_now_button.prop("disabled", true);
+			setTimeout(function(){
+				pay_now_button.prop("disabled", true);
+			},900)
+			
 		}
     })
     
