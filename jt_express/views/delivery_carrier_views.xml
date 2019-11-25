@@ -57,7 +57,8 @@
         <field name="inherit_id" ref="stock.view_location_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='company_id']" position="after">
-            	<field name="state_id"/>
+                <field name="state_country_code" invisible="1"/>
+            	<field name="state_id" attrs="{'required':[('state_country_code','=','PH')]}"/>
             </xpath>
          </field>
     </record>
