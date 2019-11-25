@@ -11,6 +11,7 @@
 				<field name="partner_id"/>
 				<field name="payment_reference"/>
 				<field name="amount" widget="monetary" sum="Total"/>
+				<field name="state"/>
 				<field name="currency_id" invisible="1"/>
 			</tree>
 		</field>
@@ -22,7 +23,18 @@
 		<field name="model">amount.transferred.history</field>
 		<field name="arch" type="xml">
 			<form string="Amount Transferred History">
+				<header>
+					<button name="set_to_done" type="object" class="btn btn-primary" string="Mark as Done" states="draft"/>
+					<button name="set_to_draft" type="object" class="btn btn-primary" string="Set to Draft" states="done"/>
+					<field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+				</header>
 				<sheet>
+					<div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+					
 					<group>
 						<group>
 							<field name="account_received_id"/>
@@ -40,11 +52,18 @@
 		</field>
 	</record>
 	
+	
+	
 	<record id="amount_transferred_history_search_view" model="ir.ui.view">
 			<field name="name">amount.transferred.history.search.view</field>
 			<field name="model">amount.transferred.history</field>
 			<field name="arch" type="xml">
 				<search string="Search Amount Transfer History">
+					<filter string="Draft" name="transfer_state_draft" domain="[('state','=','draft')]"/>
+              		<separator/>
+              		<filter string="Done" name="transfer_state_done" domain="[('state','=','done')]"/>
+					<separator/>
+					<filter string="Date" name="filter_order_date_amount" date="order_date"/>
 					<group expand="0" string="Group By">
 	                        <filter string="Orders" name="order_reference" domain="[]" context="{'group_by':'order_id'}"/>
 	                        <filter name="payment_reference" string="Payment Reference" domain="[]" context="{'group_by':'payment_reference'}"/>
@@ -69,4 +88,5 @@
               action="amount_transferred_history_action_view"
               parent="scout_stock.scout_bazaar_menu_root"
               />
+      
 </odoo>

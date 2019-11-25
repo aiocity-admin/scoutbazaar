@@ -240,7 +240,7 @@ class SaleOrder(models.Model):
                                                'account_received_id':order.company_id.vendor_account_id.child_account_id.id,
                                                'order_id':order.id,
                                                'partner_id':order.company_id.vendor_account_id.id,
-                                               'payment_reference':'market_place',
+                                               'payment_reference':'market_place_nso',
                                                'amount':company_account_tranfer,
                                                })
                 move_vals_payment_company = {
@@ -411,7 +411,7 @@ class SaleOrder(models.Model):
                                                    'account_received_id':order.company_id.vendor_account_id.child_account_id.id,
                                                    'order_id':order.id,
                                                    'partner_id':order.company_id.vendor_account_id.id,
-                                                   'payment_reference':'market_place',
+                                                   'payment_reference':'market_place_vendor',
                                                    'amount':vendor_company_tranfer,
                                                    })
                 lines_payment_company.append((0,0,credit_vendor_move_line_src_payment_company))
@@ -655,7 +655,7 @@ class SaleOrder(models.Model):
                                                    'account_received_id':invoice_order.company_id.vendor_account_id.property_account_receivable_id.id,
                                                    'order_id':invoice_order.id,
                                                    'partner_id':invoice_order.company_id.vendor_account_id.id,
-                                                   'payment_reference':'market_place',
+                                                   'payment_reference':'market_place_nso',
                                                    'amount':price_invoice_company_extra,
                                                    })
                     lines_payment_company.append((0,0,credit_move_line_src_payment_company))
@@ -832,7 +832,7 @@ class SaleOrder(models.Model):
                                                    'account_received_id':invoice_order.company_id.vendor_account_id.property_account_receivable_id.id,
                                                    'order_id':invoice_order.id,
                                                    'partner_id':invoice_order.company_id.vendor_account_id.id,
-                                                   'payment_reference':'market_place',
+                                                   'payment_reference':'market_place_vendor',
                                                    'amount':vendor_invoice_company,
                                                    })
                     move_vals_payment_vendor_company = {
