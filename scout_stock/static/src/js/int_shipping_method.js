@@ -14,14 +14,14 @@ odoo.define('scout_stock.international_shipping', function (require) {
     	if(int_shippping.length > 0){
     		shipping_length += int_shippping.length
 	    	$.blockUI({ 
-				message: '<span>Please wait, we are getting best price for you! </span>'
+	    		message: '<h2 class="text-white">Please wait, we are getting best price for you! </h2>'
 			});
     	}
     	
     	if(int_vendor_shippping.length > 0){
     		shipping_length += int_vendor_shippping.length
 	    	$.blockUI({ 
-				message: '<span>Please wait, we are getting best price for you! </span>'
+	    		message: '<h2 class="text-white">Please wait, we are getting best price for you! </h2>'
 			});
     	}
     	
@@ -94,7 +94,7 @@ odoo.define('scout_stock.international_shipping', function (require) {
     		var delivery_id = $(this).attr('id')
     		var country_code = $(this).attr('name').split('int_ship_')[1]
     		$.blockUI({
-    				message: '<span>Please wait, we are getting best price for you! </span>'
+    				message: '<h2 class="text-white">Please wait, we are getting best price for you! </h2>'
     				});
     		ajax.jsonRpc('/calculate/international_shipping','call',{'delivery_id':delivery_id,'country_code':country_code})
     		.then(function(vals){
@@ -161,7 +161,7 @@ odoo.define('scout_stock.international_shipping', function (require) {
     		var delivery_id = $(this).attr('id')
     		var country_code = $(this).attr('name').split('int_ship_vendor')[1]
     		$.blockUI({ 
-				message: '<span>Please wait, we are getting best price for you! </span>'
+    			message: '<h2 class="text-white">Please wait, we are getting best price for you! </h2>'
 				});
     		ajax.jsonRpc('/calculate/vendor/international_shipping','call',{'vendor_delivery_id':delivery_id,'vendor_country_code':country_code})
     		.then(function(vals){
