@@ -346,10 +346,9 @@
     
     <template id="address_kanban_inherit_div" name="Kanban address" inherit_id="website_sale.address_kanban">
         <xpath expr="//div/div[hasclass('card-body')]/a[hasclass('js_edit_address')]" position="after">
-<!--             <span class="deleteaddress fa fa-remove" style="color: lightcoral;" role="button" title="Delete this address" aria-label="Delete this address" t-att-value="contact.id" t-att-id="contact.id"></span> -->
-        <span style="color: lightcoral;margin-right: 8px;" class="float-right deleteaddress" role="button" title="Delete this address" aria-label="Delete this address" t-att-value="contact.id" t-att-id="contact.id">
-        <i class='fa fa-remove'/>
-        </span>
+            <span style="color: #5bbbcc;margin-right: 8px;" class="float-right deleteaddress" role="button" title="Delete this address" aria-label="Delete this address" t-att-value="contact.id" t-att-id="contact.id">
+                <i class='fa fa-remove'/>
+            </span>
         </xpath>
     </template>
 

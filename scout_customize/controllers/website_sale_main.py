@@ -414,6 +414,7 @@ class WebsiteSaleScout(WebsiteSale):
                     partner_address.unlink()
                     return True
                 else:
+                    partner_address.active = False
                     return False
             else:
                 return False
