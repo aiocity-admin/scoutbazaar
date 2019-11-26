@@ -33,25 +33,35 @@ sAnimations.registry.WebsiteSale.include({
 	        		$(".div_zip").addClass('col-md-4');
 		            // populate states and display
 		            var selectStates = $("select[name='state_id']");
-		            // dont reload state at first loading (done in qweb)
-		            if (selectStates.data('init')===0 || selectStates.find('option').length===1) {
-		                if (data.states.length) {
-		                    selectStates.html('');
-		                    _.each(data.states, function (x) {
-		                        var opt = $('<option>').text(x[1])
-		                            .attr('value', x[0])
-		                            .attr('data-code', x[2]);
-		                        selectStates.append(opt);
-		                    });
-		                    selectStates.parent('div').show();
-		                } else {
-		                    selectStates.val('').parent('div').hide();
-		                }
-		                selectStates.data('init', 0);
-		            } else {
-		                selectStates.data('init', 0);
+		            if (data.states.length){
+	            		selectStates.empty();
+						var s_option = '';
+						var t_emp = '<option value="">State...</option>'
+						_.each(data.states,function(value){
+							s_option += '<option value=' + value[0] + '>' + value[1] + '</option>'
+						})
+						selectStates.append(s_option)
+		            }else{
+		            	var selectStates = $("select[name='state_id']");
+			            // dont reload state at first loading (done in qweb)
+			            if (selectStates.data('init')===0 || selectStates.find('option').length===1) {
+			                if (data.states.length) {
+			                    selectStates.html('');
+			                    _.each(data.states, function (x) {
+			                        var opt = $('<option>').text(x[1])
+			                            .attr('value', x[0])
+			                            .attr('data-code', x[2]);
+			                        selectStates.append(opt);
+			                    });
+			                    selectStates.parent('div').show();
+			                } else {
+			                    selectStates.val('').parent('div').hide();
+			                }
+			                selectStates.data('init', 0);
+			            } else {
+			                selectStates.data('init', 0);
+			            }
 		            }
-		
 		            // manage fields order / visibility
 		            if (data.fields) {
 		                if ($.inArray('zip', data.fields) > $.inArray('city', data.fields)){
