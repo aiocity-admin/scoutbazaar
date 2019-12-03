@@ -43,7 +43,12 @@ class SaleOrderLine(models.Model):
                                             '08': 'UPS Worldwide Expedited',
                                             '54': 'UPS Worldwide Express Plus',
                                             '96': 'UPS Worldwide Express Freight'}
-                                a = template_id.with_context({'ups_list':ups_list,'picking_id':picking_id.location_id.nso_location_id,'delivery_ref':picking_id.name,'location_id':location_id,'name':location.name}).send_mail(order.id, force_send=True, raise_exception=False)
+                                line_shipping_charge = 0.0
+                                for line in order.order_line:
+                                    if location.name == line.location_id.name:
+                                        if line.shipping_charge:
+                                            line_shipping_charge += line.shipping_charge
+                                a = template_id.with_context({'line_shipping_charge':str(round(line_shipping_charge,2)) + ' ' + order.currency_id.symbol,'ups_list':ups_list,'picking_id':picking_id.location_id.nso_location_id,'delivery_ref':picking_id.name,'location_id':location_id,'name':location.name}).send_mail(order.id, force_send=True, raise_exception=False)
     
     @api.multi
     def _action_launch_stock_rule(self):

@@ -131,6 +131,11 @@
                                 </tbody>
                             % endfor
                         </table>
+                        <p>
+                        % if ctx['line_shipping_charge']
+                            <strong>Shipping Charge : </strong>${ctx['line_shipping_charge']}
+                        % endif
+                        </p>
                     </p>
                     <br></br>
                     <br></br>

@@ -116,7 +116,12 @@ class VendorSaleOrder(models.Model):
                                             '08': 'UPS Worldwide Expedited',
                                             '54': 'UPS Worldwide Express Plus',
                                             '96': 'UPS Worldwide Express Freight'}
-                    mail_id = template_id.with_context({'ups_list':ups_list,'vendor_name':vendor.name}).send_mail(self.id, force_send=True, raise_exception=False)
+                    line_shipping_charge = 0.0
+                    for line in self.order_line:
+                        if vendor.name == line.product_id.vendor_user_product.name:
+                            if line.shipping_charge:
+                                line_shipping_charge += line.shipping_charge
+                    mail_id = template_id.with_context({'line_shipping_charge':str(round(line_shipping_charge,2)) + ' ' + self.currency_id.symbol,'ups_list':ups_list,'vendor_name':vendor.name}).send_mail(self.id, force_send=True, raise_exception=False)
         return res
     
     # Get vendor======================================
