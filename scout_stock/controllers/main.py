@@ -246,11 +246,11 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                   'delivery_price':domestic_price,
                                                                   'is_vendor_track':False
                                                                   })
-            res.qcontext.update({'domestic_fees': round(domestic_price,2),
+            res.qcontext.update({'domestic_fees': "%.2f" % round(domestic_price, 2),
                                  'vendor_domestic_fees_nso_error': vendor_domestic_fees_nso_error,
                                  })
         if is_domestic_products and is_domestic_include_nso_error:
-            res.qcontext.update({'domestic_fees': round(domestic_price,2),
+            res.qcontext.update({'domestic_fees': "%.2f" % round(domestic_price, 2),
                                  'vendor_domestic_fees_nso_error': vendor_domestic_fees_nso_error,
                                  })
         
@@ -488,7 +488,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         order = request.website.sale_get_order()
         order._compute_website_order_line()
         value['website_sale.cart_summary'] = request.env['ir.ui.view'].render_template("website_sale.cart_summary",{'website_sale_order':order})
-        value['nso_amount_delivery'] = order.currency_id.symbol + ' ' + str(order.nso_amount_delivery)
+        value['nso_amount_delivery'] = order.currency_id.symbol + ' ' + str("%.2f" % round(order.nso_amount_delivery, 2))
         return value
     
     

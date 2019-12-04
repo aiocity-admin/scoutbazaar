@@ -187,12 +187,12 @@ class VendorPage(WebsiteSale):
                                                                   'delivery_price':domestic_vendor_price,
                                                                   'is_vendor_track':True,
                                                                   })
-            res.qcontext.update({'vendor_domestic_fees': round(domestic_vendor_price,2),
+            res.qcontext.update({'vendor_domestic_fees': "%.2f" % round(domestic_vendor_price, 2),
                                  'vendor_domestic_fees_error': vendor_domestic_fees_error,
                                  })
             
         if is_domestic_vendor_products and is_domestic_include_error:
-            res.qcontext.update({'vendor_domestic_fees': round(domestic_vendor_price,2),
+            res.qcontext.update({'vendor_domestic_fees': "%.2f" % round(domestic_vendor_price, 2),
                                  'vendor_domestic_fees_error': vendor_domestic_fees_error,
                                  })
         
@@ -458,6 +458,6 @@ class VendorPage(WebsiteSale):
         order._compute_website_order_line()
 
         value['website_sale.cart_summary'] = request.env['ir.ui.view'].render_template("website_sale.cart_summary",{'website_sale_order':order})
-        value['vendor_amount_delivery'] = order.currency_id.symbol + ' ' + str(order.vendor_amount_delivery)
+        value['vendor_amount_delivery'] = order.currency_id.symbol + ' ' + str("%.2f" % round(order.vendor_amount_delivery, 2))
         return value
     
