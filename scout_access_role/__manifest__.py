@@ -23,12 +23,12 @@
     "version" : "12.0.0.2",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
-    "depends" : ['sale'],
+    "depends" : ['sale','delivery'],
     'data': [
-             
              'security/scout_access_role.xml',
 #              'security/ir.model.access.csv',
              'views/sale_order_view.xml',
+             'views/stock_picking_views.xml',
              ],
     'demo':[],
     'installable': True,
