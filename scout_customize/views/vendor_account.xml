@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="delivery_account_form_inherit_view" model="ir.ui.view">
+            <field name="name">delivery.account.form.view</field>
+            <field name="model">delivery.carrier</field>
+            <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+            <field name="arch" type="xml">
+                <xpath  expr="//group//label[@for='delivery_type']" position="before">
+                    <field name="delivery_account_id" attrs="{'required' : [('delivery_type','not in',['fixed','base_on_rule'])]}"/>
+                </xpath>
+            
+            </field>
+        </record>
+
+
+        <record id="payment_acquirer_form_view" model="ir.ui.view">
+            <field name="name">payment.acquirer.form.view</field>
+            <field name="model">payment.acquirer</field>
+            <field name="inherit_id" ref="payment.acquirer_form"/>
+            <field name="arch" type="xml">
+                
+                <xpath  expr="//field[@name='provider']" position="after">
+                    <field name="payment_acquirer_id" required="1"/>
+                </xpath>
+            
+            </field>
+        </record>
+
+        <record id="vendor_account_form_view" model="ir.ui.view">
+            <field name="name">vendor.account.form.view</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                
+                <xpath  expr="//group//label[@for='street']" position="before">
+             
+                    	<field name="vendor_account_id" required="1"/>
+                        <label for="vendor_transfer_margin_id" attrs="{'invisible': [('vendor_account_id', '=', False)]}"/>
+                        <div>
+                            <field name="vendor_transfer_margin_id" attrs="{'invisible': [('vendor_account_id', '=', False)]}"/>
+                            <span class="o_form_label oe_inline" attrs="{'invisible': [('vendor_account_id', '=', False)]}">%</span>
+                        </div>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="transfer_margin_form_view" model="ir.ui.view">
+            <field name="name">transfer.margin.form.view</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                
+                <xpath  expr="//group//field[@name='vat']" position="after">
+                    <field name="transfer_margin" attrs="{'invisible': [('supplier', '=', False)]}"/>
+                </xpath>
+            
+            </field>
+        </record>
+
+	</data>
+</odoo>

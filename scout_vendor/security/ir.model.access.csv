@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_order_vendor,sale.order.vendor.user,sale.model_sale_order,group_vendor_product,1,1,1,0
+access_stock_move_vendor,stock.move.vendor.user,stock.model_stock_move,group_vendor_product,1,1,1,0
+access_stock_warehouse_orderpoint_vendor,stock.warehouse.orderpoint.vendor.user,stock.model_stock_warehouse_orderpoint,group_vendor_product,1,1,1,0
+access_product_template_vendor,product.template.vendor.user,product.model_product_template,group_vendor_product,1,1,1,0
+access_product_product_vendor,product.product.vendor.user,product.model_product_product,group_vendor_product,1,1,1,0
+access_product_template_attribute_line_vendor,product.template.attribute line.vendor.user,product.model_product_template_attribute_line,group_vendor_product,1,1,1,0
+access_product_attribute_value_vendor,product.attribute value.vendor.user,product.model_product_attribute_value,group_vendor_product,1,1,1,0
+access_product_product_attribute_vendor,product.template.attribute value.vendor.user,product.model_product_template_attribute_value,group_vendor_product,1,1,1,0
+access_product_tabs_vendor,product.tabs.vendor.user,alan_customize.model_product_tabs,group_vendor_product,1,1,1,0
+access_product_tab_heads_vendor,product.tab_heads.vendor.user,alan_customize.model_product_tab_heads,group_vendor_product,1,1,1,0
+access_product_attribute_category_vendor,product.attribute.category public.vendor.user,website_sale_comparison.model_product_attribute_category,group_vendor_product,1,1,1,0
+access_product_attribute_vendor,product.attribute.vendor.user,product.model_product_attribute,group_vendor_product,1,1,1,0
+access_product_category_user_vendor,product.category.vendor.user,product.model_product_category,group_vendor_product,1,0,0,0

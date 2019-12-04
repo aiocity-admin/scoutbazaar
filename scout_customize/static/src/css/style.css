@@ -1,0 +1,57 @@
+
+#products_grid_before .js_attributes {
+    margin-bottom: 0px !important;
+    border-bottom: 0px !important;
+    padding-bottom: 0px !important;
+    display: none !important;
+}
+
+#products_grid_before > ul.nav {
+    margin: 0 0 0px !important;
+    padding: 0 0 0px !important;
+    border-bottom: 0px !important;
+}
+#products_grid_before > ul.nav li.nav-item a:after {
+    display: none !important;
+}
+
+
+@media (min-width: 411px) and (max-width:735px) {
+
+.scout_shipping{
+	font-size: 12px;
+	}
+}
+
+.card_shipping{
+	font-size: 16px;
+}
+
+#o_payment_form_acq_7{
+	margin-top: 8px;
+}
+
+/*geminatecs nov18*/
+.js_subscribe_btn:hover{
+    background: black !important;
+    color:white !important;
+}
+
+.middle-footer .fot-col ul li a{
+    color:#1d5861 !important;
+}
+
+.middle-footer .fot-col ul li:after{
+    border-top: 1px solid #1d5861 !important;
+    border-right: 1px solid #1d5861 !important;
+}
+
+.middle-footer .fot-col address > div > div i{
+    
+    color:#1d5861 !important;
+}
+
+.middle-footer .fot-col address{
+    color:#1d5861 !important;
+}
+/*geminatecs nov18*/

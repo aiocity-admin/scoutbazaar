@@ -22,7 +22,7 @@
 from odoo import fields as odoo_fields, tools, _
 from odoo import http
 from odoo.http import request
-from odoo.addons.portal.controllers.portal import CustomerPortal
+from odoo.addons.scout_customize.controllers.portal import CustomerPortal
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 from odoo import api, fields, models, _
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare
@@ -71,9 +71,9 @@ class CustomerPortalJTExress(CustomerPortal):
         town_ids = False
         district_ids = False
         ph_city_ids = False
-        town_ids = request.env['res.partner.town'].sudo().search([])
-        district_ids = request.env['res.partner.district'].sudo().search([])
-        ph_city_ids = request.env['res.partner.city'].sudo().search([])
+        town_ids = request.env['res.partner.town'].sudo().search([], order="name ASC")
+        district_ids = request.env['res.partner.district'].sudo().search([], order="name ASC")
+        ph_city_ids = request.env['res.partner.city'].sudo().search([], order="name ASC")
         res.qcontext.update({
                 'town_id':town_ids,
                 'district_id':district_ids,
@@ -105,21 +105,21 @@ class WebsiteSaleJTExress(WebsiteSale):
             country = request.env['res.country']
             country = country.browse(int(request.context.get('address_country')))
             if country.code == 'PH':
-                return ["name", "street", "country_id","town_id","district_id","city_id"]
+                return ["name", "street", "country_id","town_id","district_id","city_id","zip"]
             else:
-                return ["name", "email", "street", "country_id"]
+                return ["name", "email", "street", "country_id","zip", "city"]
         else:
-            return ["name", "email", "street", "country_id"]
+            return ["name", "email", "street", "country_id","zip", "city"]
     def _get_mandatory_shipping_fields(self):
         if request.context.get('address_country'):
             country = request.env['res.country']
             country = country.browse(int(request.context.get('address_country')))
             if country.code == 'PH':
-                return ["name", "street", "country_id","town_id","district_id","city_id"]
+                return ["name", "street", "country_id","town_id","district_id","city_id","zip"]
             else:
-                return ["name", "street", "city", "country_id"]
+                return ["name", "street", "city", "country_id","zip"]
         else:
-            return ["name", "street", "city", "country_id"]
+            return ["name", "street", "city", "country_id","zip"]
     
     @http.route(['/shop/address'], type='http', methods=['GET', 'POST'], auth="public", website=True)
     def address(self, **kw):
@@ -127,9 +127,9 @@ class WebsiteSaleJTExress(WebsiteSale):
         town_ids = False
         district_ids = False
         ph_city_ids = False
-        town_ids = request.env['res.partner.town'].sudo().search([])
-        district_ids = request.env['res.partner.district'].sudo().search([])
-        ph_city_ids = request.env['res.partner.city'].sudo().search([])
+        town_ids = request.env['res.partner.town'].sudo().search([], order="name ASC")
+        district_ids = request.env['res.partner.district'].sudo().search([], order="name ASC")
+        ph_city_ids = request.env['res.partner.city'].sudo().search([], order="name ASC")
         res.qcontext.update({
                 'town_id':town_ids,
                 'district_id':district_ids,
@@ -154,4 +154,42 @@ class WebsiteSaleJTExress(WebsiteSale):
         else:
             return False
         
-        
+    @http.route('/filter/ph_servicable_area', type='json', auth="public", website=True)
+    def filter_servicable_area(self, city_id):
+        value = {}
+        district_list = []
+        town_list = []
+        if city_id:
+            servicable_area = request.env['jt.servicable.areas'].sudo().search([('city_id','=',int(city_id))])
+            for ids in servicable_area:
+                if not [ids.district_id.id,ids.district_id.name] in district_list:
+                    district_list.append([ids.district_id.id,ids.district_id.name])
+
+                if not [ids.town_id.id,ids.town_id.name] in town_list:
+                    town_list.append([ids.town_id.id,ids.town_id.name])
+                    
+            if district_list and town_list:
+                return district_list,town_list
+                
+            else:
+                return False
+        else:
+            return False
+    
+    @http.route('/filter/ph_servicable_area/district', type='json', auth="public", website=True)
+    def filter_servicable_area_district(self, district_id):
+        value = {}
+        town_list = []
+        if district_id:
+            servicable_area = request.env['jt.servicable.areas'].sudo().search([('district_id','=',int(district_id))])
+            for ids in servicable_area:
+                if not [ids.town_id.id,ids.town_id.name] in town_list:
+                    town_list.append([ids.town_id.id,ids.town_id.name])
+                    
+            if town_list:
+                return town_list
+                
+            else:
+                return False
+        else:
+            return False

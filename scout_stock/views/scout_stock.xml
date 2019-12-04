@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+        
+		<record id="nso_location_form_view" model="ir.ui.view">
+            <field name="name">nso.location.form.view</field>
+            <field name="model">stock.location</field>
+            <field name="inherit_id" ref="stock.view_location_form"/>
+            <field name="arch" type="xml">
+                <xpath  expr="//form/h2" position="after">
+                    <label for="is_store_nso"/>
+                    <field name="is_store_nso" string="Is Store NSO"/>
+                </xpath>
+                
+                <xpath  expr="//group//field[@name='barcode']" position="after">
+                    <field name="nso_location_id" string="NSO Location" attrs="{'required': [('is_store_nso', '=', True)]}"/>
+                </xpath>
+            </field>
+        </record>
+        
+		<record id="scout_stock_tree_view" model="ir.ui.view">
+			<field name="name">scout.tree.view</field>
+			<field name="model">scout.stock</field>
+			<field name="arch" type="xml">
+				<tree string="scout stock tree">
+					<field name="country_id"/>
+					<field name="state_ids"/>
+					<field name="location_id"/>
+				</tree>
+			</field>
+		</record>
+		
+		 <record id="scout_stock_form_view" model="ir.ui.view">
+            <field name="name">scout.stock.form.view</field>
+            <field name="model">scout.stock</field>
+            <field name="arch" type="xml">
+                <form string="scout_stock_form">
+                    <sheet>
+                    	<group>
+	                       <field name="country_id"/>
+							<field name="state_ids" widget="many2many_tags" />
+							<field name="location_id"/>
+                    	</group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+		<record id="scout_stock_search_view" model="ir.ui.view">
+			<field name="name">scout.stock.search.view</field>
+			<field name="model">scout.stock</field>
+			<field name="arch" type="xml">
+				<search string="scout_stock_search">
+					<filter string="Location" name="location" domain="[('location_id','!=',False)]"/>
+					<group expand="0" string="Group By">
+                        <filter string="Country" name="country" domain="[('country_id','!=',False)]" context="{'group_by':'country_id'}"/>
+                         <filter string="Location" name="location" domain="[('location_id','!=',False)]" context="{'group_by':'location_id'}"/>    
+                    </group>
+				</search>
+			</field>
+		</record>
+		
+		 <record id="action_scout_stock_action" model="ir.actions.act_window">
+            <field name="name">Stock</field>
+            <field name="res_model">scout.stock</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <footer>
+                    <p>Create a new SCout Stock</p>
+                </footer>
+            </field>
+        </record>  
+        
+<!-- 		<menuitem id="stock_warehouser_id" -->
+<!--               name="NSO Stock Locations" -->
+<!--               action="action_scout_stock_action" -->
+<!--               sequence = "7" -->
+<!--               parent="stock.menu_stock_root"/> -->
+        
+	</data>
+</odoo>

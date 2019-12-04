@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Brand filter -->
+    <template id="website_product_brands_filter" 
+        inherit_id="website_sale.products_attributes"  
+        name="Product Brands's Filter"
+        customize_show="True" active="False">
+        <xpath expr="//form[hasclass('js_attributes')]//ul[hasclass('nav')]" position="inside">
+            <t t-if="brands">
+                <li class="brand_clear">
+                    <div id="brand_name">
+                        <strong>Brands</strong>
+                    </div>
+                    <ul class="nav nav-pills flex-column pro_brand">
+                        <t t-foreach="brands" t-as="brand">
+                            <li class="nav-item">
+                                <label style="margin: 0 20px;" t-attf-class="nav-link#{' active' if brand.id in brand_set else ''}">
+                                    <input type="checkbox" 
+                                    name="brands"
+                                    t-att-value="'%s-%s' % (brand.name,brand.id)"
+                                    t-att-checked="'checked' if brand.id in brand_set else None"/>
+                                    <span style="font-weight: normal" 
+                                        t-field="brand.name" />
+                                </label>
+                            </li>
+                        </t>
+                    </ul>
+                </li>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="brand_collapsible_filters" name="Brand's Collapsible Filters" inherit_id="alan_customize.website_product_brands_filter" active="False" customize_show="True">
+        <xpath expr="//ul[hasclass('pro_brand')]" position="replace">
+
+        <!-- <xpath expr="//li[hasclass('brand_clear')]" position="replace"> -->
+            <t t-set="brand_clear_attribute_filter" 
+                t-value="request.env['ir.ui.view'].search([('key','=','alan_customize.brand_clear_attribute_filter'),('website_id','=',request.website.id)]).active"/>
+
+            <t t-set="attr_section_open" t-value="False"/>
+            <t t-foreach="brands" t-as="brand">
+                <t t-if="brand.id in brand_set">
+                    <t t-set="attr_section_open" t-value="True"/>   </t>
+            </t>
+            <div t-att-class="'collapsible_attr_name%s' %(' section_open' if attr_section_open else '',)">
+            <a>
+                <strong>Brands</strong>
+                <span class="icon"></span>
+            </a>
+            <t t-if="brand_clear_attribute_filter and attr_section_open">
+                <span class="clear_attr_filter">
+                    <i class="fa fa-times"/>Clear
+                </span>
+            </t>
+            </div>
+            <div class="collapsible_attr_value">
+                <ul class="nav nav-pills flex-column">
+                    <li>
+                        <ul class="nav nav-pills flex-column">
+                            <t t-foreach="brands" t-as="brand">
+                                <li class="nav-item">
+                                    <label style="margin: 0 20px;" t-attf-class="nav-link#{' active' if brand.id in brand_set else ''}">
+                                        <input type="checkbox" 
+                                        name="brands"
+                                        t-att-value="'%s-%s' % (brand.name,brand.id)"
+                                        t-att-checked="'checked' if brand.id in brand_set else None"/>
+                                        <span style="font-weight: normal" 
+                                            t-field="brand.name" />
+                                    </label>
+                                </li>
+                            </t>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="brand_clear_attribute_filter" name="Brand's Clear Filter Option" inherit_id="alan_customize.website_product_brands_filter" active="False" customize_show="True">
+        <xpath expr="//li[hasclass('brand_clear')]" position="before">
+        <t t-set="brand_collapsible_filters_active" 
+            t-value="request.env['ir.ui.view'].search([('key','=','alan_customize.brand_collapsible_filters'),('website_id','=',request.website.id)]).active"/>
+            <t t-if="not brand_collapsible_filters_active">
+                <t t-set="attr_section_open" t-value="False"/>
+                <t t-foreach="brands" t-as="brand">
+                    <t t-if="brand.id in brand_set">
+                        <t t-set="attr_section_open" t-value="True"/>
+                    </t>   
+                </t>
+            </t>
+        </xpath>
+        <xpath expr="//li[hasclass('brand_clear')]/div//strong" position="after">
+            <t t-if="not brand_collapsible_filters_active and attr_section_open">
+                <span class="clear_attr_filter">
+                    <i class="fa fa-times"/>Clear
+                </span>
+            </t>
+        </xpath>
+    </template>
+    <!-- End Brand Filter -->
+
+    <!-- Single Brand slider -->
+    <template name="Brand Slider" id="product_brand_slider">
+        <section class="tqt-product-brand-slider">
+            <div class="tqt_product_brand_slider" data-brand-count="0" data-label="">
+                <div class="container">
+                    <div class="shopper_brand_slider" contentEditable="false">
+                        <div class="col-md-12">
+                            <div class="seaction-head">
+                                <h2>Brands</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="snippet_options_brand" inherit_id="website.snippet_options">
+        <xpath expr="." position="inside">
+            <div data-js='product_brand_slider'
+        data-selector=".tqt-product-brand-slider">
+                <a tabindex="-1" href="#" class="dropdown-item js_brand_slider" data-brand_slider_configure="">Modify</a>
+            </div>
+        </xpath>
+    </template>
+
+
+    <template id="place_into_bar_brand_slider" inherit_id="website.snippets" name="Place Snippet into bar">
+        <xpath expr="//div[@id='snippet_structure']//div[hasclass('o_panel_body')]" position="inside">
+            <t t-snippet="alan_customize.product_brand_slider"
+       t-thumbnail="/alan_customize/static/src/icon/brand-slider.png"/>
+        </xpath>
+    </template>
+
+    <!-- Single Brand Slider Block -->
+    <template name="Brand Slider" id="brand_slider_content">
+        <div class="container" contentEditable="false">
+            <div class="shopper_brand_slide">
+                <t t-if="header">
+                    <div class="seaction-head">
+                        <h2>
+                            <t t-esc="header"/>
+                        </h2>
+                    </div>
+                </t>
+                <t t-if="not header">
+                    <div class="seaction-head">
+                        <h2>Our Brand</h2>
+                    </div>
+                </t>
+                <div id="as_our_brand" class="owl-carousel" t-if="brands">
+                    <t t-foreach="brands" t-as="brand">
+                        <a t-att-href="'/shop/brand/%s' % slug(brand)" >
+                            <div class="brand-img">
+                                <span class="brand_img_span">
+                                    <img t-att-src="website.image_url(brand,'logo','300x300')" t-att-title="brand.name" t-att-alt="brand.name" />
+                                </span>
+                            </div>
+                        </a>
+                    </t>
+                </div>
+                <div t-if="not(brands)">
+                    <span> No Brand available</span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Multi Brand Slider -->
+    <template id="s_brand_multi_with_header" inherit_id="website.snippets" name="Multi Tab Brand Slider">
+        <xpath expr="//div[@id='snippet_structure']//div[hasclass('o_panel_body')]" position="inside">
+            <div>
+                <div class="oe_snippet_thumbnail">
+                    <img class="oe_snippet_thumbnail_img" src="/alan_customize/static/src/icon/slider-collection.jpg"/>
+                    <span class="oe_snippet_thumbnail_title">Brand Collection Slider</span>
+                </div>
+                <section class="oe_snippet_body js_brand_multi_collection">
+                    <div class="container" contenteditable="false">
+                        <div class="product_slide">
+                            <div class="seaction-head">
+                                <div class="h1">Brand Slider</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </xpath>
+    </template>
+    <template id="s_brands_slider_options" inherit_id="website.snippet_options" name="Brand collection Slider Snippet Options">
+        <xpath expr="." position="inside">
+            <div data-js="s_brand_multi_with_header" data-selector=".js_brand_multi_collection">
+                <li class="dropdown-item " data-no-preview="true" data-select_collection="" href="#" tabindex="-1">
+                    <a>Modify</a>
+                </li>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Multi Brand Slider Block -->
+    <template id="alan_customize.s_brand_collection_configure" name="Brand Collection coursol">
+        <div class="container" t-if="obj">
+            <div class="seaction-head" t-if="obj and obj.label_active">
+                <span class="h1" t-field="obj.name"/>
+            </div>
+            <t t-if="obj and obj.brand_ids">
+                <div class="owl-carousel" id="as_our_brand">
+                    <t t-as="brand" t-foreach="obj.brand_ids">
+                        <t t-if="brand.brand_id.website_id.id in ( website.id , False)">
+                            <t t-if="obj.brand_link_active">
+                                <div class="brand-img">
+                                    <a t-att-href="'/shop/brand/%s' % slug(brand.brand_id)">
+                                        <span class="brand_img_span">
+                                            <img t-att-alt="brand.brand_id.name" t-att-src="website.image_url(brand.brand_id,'logo','300x300')" t-att-title="brand.brand_id.name"/>
+                                        </span>
+                                    </a>
+                                    <t t-if="obj.brand_name_active">
+                                        <a t-att-href="'/shop/brand/%s' % slug(brand.brand_id)">
+                                            <div class="text-center" t-esc="brand.brand_id.name"/>
+                                        </a>
+                                    </t>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="brand-img">
+                                    <span class="brand_img_span">
+                                        <img t-att-alt="brand.brand_id.name" t-att-src="website.image_url(brand.brand_id,'logo','300x300')" t-att-title="brand.brand_id.name"/>
+                                    </span>
+                                    <t t-if="obj.brand_name_active">
+                                        <div class="text-center" t-esc="brand.brand_id.name"/>
+                                    </t>
+                                </div>
+                            </t>
+                        </t>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </template>
+    
+</odoo>

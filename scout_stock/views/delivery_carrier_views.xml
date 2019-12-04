@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="delivery_carrier_from_view_shipping_inherit" model="ir.ui.view">
+            <field name="name">delivery.carrier.shipping.form</field>
+            <field name="model">delivery.carrier</field>
+            <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="shipping_range"/>
+                </xpath>
+                <xpath expr="//field[@name='country_ids']" position="before">
+                    <field name="source_country_ids" widget="many2many_tags"/>
+                </xpath>
+            </field>
+        </record>
+        
+         <record id="tracking_inherit_stock_picking" model="ir.ui.view">
+		      <field name="name">stock.picking.form.tracking.inherit</field>
+		      <field name="model">stock.picking</field>
+		      <field name="inherit_id" ref="delivery.view_picking_withcarrier_out_form"/>
+		      <field name="arch" type="xml">
+		      		<xpath expr="//label[@for='carrier_tracking_ref']" position="replace"/>
+			        <xpath expr="//div[@name='tracking']" position="replace">
+			            <field name="integration_level" invisible="1"/>
+			            <field name="carrier_tracking_ref" class="oe_inline" attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}"/>
+                        <button type="object" class="fa fa-arrow-right oe_link" name="cancel_shipment" string="Cancel" attrs="{'invisible':['|','|','|','|',('integration_level','=','rate'),('carrier_tracking_ref','=',False),('delivery_type','in', ['fixed', 'base_on_rule']),('delivery_type','=',False),('state','not in',('done'))]}"/>
+			        	<field name="carrier_tracking_url_for_get_rate" attrs="{ 'invisible': [('integration_level','=','rate_and_ship')] ,'readonly' : [('state','=',('done', 'cancel'))]}" widget="url"/>
+                    </xpath>
+		      </field>
+	    </record>
+        <record id="tracking_inherit_stock_picking_charge" model="ir.ui.view">
+              <field name="name">stock.picking.form.charge</field>
+              <field name="model">stock.picking</field>
+              <field name="inherit_id" ref="stock.view_picking_form"/>
+              <field name="arch" type="xml">
+                <xpath expr="//field[@name='priority']" position="after">
+                    <field name="shipping_charge"/>
+                </xpath>
+              </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="assets_frontend_js" inherit_id="website.assets_frontend" name="Product Quick View JS">
+        <xpath expr="." position="inside">
+            <script src="/alan_customize/static/src/js/frontend_product_quick_view_js.js" type="text/javascript"/>
+        </xpath>
+    </template>
+    <template active="True" customize_show="True" id="quick_view" inherit_id="alan_customize.product_items" name="Quick View of Products">
+        <xpath expr="//div[hasclass('pro-action')]/div[hasclass('pro-icons')]" position="inside">
+            <a class="btn btn-primary o_quick_view" data-action="o_quick_view" data-target="#my_quick_view_modal" data-toggle="modal" t-att-data-product-product-id="product.product_variant_ids[0].id" t-att-data-product_template_id="product.id" title="Quick View" type="button">
+                <span class="fa fa-eye"/>
+            </a>
+        </xpath>
+    </template>
+    <template id="get_product_qv_details_template" name="Get Product Quick View Details">
+        <t t-if="product">
+            <t t-set="additional_title" t-value="product.name"/>
+            <div class="js_sale" itemscope="itemscope" itemtype="http://schema.org/Product">
+                <section id="product_detail" t-attf-class="container mt8 oe_website_sale #{(compute_currency(product.lst_price) - product.website_price) &gt; 0.01 and website.get_current_pricelist().discount_policy == 'without_discount'  and 'discount'}">
+                    <div class="as-product-detail">
+                        <!-- Product Info Wrap -->
+                        <div class="prodcut-info-wrap">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-5 col-sm-12 col-xs-12">
+                                        <!-- Product Slider -->
+                                        <div class="product-img-box">
+                                            <div class="product-image" groups="!website_sale.group_website_multi_image">
+                                                <a class="slider-popup-product" t-att-href="website.image_url(product,'image')">
+                                                    <span class="main_image" groups="!website_sale.group_website_multi_image" itemprop="image" t-field="product.image" t-options="{'widget': 'image', 'class': 'product_detail_img', 'alt-field': 'name'}"/>
+                                                </a>
+                                            </div>
+                                            <t groups="website_sale.group_website_multi_image">
+                                                <t t-if="product.product_variant_ids">
+                                                    <t t-set="variant_img" t-value="product.product_variant_id"/>
+                                                    <a class="slider-popup-product" t-att-href="website.image_url(variant_img,'image')">
+                                                        <div itemprop="image" t-field="product.product_variant_ids[0].image" t-options="{'widget': 'image', 'class': 'product_detail_img js_variant_img', 'alt-field': 'name'}"/>
+                                                    </a>
+                                                </t>
+                                                <t t-else="">
+                                                    <a class="slider-popup-product" t-att-href="website.image_url(product,'image')">
+                                                        <div class="main_image" itemprop="image" t-field="product.image" t-options="{'widget': 'image', 'class': 'product_detail_img', 'alt-field': 'name'}"/>
+                                                    </a>
+                                                </t>
+                                                <t t-set="image_ids" t-value="product.product_image_ids"/>
+                                                <div class="owl-carousel thumbnails-slides" id="pro_detail_zoom" t-if="product.product_image_ids">
+                                                    <div class="item">
+                                                        <div class="item variant_img" itemprop="image" t-field="product.image" t-if="variant_img" t-options="{'widget': 'image', 'class': 'sub-images', 'alt-field': 'name'}"/>
+                                                        <div class="item" itemprop="image" t-else="" t-field="product.image" t-options="{'widget': 'image', 'class': 'sub-images', 'alt-field': 'name'}"/></div>
+                                                    <t t-as="pimg" t-foreach="product.product_image_ids" t-if="len(product.product_image_ids)">
+                                                        <div class="item">
+                                                            <a class="slider-popup-product" t-att-href="website.image_url(pimg,'image')"/>
+                                                            <img class="img img-responsive sub-images" t-att-alt="pimg.name" t-attf-src="/website/image/product.image/{{pimg.id}}/image"/>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                        </div>
+                                        <!-- End -->
+                                    </div>
+                                    <div class="col-md-7 col-sm-12 col-xs-12">
+                                        <!-- Product Description -->
+                                        <div class="product-shop-info" id="product_details">
+                                            <h1>
+                                                <span t-field="product.name"/>
+                                            </h1>
+                                            <span itemprop="url" style="display:none;" t-esc="'/shop/product/%s' % slug(product)"/>
+                                            <t t-set="attribute_value_ids" t-value="get_attribute_value_ids(product)"/>
+                                            <form action="/shop/cart/update" class="js_add_cart_variants" method="POST">
+                                                <input name="csrf_token" t-att-value="request.csrf_token()" type="hidden"/>
+                                                <div class="js_product js_main_product" t-if="product.product_variant_ids">
+                                                    <t t-set="first_possible_combination" t-value="product._get_first_possible_combination()"/>
+                                                    <t t-set="combination_info" t-value="product._get_combination_info(first_possible_combination, add_qty=add_qty or 1, pricelist=pricelist)"/>
+                                                    <t t-set="product_variant" t-value="product.env['product.product'].browse(combination_info['product_id'])"/>
+                                                    <input class="product_id" name="product_id" t-att-value="product.product_variant_id.id" type="hidden"/>
+                                                    <input class="product_template_id" name="product_template_id" t-att-value="product.id" type="hidden"/>
+                                                    <div class="pro-desc">
+                                                        <p t-field="product.description_sale"/>
+                                                    </div>
+                                                    <t t-placeholder="select">
+                                                        <!-- <t t-call="sale.variants"><t t-set="ul_class" t-value="'flex-column'" /></t>-->
+                                                        <t t-call="sale.variants" t-if="first_possible_combination">
+                                                            <t t-set="ul_class" t-value="'flex-column'"/>
+                                                            <t t-set="parent_combination" t-value="None"/></t>
+                                                        <t t-else="">
+                                                            <ul class="d-none js_add_cart_variants" t-att-data-attribute_exclusions="{'exclusions: []'}"/>
+                                                        </t>
+                                                    </t>
+                                                    <t t-call="website_sale.product_price"/>
+                                                    <p class="css_not_available_msg bg-danger" style="padding: 15px;" t-if="len(product.product_variant_ids) &gt;1">Product not available</p>
+                                                    <div class="css_quantity input-group oe_website_spinner" contenteditable="false">
+                                                        <a class="mb8 input-group-addon js_add_cart_json" t-attf-href="#">
+                                                            <i class="fa fa-minus"/>
+                                                        </a>
+                                                        <input class="form-control quantity" data-min="1" name="add_qty" type="text" value="1"/>
+                                                        <a class="mb8 input-group-addon float_left js_add_cart_json" t-attf-href="#">
+                                                            <i class="fa fa-plus"/>
+                                                        </a>
+                                                    </div>
+                                                    <a class="btn btn-primary btn-lg mt8 js_check_product a-submit" href="#" id="add_to_cart">Add to Cart</a>
+                                                    <t t-if="request.env.ref('alan_customize.add_to_wishlist').active">
+                                                        <t t-set="in_wish" t-value="product.product_variant_ids &amp; request.env['product.wishlist'].current().mapped('product_id')"/>
+                                                        <a class="btn btn-default btn-lg mt8 o_quick_add_wishlist" data-action="o_wishlist" id="add_to_wishlist" t-att-data-product-product-id="product.product_variant_ids[0].id" t-att-disabled="in_wish or None" title="Add to Wishlist">
+                                                            <span class="fa fa-heart"/>
+                                                        </a>
+                                                    </t>
+                                                    <t t-if="request.env.ref('alan_customize.add_to_compare').active">
+                                                        <a class="hidden-xs btn btn-default btn-lg mt8 o_add_compare_dyn" data-action="o_comparelist" id="add_to_compare" t-att-data-product-product-id="product.product_variant_ids[0].id" title="Compare">
+                                                            <span class="fa fa-balance-scale"/>
+                                                        </a>
+                                                    </t>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+</odoo>

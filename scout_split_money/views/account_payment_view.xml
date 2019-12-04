@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    	<record id="account_payment_transaction_inherit_form" model="ir.ui.view">
+            <field name="name">account.payment.invoice.form</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_invoice_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='journal_id']" position="after">
+                    <field name="transfer_journal_id"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="account_invoice_inherit_form" model="ir.ui.view">
+            <field name="name">account.invoice.inherit.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='journal_id']" position="after">
+                    <field name="payment_journal_id"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="sale_order_is_settled" model="ir.ui.view">
+            <field name="name">sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet/group/group/field[@name='payment_term_id']" position="after">
+		            <field name="is_settled"/>
+        		</xpath>
+        		<xpath expr="//field[@name='order_line']//field[@name='tax_id']" position="before">
+                	<field name="shipping_charge"/>
+                	<field name="extra_charge_product"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree//field[@name='tax_id']" position="before">
+                	<field name="shipping_charge"/>
+                	<field name="extra_charge_product"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="res_partner_from_inherit_id" model="ir.ui.view">
+        	<field name="name">res.partner.form</field>
+        	<field name="model">res.partner</field>
+        	<field name="inherit_id" ref="base.view_partner_form"/>
+        	<field name="arch" type="xml">
+        		<xpath expr="//field[@name='vat']" position="after">
+        			<field name="supplier" invisible="1"/>
+        			<field name="is_nso" invisible="1"/>
+        			<field name="child_account_id" attrs="{'invisible': [('is_nso', '=', False),('supplier','=',False)], 'required':['|',('is_nso','=',True),('supplier','=',True)]}"/>
+        		</xpath>
+        	</field>
+        </record>
+  </data>
+</odoo>

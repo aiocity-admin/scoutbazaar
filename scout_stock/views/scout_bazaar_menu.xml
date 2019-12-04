@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding='utf-8'?>
+<odoo>
+     <!-- ========Webshop Action========================= -->
+
+    <record id="view_nso_partner_action" model="ir.actions.act_window">
+        <field name="name">NSO Partners</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="context">{'default_customer':True,'default_is_nso':True}</field>
+        <field name="domain">[('is_nso','=',True)]</field>
+        <field name="view_id" ref="base.view_partner_tree"/>
+    </record>
+    
+    
+    <menuitem id="scout_bazaar_menu_root"
+            name="Scout Bazaar"
+            web_icon="scout_stock,static/description/icon.png"
+            sequence="10"
+            groups="base.group_user"/>
+    
+     <menuitem id="web_nso_menu"
+              name="NSO Partners"
+              action="view_nso_partner_action"
+              sequence ="1"
+              parent="scout_bazaar_menu_root"/>
+              
+              
+     <menuitem id="web_storefront_warehouse_menu"
+              name="Warehouses"
+              action="stock.action_warehouse_form"
+              sequence ="2"
+              parent="scout_bazaar_menu_root"/>
+              
+    <menuitem id="web_stores_location_menu"
+              name="NSO Stores Locations"
+              action="stock.action_location_form"
+              sequence ="3"
+              parent="scout_bazaar_menu_root"
+              groups="stock.group_stock_multi_locations"
+              />
+              
+    <menuitem id="scout_bazaar_config_menu"
+              name="Configuration"
+              sequence ="4"
+              parent="scout_bazaar_menu_root"
+              />
+              
+    <menuitem id="scout_bazaar_school_menu"
+              name="School"
+              sequence ="1"
+              action="scout_customize.view_school_list_scout_action"
+              parent="scout_bazaar_config_menu"
+              />
+              
+    <menuitem id="scout_bazaar_program_menu"
+              name="Scout Programs"
+              sequence ="1"
+              action="scout_customize.view_scout_program_action"
+              parent="scout_bazaar_config_menu"
+              />
+              
+    <menuitem id="scout_bazaar_nso_stock_menu"
+              name="NSO Stock Locations"
+              sequence ="3"
+              action="action_scout_stock_action"
+              parent="scout_bazaar_config_menu"
+              />
+              
+    
+	
+	<menuitem id="web_jt_config_menu"
+              name="JT Configuration"
+              sequence ="4"
+              parent="scout_bazaar_config_menu"
+              />
+              
+    <menuitem id="web_addresses_menu"
+              name="Addresses"
+              sequence ="5"
+              parent="scout_bazaar_config_menu"
+              />
+              
+	<menuitem id="res_partner_district_menu" name="City/Municiplality" parent="web_addresses_menu" action="jt_express.res_partner_district_action_view"/>
+	<menuitem id="res_partner_city_menu" name="Provinces" parent="web_addresses_menu" action="jt_express.res_partner_city_action_view"/>
+	<menuitem id="res_partner_town_menu" name="Barangay" parent="web_addresses_menu" action="jt_express.res_partner_town_action_view"/>
+	<menuitem id="servicable_areas_menu" name="JT Servicable Areas" parent="web_jt_config_menu" action="jt_express.jt_servicable_areas_action_view"/>
+    <menuitem id="jt_shipping_menu" name="JT Shipping Rates" parent="web_jt_config_menu" action="jt_express.jt_shipping_rates_action_view"/>    
+</odoo>

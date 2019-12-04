@@ -55,5 +55,5 @@
         <field name="view_id" ref="jt_shipping_rates_tree_view"/> 
 	</record>
 	          
-	<menuitem id="jt_shipping_menu" name="JT Shipping Rates" parent="web_jt_config_menu" action="jt_shipping_rates_action_view"/>
+	
 </odoo>

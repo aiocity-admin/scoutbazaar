@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <record id="view_troop_event_tree" model="ir.ui.view">
+            <field name="name">troop.event.tree</field>
+            <field name="model">troop.event</field>
+            <field name="arch" type="xml">
+                <tree string="Troops" editable="bottom">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="user_id"/>
+                    <field name="member_ids" widget="many2many_tags"/>
+               </tree>
+             </field>
+        </record>
+        
+ 
+        <record id="view_troop_event_action" model="ir.actions.act_window">
+            <field name="name">Troops</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">troop.event</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_troop_event_tree"/>     
+        </record>
+
+		<menuitem parent="event.event_main_menu" id="menu_troops" sequence="100" groups="event.group_event_manager" name="Troops" action="view_troop_event_action"/>
+		
+		<record id="view_troop_event_form_inherit" model="ir.ui.view">
+			<field name="name">event.event.form.inherit</field>
+			<field name="model">event.event</field>
+			<field name="inherit_id" ref="event.view_event_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//sheet//field[@name='user_id']" position="after">
+					<field name="troop_id" create="False" edit="False"/>
+				</xpath>
+			</field>
+		</record>
+</odoo> 

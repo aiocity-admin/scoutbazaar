@@ -1,0 +1,81 @@
+id,country_id:id,code,name
+,,,
+state_ph_1,base.ph,ABR,Abra
+state_ph_2,base.ph,AGN,Agusan del Norte
+state_ph_3,base.ph,AGS,Agusan del Sur
+state_ph_4,base.ph,AKL,Aklan
+state_ph_5,base.ph,ALB,Albay
+state_ph_6,base.ph,ANT,Antique
+state_ph_7,base.ph,AUR,Aurora
+state_ph_8,base.ph,BAS,Basilan
+state_ph_9,base.ph,BAT,Bataan
+state_ph_10,base.ph,BTN,Batanes
+state_ph_11,base.ph,BTG,Batangas
+state_ph_12,base.ph,BEN,Benguet
+state_ph_13,base.ph,BIL,Biliran
+state_ph_14,base.ph,BOH,Bohol
+state_ph_15,base.ph,BUK,Bukidnon
+state_ph_16,base.ph,BUL,Bulacan
+state_ph_17,base.ph,CAG,Cagayan
+state_ph_18,base.ph,MM,Metro Manila
+state_ph_19,base.ph,CAN,Camarines Norte
+state_ph_20,base.ph,CAS,Camarines Sur
+state_ph_21,base.ph,CAM,Camiguin
+state_ph_22,base.ph,CAP,Capiz
+state_ph_23,base.ph,CAT,Catanduanes
+state_ph_24,base.ph,CAV,Cavite
+state_ph_25,base.ph,CEB,Cebu
+state_ph_26,base.ph,COM,Compostela Valley
+state_ph_27,base.ph,DVN,Davao del Norte
+state_ph_28,base.ph,DVS,Davao del Sur
+state_ph_29,base.ph,DVO,Davao Oriental
+state_ph_30,base.ph,ESA,Eastern Samar
+state_ph_31,base.ph,GUI,Guimaras
+state_ph_32,base.ph,IFU,Ifugao
+state_ph_33,base.ph,ILN,Ilocos Norte
+state_ph_34,base.ph,ILS,Ilocos Sur
+state_ph_35,base.ph,ILO,Iloilo
+state_ph_36,base.ph,ISA,Isabela Province
+state_ph_37,base.ph,KAL,Kalinga
+state_ph_38,base.ph,LAU,La Union
+state_ph_39,base.ph,LAG,Laguna
+state_ph_40,base.ph,LND,Lanao del Norte
+state_ph_41,base.ph,LNS,Lanao del Sur
+state_ph_42,base.ph,LEY,Leyte
+state_ph_43,base.ph,MAG,Maguindanao
+state_ph_44,base.ph,MAR,Marinduque
+state_ph_45,base.ph,MAS,Masbate
+state_ph_46,base.ph,MIO,Misamis Occidental
+state_ph_47,base.ph,MIR,Misamis Oriental
+state_ph_48,base.ph,MTP,Mountain Province
+state_ph_49,base.ph,NEO,Negros Occidental
+state_ph_50,base.ph,NER,Negros Oriental
+state_ph_51,base.ph,NCO,North Cotabato
+state_ph_52,base.ph,NSM,Northern Samar
+state_ph_53,base.ph,NUE,Nueva Ecija
+state_ph_54,base.ph,NUV,Nueva Vizcaya
+state_ph_55,base.ph,OCM,Occidental Mindoro
+state_ph_56,base.ph,ORM,Oriental Mindoro
+state_ph_57,base.ph,PAL,Palawan
+state_ph_58,base.ph,PAM,Pampanga
+state_ph_59,base.ph,PAN,Pangasinan
+state_ph_60,base.ph,QUE,Quezon
+state_ph_61,base.ph,QUI,Quirino
+state_ph_62,base.ph,RIZ,Rizal
+state_ph_63,base.ph,ROM,Romblon
+state_ph_64,base.ph,SAR,Sarangani
+state_ph_65,base.ph,SIQ,Siquijor
+state_ph_66,base.ph,SOR,Sorsogon
+state_ph_67,base.ph,SCO,South Cotabato
+state_ph_68,base.ph,SLE,Southern Leyte
+state_ph_69,base.ph,SKU,SultanKudarat
+state_ph_70,base.ph,SUL,Sulu
+state_ph_71,base.ph,SUN,Surigao del Norte
+state_ph_72,base.ph,SUS,Surigao del Sur
+state_ph_73,base.ph,TAR,Tarlac
+state_ph_74,base.ph,TAW,Tawi-Tawi
+state_ph_75,base.ph,WSM,Western Samar
+state_ph_76,base.ph,ZAM,Zambales
+state_ph_77,base.ph,ZDN,Zamboanga del Norte
+state_ph_78,base.ph,ZDS,Zamboanga del Sur
+state_ph_79,base.ph,ZBS,Zamboanga Sibugay

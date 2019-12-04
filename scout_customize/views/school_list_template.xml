@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="scout_baazar_backend" inherit_id="web.assets_frontend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/scout_customize/static/src/js/scout.js"></script>
+        </xpath>
+    </template>
+ 
+    <template id="portal_id" name="Scout" inherit_id="portal.portal_my_details" >
+
+
+        <xpath expr="//div[16]" position="after">     
+            <div t-attf-class="form-group #{error.get('school_list_ids') and 'o_has_error' or ''} col-xl-6">
+                <label class="col-form-label" for='school_ids'>School</label>
+                <select id='school_id' name="school_list_ids" multiple= 'multiple' t-attf-class="form-control select2 #{error.get('school_list_ids') and 'is-invalid' or ''}">
+                    <t t-foreach="school_ids or []" t-as="scout">   
+                        <option t-att-selected="scout.id in select_school_ids" t-att-value="scout.id">
+                           <t t-esc="scout.name"/>
+                        </option>
+                    </t>
+                </select> 
+            </div>
+
+            <div t-attf-class="form-group col-xl-6">
+                <label class="col-form-label">Boy Scout</label>
+                <select name="boy_scout" t-attf-class="form-control #{error.get('boy_scout') and 'is-invalid' or ''}">
+                       <option t-att-selected="'cub_scout'  == select_boy_scout" value="cub_scout">Cub Scout</option>
+                       <option value="boy_scout" t-att-selected="'boy_scout'  == select_boy_scout" >Boy Scout</option>
+                </select>
+            </div>
+
+            <div t-attf-class="form-group col-xl-6">
+                <label class="col-form-label">Boy/Girl Scout User Rank</label>
+                <select name="scout_user_rank" t-attf-class="form-control #{error.get('') and 'is-invalid' or ''}">
+                       <option  t-att-selected="'cub' == partner_scout_user_rank" value="cub">Cub</option>
+                       <option t-att-selected="'scout' == partner_scout_user_rank" value="scout">Scout</option>
+                       <option t-att-selected="'den_master' == partner_scout_user_rank" value="den_master">Den Master</option>
+                       <option t-att-selected="'scout_master' == partner_scout_user_rank" value="scout_master">Scout Master</option>
+                       <option t-att-selected="'patrol_leader' == partner_scout_user_rank" value="patrol_leader">Patrol Leader</option>
+                       <option t-att-selected="'troop_leader' == partner_scout_user_rank" value="troop_leader">Troop Leader</option>
+                </select>
+            </div>
+            
+        </xpath>
+        
+        <xpath expr="//div[7]" position="replace"></xpath>         
+    
+    </template>
+
+    <template id="billing_id" name="Scout_billing" inherit_id="website_sale.address_b2b" >
+        <xpath expr="//t/div[2]" position="replace">
+        </xpath>         
+    </template>
+
+</odoo>    

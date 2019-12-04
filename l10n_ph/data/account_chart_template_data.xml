@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+	<!-- Account Tags -->
+
+        <record id="tax_tag_sale_vat" model="account.account.tag">
+            <field name="name">Sale VAT</field>
+            <field name="applicability">taxes</field>
+        </record>
+        <record id="tax_tag_purchase_vat" model="account.account.tag">
+            <field name="name">Purchase VAT</field>
+            <field name="applicability">taxes</field>
+        </record>
+
+        <!-- Tax template for sale and purchase -->
+        <record id="sale_tax_template" model="account.tax.template">
+            <field name="chart_template_id" ref="ph_chart_template"/>
+            <field name="name">VAT 12%</field>
+		<field name="amount_type">percent</field>
+            <field name="amount">12</field>
+            <field name="type_tax_use">sale</field>
+            <field name="account_id" ref="conf_iva"/>
+            <field name="refund_account_id" ref="conf_iva"/>
+		<field name="price_include" eval="True"/>
+            <field name="tag_ids" eval="[(6,0,[ref('tax_tag_sale_vat')])]"/>
+		<field name="tax_group_id" ref="tax_group_vat_12"/>
+        </record>
+
+       <record id="purchase_tax_template" model="account.tax.template">
+            <field name="chart_template_id" ref="ph_chart_template"/>
+            <field name="name">Purchase VAT 12%</field>
+            <field name="amount">12</field>
+		<field name="amount_type">percent</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="account_id" ref="conf_ova"/>
+            <field name="refund_account_id" ref="conf_ova"/>
+		<field name="price_include" eval="True"/>
+            <field name="tag_ids" eval="[(6,0,[ref('tax_tag_purchase_vat')])]"/>
+		<field name="tax_group_id" ref="tax_group_vat_12"/>
+        </record>
+
+    </data>
+</odoo>

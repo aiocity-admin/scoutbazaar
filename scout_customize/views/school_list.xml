@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+ 
+        <record id="view_school_tree" model="ir.ui.view">
+            <field name="name">school.list.tree</field>
+            <field name="model">school.list</field>
+            <field name="arch" type="xml">
+                <tree string="Count" editable="bottom">
+                    <field name="school_code"/>
+                    <field name="name"/>
+                    <field name="country_id"/>
+               </tree>
+             </field>
+        </record>
+        
+ 
+        <record id="view_school_list_scout_action" model="ir.actions.act_window">
+            <field name="name">School_list</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">school.list</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_school_tree"/>     
+        </record>
+        
+      
+<!--         <menuitem id="main_menu_scout" name="Scout Lists" parent='sale.menu_sale_config' /> -->
+<!--         <menuitem id="scout_list" name="School" parent="main_menu_scout" action="view_school_list_scout_action"/>  -->
+</odoo> 

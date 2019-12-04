@@ -21,7 +21,7 @@
 {
     'name': 'J&T Express',
     'summary': """ """,
-    "version" : "12.0.0.1",
+    "version" : "12.0.0.2",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
     'category': 'Sales',

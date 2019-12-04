@@ -10,12 +10,12 @@
     
     <template id="website_sale_address_inherit" name="Address Managements" inherit_id="website_sale.address">
         <xpath expr="//form[@class='checkout_autoformat']/div/div[@class='w-100'][6]" position="after">
-            <div t-attf-class="form-group #{error.get('town_id') and 'o_has_error' or ''} col-lg-6 div_town d-none">
-                <label class="col-form-label" for="town_id">Barangay</label>
-                <select id="town_id" name="town_id" t-attf-class="form-control #{error.get('town_id') and 'is-invalid' or ''}" data-init="1">
-                    <option value="">Barangay...</option>
-                    <t t-foreach="town_id or []" t-as="s">
-                        <option t-att-value="s.id">
+            <div t-attf-class="form-group #{error.get('city_id') and 'o_has_error' or ''} col-lg-6 my_city_id d-none">
+                <label class="col-form-label" for="city_id">Province</label>
+                <select id="city_id" name="city_id" t-attf-class="form-control #{error.get('city_id') and 'is-invalid' or ''}" data-init="1">
+                    <option value="">Province...</option>
+                    <t t-foreach="city_id or []" t-as="s">
+                        <option t-att-value="s.id" t-att-selected="s.id == ('city_id' in checkout and checkout['city_id'] != '' and int(checkout['city_id']))">
                             <t t-esc="s.name"/>
                         </option>
                     </t>
@@ -27,19 +27,19 @@
                 <select id="district_id" name="district_id" t-attf-class="form-control #{error.get('district_id') and 'is-invalid' or ''}" data-init="1">
                     <option value="">City / Municipality...</option>
                     <t t-foreach="district_id or []" t-as="s">
-                        <option t-att-value="s.id">
+                        <option t-att-value="s.id" t-att-selected="s.id == ('district_id' in checkout and checkout['district_id'] != '' and int(checkout['district_id']))">
                             <t t-esc="s.name"/>
                         </option>
                     </t>
                 </select>
             </div>
             
-            <div t-attf-class="form-group #{error.get('city_id') and 'o_has_error' or ''} col-lg-6 my_city_id d-none">
-                <label class="col-form-label" for="city_id">Province</label>
-                <select id="city_id" name="city_id" t-attf-class="form-control #{error.get('city_id') and 'is-invalid' or ''}" data-init="1">
-                    <option value="">Province...</option>
-                    <t t-foreach="city_id or []" t-as="s">
-                        <option t-att-value="s.id">
+            <div t-attf-class="form-group #{error.get('town_id') and 'o_has_error' or ''} col-lg-6 div_town d-none">
+                <label class="col-form-label" for="town_id">Barangay</label>
+                <select id="town_id" name="town_id" t-attf-class="form-control #{error.get('town_id') and 'is-invalid' or ''}" data-init="1">
+                    <option value="">Barangay...</option>
+                    <t t-foreach="town_id or []" t-as="s">
+                        <option t-att-value="s.id" t-att-selected="s.id == ('town_id' in checkout and checkout['town_id'] != '' and int(checkout['town_id']))">
                             <t t-esc="s.name"/>
                         </option>
                     </t>
@@ -51,13 +51,12 @@
     
     <template id="JTExress_portal_id" name="JTExress" inherit_id="portal.portal_my_details" >
         <xpath expr="//input[@name='redirect']" position="before">
-            
-            <div t-attf-class="form-group #{error.get('town_id') and 'o_has_error' or ''} col-xl-6 div_town d-none">
-                <label class="col-form-label" for="town_id">Barangay</label>
-                <select id="town_id" name="town_id" t-attf-class="form-control #{error.get('town_id') and 'is-invalid' or ''}">
-                    <option value="">Barangay...</option>
-                    <t t-foreach="town_id or []" t-as="s">
-                        <option t-att-value="s.id" t-att-selected="s.id == partner.town_id.id">
+            <div t-attf-class="form-group #{error.get('city_id') and 'o_has_error' or ''} col-lg-6 my_city_id d-none">
+                <label class="col-form-label" for="city_id">Province</label>
+                <select id="city_id" name="city_id" t-attf-class="form-control #{error.get('city_id') and 'is-invalid' or ''}" data-init="1">
+                    <option value="">Province...</option>
+                    <t t-foreach="city_id or []" t-as="s">
+                        <option t-att-value="s.id" t-att-selected="s.id == partner.city_id.id">
                             <t t-esc="s.name" />
                         </option>
                     </t>
@@ -76,12 +75,12 @@
                 </select>
             </div>
             
-            <div t-attf-class="form-group #{error.get('city_id') and 'o_has_error' or ''} col-lg-6 my_city_id d-none">
-                <label class="col-form-label" for="city_id">Province</label>
-                <select id="city_id" name="city_id" t-attf-class="form-control #{error.get('city_id') and 'is-invalid' or ''}" data-init="1">
-                    <option value="">Province...</option>
-                    <t t-foreach="city_id or []" t-as="s">
-                        <option t-att-value="s.id" t-att-selected="s.id == partner.city_id.id">
+            <div t-attf-class="form-group #{error.get('town_id') and 'o_has_error' or ''} col-xl-6 div_town d-none">
+                <label class="col-form-label" for="town_id">Barangay</label>
+                <select id="town_id" name="town_id" t-attf-class="form-control #{error.get('town_id') and 'is-invalid' or ''}" data-init="1">
+                    <option value="">Barangay...</option>
+                    <t t-foreach="town_id or []" t-as="s">
+                        <option t-att-value="s.id" t-att-selected="s.id == partner.town_id.id">
                             <t t-esc="s.name" />
                         </option>
                     </t>
@@ -89,4 +88,5 @@
             </div>
         </xpath>
     </template>
+    
 </odoo>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <template id="paymaya_form">
+            <div>
+                <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
+                <input type="hidden" name="totalAmount" t-att-value="totalAmount"/>
+                <input type="hidden" name="buyer" t-att-value="buyer"/>
+                <input type="hidden" name="items" t-att-value="items"/>
+                <input type="hidden" name="redirectUrl" t-att-value="redirectUrl"/>
+                <input type="hidden" name="requestReferenceNumber" t-att-value="requestReferenceNumber"/>
+                <input type="hidden" name="metadata" t-att-value="metadata"/>
+                <input type="hidden" name="secret_api_key" t-att-value="secret_api_key"/>
+                <input type="hidden" name="public_api_key" t-att-value="public_api_key"/>
+            </div>
+        </template>
+    </data>
+</odoo>

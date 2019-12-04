@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	  	<record id="product_template_only_form_view_vendor_users" model="ir.ui.view">
+	        <field name="name">product.template.form.vendor.user</field>
+	        <field name="model">product.template</field>
+	        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+	        <field name="arch" type="xml">
+	        <xpath expr="//field[@name='purchase_ok']" position="before">
+		        <div>
+		            <field name="is_vendor_product"/>
+		            <label for="is_vendor_product" string="Is Vendor Product"/>
+		        </div>
+       		</xpath>
+	        <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="is_vendor_product" invisible="1"/>
+                <field name="vendor_user_product" attrs="{'invisible': [('is_vendor_product','=',False)] ,'required': [('type', '!=', 'service')]}"/>
+                <field name="vendor_user_partner_id" invisible="1"/>
+                <field name="international_ids" widget="many2many_tags" domain="[('parent_id', '=', vendor_user_partner_id)]" options="{'no_create': True}" attrs="{'invisible': [('is_vendor_product','=',False)]}"/>
+           </xpath>
+	        </field>
+    	</record>
+        
+        <record id="my_product_template_only_form_view_inherit_vendor_user_product_group" model="ir.ui.view">
+            <field name="name">product.template.my.form.group.inher</field>
+            <field name="model">product.template</field>
+            <field name="groups_id" eval="[(6,0,[ref('scout_vendor.group_vendor_product')])]"/>
+            <field name="inherit_id" ref="product_template_only_form_view_vendor_users"/>
+            <field name="arch" type="xml">
+            <xpath expr="//field[@name='vendor_user_product']" position="after">
+                <field name="weight"/>
+            </xpath>
+            </field>
+        </record>
+        
+        <record id="my_product_template_only_form_view_inherit_vendor_user_product" model="ir.ui.view">
+            <field name="name">product.template.my.form.inher</field>
+            <field name="model">product.template</field>
+            <field name="groups_id" eval="[(6,0,[ref('scout_vendor.group_vendor_product')])]"/>
+            <field name="inherit_id" ref="product_template_only_form_view_vendor_users"/>
+            <field name="arch" type="xml">
+            <xpath expr="//field[@name='vendor_user_product']" position="attributes">
+                <attribute name="domain">[('id', '=', uid)]</attribute>
+            </xpath>
+            </field>
+        </record>
+        
+        <record id="my_product_template_action" model="ir.actions.act_window">
+            <field name="name">Products</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">kanban,tree,form,activity</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="product.product_template_kanban_view"/>
+            <field name="search_view_id" ref="product.product_template_search_view"/>
+            <field name="context">{"search_default_filter_to_sell":1, "sale_multi_pricelist_product_template": 1}</field>
+            <field name="domain">[('vendor_user_product.id','=',uid)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new product
+                </p><p>
+                    You must define a product for everything you purchase,
+                    whether it's a physical product, a consumable or services.
+                </p>
+            </field>
+        </record>
+
+        <record id="my_products_normal_action" model="ir.actions.act_window">
+            <field name="name">Product Variants</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">tree,form,kanban,activity</field>
+            <field name="view_type">form</field>
+            <field name="search_view_id" ref="product.product_search_form_view"/>
+            <field name="view_id" eval="False"/>
+            <field name="domain">[('vendor_user_product.id','=',uid)]</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new product variant
+              </p><p>
+                You must define a product for everything you purchase,
+                whether it's a physical product, a consumable or services.
+              </p>
+            </field>
+        </record>
+
+        <record id="product_template_only_form_view_categ" model="ir.ui.view">
+            <field name="name">product.template.form.categ</field>
+            <field name="model">product.template</field>
+            <field name="groups_id" eval="[(6,0,[ref('scout_vendor.group_vendor_product')])]"/>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            
+            <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="attributes">
+                <attribute name="widget">selection</attribute>
+            </xpath>
+            </field>
+        </record>
+
+        <record id="product_template_only_form_view_in_optional_product_ids" model="ir.ui.view">
+            <field name="name">product.template.form.optional.ids</field>
+            <field name="model">product.template</field>
+            <field name="groups_id" eval="[(6,0,[ref('scout_vendor.group_vendor_product')])]"/>
+            <field name="inherit_id" ref="sale.product_template_form_view"/>
+            <field name="arch" type="xml">
+            <xpath expr="//field[@name='optional_product_ids']" position="attributes">
+                <attribute name="domain">[('vendor_user_product.id','=',uid)]</attribute>
+                <attribute name="options">{'no_create': True}</attribute>
+            </xpath>
+            </field>
+        </record>
+
+        <!-- <record id="product_template_only_form_view_in_alternative_product_ids" model="ir.ui.view">
+            <field name="name">product.template.form.alternative.ids</field>
+            <field name="model">product.template</field>
+            <field name="groups_id" eval="[(6,0,[ref('scout_vendor.group_vendor_product')])]"/>
+            <field name="inherit_id" ref="website_sale.product_template_form_view"/>
+            <field name="arch" type="xml">
+            <xpath expr="//field[@name='alternative_product_ids']" position="attributes">
+                <attribute name="options">{'no_create': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='accessory_product_ids']" position="attributes">
+                <attribute name="options">{'no_create': True}</attribute>
+            </xpath>
+            </field>
+        </record> -->
+
+        <record id="my_view_product_supplier_inherit" model="ir.ui.view">
+            <field name="name">product.template.supplier.my.form.inherit</field>
+            <field name="model">product.template</field>
+            <field name="groups_id" eval="[(6,0,[ref('scout_vendor.group_vendor_product')])]"/>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='purchase']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <menuitem id="vendor_menu_root"
+            name="Vendor"
+            web_icon="contacts,static/description/icon.png"
+            groups="group_vendor_product"
+            sequence="7"/>
+
+        <menuitem id="vendor_menu"
+            name="Product"
+            parent="vendor_menu_root"
+            action="my_product_template_action"
+            sequence="2"/>
+
+         <menuitem id="product_variant"
+            name="Product Variant"
+            parent="vendor_menu_root"
+            action="my_products_normal_action"
+            sequence="3"/>
+
+</odoo>

@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+
+        <record id="amount_transferred_history_confirm_view" model="ir.ui.view">
+	        <field name="name">amount.transfer.confirm.form</field>
+	        <field name="model">amount.transfer.confirm</field>
+	        <field name="arch" type="xml">
+	            <form string="Confirm Amount Transfers">
+	                <p class="oe_grey">
+	                    Set the state as done for all the selected records.
+	                </p>
+	                <footer>
+	                    <button string="Confirm Transfers" name="amount_transfer_done" type="object" class="btn-primary"/>
+	                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+	                </footer>
+	            </form>
+	        </field>
+    	</record>
+
+        <act_window id="action_amount_transferred_history_confirm"
+            multi="True"
+            key2="client_action_multi" name="Confirm Amount Transfers"
+            res_model="amount.transfer.confirm" src_model="amount.transferred.history"
+            view_mode="form" target="new" view_type="form" />
+
+    </data>
+</odoo>

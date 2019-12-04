@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    	<template id="website_payment_templates_inherit" inherit_id="website_sale.payment">
+    		<xpath expr="//div[@id='payment_method']" position="before">
+    			<div t-if="international_shipping_methods or is_domestic_products" class="border border-secondary rounded" style="padding:15px;border-color:black !important;">
+	    			<t t-if="is_domestic_products">
+		    				<div class="col-sm-12">
+		    					<span>
+			    					<b>Scout Bazaar Domestic Shipping and Handling Fees</b>
+			    				</span>
+                                <t t-if="vendor_domestic_fees_nso_error">
+                                    <span class="is_nso_error_domestic" t-esc="str(vendor_domestic_fees_nso_error)" style="color:red;text-align: center;font-size: 11px;"></span>
+                                </t>
+		    					<span t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(domestic_fees)" style="float:right;"/>
+		    				</div>
+		    				<br/>
+		    				<br/>
+	   				</t>
+	    			<t t-if="international_shipping_methods">
+		    			<span><b> Scout Bazaar Delivery Methods for International Shipments</b></span>
+		    			<div class="card" style="margin-top:2%">
+		    				<t t-foreach="international_shipping_methods" t-as="shipping">
+		    					<div class="card_body" style="margin-top: 2%;margin-left:18px;">
+		    						<t t-set="c_name" t-value="website_sale_order.get_country_by_code(shipping)"/>
+		    						<h4 class='card_shipping'>Shipping From <t t-esc="c_name"/></h4>
+	    							<t t-foreach="international_shipping_methods[shipping]" t-as="delivery_method">
+	    								<div class="col-sm-12">
+	    									<t t-if="shipping in order_delivery_track_lines_dict">
+		    									<input type="radio" class="int_shippping" t-att-name="'int_ship_' + shipping" t-att-id="delivery_method.id" 
+		    									t-att-checked="'checked' if order_delivery_track_lines_dict[shipping][0] == delivery_method else None"/>
+		    									<span t-esc="delivery_method.name"/>
+		    									<span style="color:red;text-align: center;font-size: 11px;" class="is_nso_error"></span>
+                                                <span style="float:right;" class="delivery_price">
+		    									<t t-if="order_delivery_track_lines_dict[shipping][0] == delivery_method">
+		    										<t t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(order_delivery_track_lines_dict[shipping][1])"/>
+		    									</t>
+		    									</span>
+	    									</t>
+	    									
+	    									<t t-else="">
+		    									<input type="radio" class="int_shippping" t-att-name="'int_ship_' + shipping" t-att-id="delivery_method.id"/>
+		    									<span t-esc="delivery_method.name"/>
+                                                <span style="color:red;text-align: center;font-size: 11px;" class="is_nso_error"></span>
+		    									<span style="float:right;" class="delivery_price"></span>
+	    									</t>
+	    								</div>
+	    							</t>
+		    					</div>
+		    					<br/>
+		    				</t>
+		    			</div>
+		    			<br/>
+		    			<br/>
+	    			</t>
+	    			
+	    			<t t-if="international_shipping_methods or is_domestic_products">
+	    				<div class="col-sm-12" style="margin-top:-24px">
+	    					<span>
+		    					<b class="scout_shipping">Scout Bazaar Total Shipping and Handling Fees</b>
+		    				</span>
+	    					<span class="nso_amount_delivery" t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(website_sale_order.nso_amount_delivery)" style="float:right;"/>
+	    				</div>
+	    			</t>
+    			</div>
+    			<br/>
+    		</xpath>
+    		
+    	</template>
+    
+    </data>
+</odoo>
