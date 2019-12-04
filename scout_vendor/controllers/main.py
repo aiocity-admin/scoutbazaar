@@ -365,8 +365,8 @@ class VendorPage(WebsiteSale):
                         price_total += s_line.price_total
                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
                     delivery_price += (temp_price + res.get('price'))
-        
-        return {'vendor_delivery_pricei': order.currency_id.symbol + ' ' + str(round(delivery_price,2))}
+#         return {'vendor_delivery_pricei': order.currency_id.symbol + ' ' + str(round(delivery_price,2))}
+        return {'vendor_delivery_pricei': order.currency_id.symbol + ' ' + str("%.2f" % round(delivery_price, 2))}
     
     
     #=========line group price calculate=================
