@@ -267,6 +267,8 @@ class WebsiteSale(WebsiteSale):
                 PPG = main.PPG
             else: 
                 PPG = 18
+        else: 
+            PPG = 18
 
         if ppg:
             try:
