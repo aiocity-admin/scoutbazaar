@@ -156,7 +156,8 @@ class VendorPage(WebsiteSale):
                             price_total = 0.0
                             for s_line in vendor_country_based_group[v_cnt]:
                                 price_total += s_line.price_total
-                            temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+#                             temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                            temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
                             domestic_vendor_price += (temp_price + res_price.get('price'))
                             delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
                             shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
@@ -267,7 +268,8 @@ class VendorPage(WebsiteSale):
                                 price_total = 0.0
                                 for s_line in vendor_country_based_group[v_cnt]:
                                     price_total += s_line.price_total
-                                temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+#                                 temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                                temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
                                 delivery_price += (temp_price + res_price.get('price'))
                                 delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
                                 shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
@@ -363,7 +365,8 @@ class VendorPage(WebsiteSale):
                     price_total = 0.0
                     for s_line in vendor_country_based_group[v_cnt]:
                         price_total += s_line.price_total
-                    temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
+                    temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
+#                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
                     delivery_price += (temp_price + res.get('price'))
 #         return {'vendor_delivery_pricei': order.currency_id.symbol + ' ' + str(round(delivery_price,2))}
         return {'vendor_delivery_pricei': order.currency_id.symbol + ' ' + str("%.2f" % round(delivery_price, 2))}
@@ -420,7 +423,8 @@ class VendorPage(WebsiteSale):
                     price_total = 0.0
                     for s_line in vendor_country_based_group[v_cnt]:
                         price_total += s_line.price_total
-                    temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
+#                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
+                    temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
                     delivery_price += (temp_price + res.get('price'))
                     delivery_price_split = (temp_price + res.get('price'))/len(vendor_country_based_group[v_cnt])
                     shipping_price_split = res.get('price')/len(vendor_country_based_group[v_cnt])
