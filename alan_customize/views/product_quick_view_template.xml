@@ -7,9 +7,22 @@
     </template>
     <template active="True" customize_show="True" id="quick_view" inherit_id="alan_customize.product_items" name="Quick View of Products">
         <xpath expr="//div[hasclass('pro-action')]/div[hasclass('pro-icons')]" position="inside">
-            <a class="btn btn-primary o_quick_view" data-action="o_quick_view" data-target="#my_quick_view_modal" data-toggle="modal" t-att-data-product-product-id="product.product_variant_ids[0].id" t-att-data-product_template_id="product.id" title="Quick View" type="button">
-                <span class="fa fa-eye"/>
-            </a>
+            <t t-if="product.public_categ_ids">
+                <t t-set="thirdpartyurl" t-value="product.public_categ_ids[0].get_thirdparty_url(product.public_categ_ids[0])"/>
+                <t t-if="thirdpartyurl">
+                    
+                </t>
+                <t t-else="">
+                    <a class="btn btn-primary o_quick_view" data-action="o_quick_view" data-target="#my_quick_view_modal" data-toggle="modal" t-att-data-product-product-id="product.product_variant_ids[0].id" t-att-data-product_template_id="product.id" title="Quick View" type="button">
+                        <span class="fa fa-eye"/>
+                    </a>
+                </t>
+            </t>
+            <t t-else="">
+                <a class="btn btn-primary o_quick_view" data-action="o_quick_view" data-target="#my_quick_view_modal" data-toggle="modal" t-att-data-product-product-id="product.product_variant_ids[0].id" t-att-data-product_template_id="product.id" title="Quick View" type="button">
+                    <span class="fa fa-eye"/>
+                </a>
+            </t>
         </xpath>
     </template>
     <template id="get_product_qv_details_template" name="Get Product Quick View Details">

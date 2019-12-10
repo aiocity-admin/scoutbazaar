@@ -74,15 +74,48 @@
                                     <t t-set="style_set" t-value="styles.id"/></t>
                             </ul>
                         </span>
-                        <a itemprop="url" t-att-href="product_href" class="preview-image">
-                            <span t-if="product_variant" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.product/{{product_variant.id}}/image" t-field="product_variant.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
-                            <span t-else="" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.template/{{product.id}}/image" t-field="product.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
-                        </a>
+                        
+                        <t t-if="product.public_categ_ids">
+                            <t t-set="thirdpartyurl" t-value="product.public_categ_ids[0].get_thirdparty_url(product.public_categ_ids[0])"/>
+                            <t t-if="thirdpartyurl">
+                                <a itemprop="url" t-att-href="thirdpartyurl" class="preview-image">
+                                    <span t-if="product_variant" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.product/{{product_variant.id}}/image" t-field="product_variant.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
+                                    <span t-else="" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.template/{{product.id}}/image" t-field="product.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
+                                </a>
+                            </t>
+                            <t t-else="">
+                                <a itemprop="url" t-att-href="product_href" class="preview-image">
+                                    <span t-if="product_variant" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.product/{{product_variant.id}}/image" t-field="product_variant.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
+                                    <span t-else="" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.template/{{product.id}}/image" t-field="product.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
+                                </a>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <a itemprop="url" t-att-href="product_href" class="preview-image">
+                                <span t-if="product_variant" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.product/{{product_variant.id}}/image" t-field="product_variant.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
+                                <span t-else="" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.template/{{product.id}}/image" t-field="product.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
+                            </a>
+                        </t>
                     </div>
                     <div class="pro-info">
                         <h3>
-                            <strong><a itemprop="name" t-att-href="keep('/shop/product/%s' % slug(product), page=None if add_more else (pager['page']['num'] if pager['page']['num']>1 else None))" t-field="product.name"/>
-                            </strong>
+                            <t t-if="product.public_categ_ids">
+                                <t t-set="thirdpartyurl" t-value="product.public_categ_ids[0].get_thirdparty_url(product.public_categ_ids[0])"/>
+                                <t t-if="thirdpartyurl">
+                                    <strong><a itemprop="name" t-att-href="thirdpartyurl" t-field="product.name"/>
+                                    </strong>
+                                </t>
+                                <t t-else="">
+                                    <strong><a itemprop="name" t-att-href="keep('/shop/product/%s' % slug(product), page=None if add_more else (pager['page']['num'] if pager['page']['num']>1 else None))" t-field="product.name"/>
+                                    </strong>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <strong><a itemprop="name" t-att-href="keep('/shop/product/%s' % slug(product), page=None if add_more else (pager['page']['num'] if pager['page']['num']>1 else None))" t-field="product.name"/>
+                                </strong>
+                            </t>
+<!--                             <strong><a itemprop="name" t-att-href="keep('/shop/product/%s' % slug(product), page=None if add_more else (pager['page']['num'] if pager['page']['num']>1 else None))" t-field="product.name"/> -->
+<!--                             </strong> -->
                         </h3>
                         <div itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer" class="product_price" t-if="product.product_variant_ids">
                             <b>
@@ -308,15 +341,36 @@
     <template id="products_add_to_cart" inherit_id="alan_customize.product_items" active="True" customize_show="True" name="Add to Cart" >
         <xpath expr="//div[hasclass('pro-action')]/div[hasclass('pro-icons')]" position="inside">
             <input name="product_id" t-att-value="product.product_variant_id.id" type="hidden"/>
-            <t t-if="len(product.product_variant_ids) == 1">
-                <a href="#" role="button" class="btn btn-secondary btn-sm a-submit" aria-label="Shopping cart" title="Shopping cart">
-                    <span class="fa fa-shopping-cart"/>
-                </a>
+            
+            <t t-if="product.public_categ_ids">
+                <t t-set="thirdpartyurl" t-value="product.public_categ_ids[0].get_thirdparty_url(product.public_categ_ids[0])"/>
+                <t t-if="thirdpartyurl">
+                    
+                </t>
+                <t t-else="">
+                    <t t-if="len(product.product_variant_ids) == 1">
+                        <a href="#" role="button" class="btn btn-secondary btn-sm a-submit" aria-label="Shopping cart" title="Shopping cart">
+                            <span class="fa fa-shopping-cart"/>
+                        </a>
+                    </t>
+                    <t t-if="len(product.product_variant_ids) &gt; 1">
+                        <a role="button" class="btn btn-secondary btn-sm" t-att-href="keep('/shop/product/%s' % slug(product), page=(None))" aria-label="Shopping cart" title="Shopping cart">
+                            <span class="ti-shopping-cart"/>
+                        </a>
+                    </t>
+                </t>
             </t>
-            <t t-if="len(product.product_variant_ids) &gt; 1">
-                <a role="button" class="btn btn-secondary btn-sm" t-att-href="keep('/shop/product/%s' % slug(product), page=(None))" aria-label="Shopping cart" title="Shopping cart">
-                    <span class="ti-shopping-cart"/>
-                </a>
+            <t t-else="">
+                <t t-if="len(product.product_variant_ids) == 1">
+                    <a href="#" role="button" class="btn btn-secondary btn-sm a-submit" aria-label="Shopping cart" title="Shopping cart">
+                        <span class="fa fa-shopping-cart"/>
+                    </a>
+                </t>
+                <t t-if="len(product.product_variant_ids) &gt; 1">
+                    <a role="button" class="btn btn-secondary btn-sm" t-att-href="keep('/shop/product/%s' % slug(product), page=(None))" aria-label="Shopping cart" title="Shopping cart">
+                        <span class="ti-shopping-cart"/>
+                    </a>
+                </t>
             </t>
         </xpath>
     </template>
@@ -746,10 +800,25 @@
     </template>
     <template id="add_to_compare" inherit_id="alan_customize.product_items" active="True" customize_show="True" name="Comparison List" priority="22">
         <xpath expr="//div[hasclass('pro-action')]/div[hasclass('pro-icons')]" position="inside">
-            <t t-if="product.product_variant_ids">
-                <a class="btn btn-default btn-xs o_add_compare" title="Compare" t-att-data-product-product-id="product.product_variant_ids[0].id" data-action="o_comparelist">
-                    <span class="fa fa-balance-scale"></span>
-                </a>
+            <t t-if="product.public_categ_ids">
+                <t t-set="thirdpartyurl" t-value="product.public_categ_ids[0].get_thirdparty_url(product.public_categ_ids[0])"/>
+                <t t-if="thirdpartyurl">
+                    
+                </t>
+                <t t-else="">
+                    <t t-if="product.product_variant_ids">
+                        <a class="btn btn-default btn-xs o_add_compare" title="Compare" t-att-data-product-product-id="product.product_variant_ids[0].id" data-action="o_comparelist">
+                            <span class="fa fa-balance-scale"></span>
+                        </a>
+                    </t>
+                </t>
+            </t>
+            <t t-else="">
+                <t t-if="product.product_variant_ids">
+                    <a class="btn btn-default btn-xs o_add_compare" title="Compare" t-att-data-product-product-id="product.product_variant_ids[0].id" data-action="o_comparelist">
+                        <span class="fa fa-balance-scale"></span>
+                    </a>
+                </t>
             </t>
         </xpath>
     </template>

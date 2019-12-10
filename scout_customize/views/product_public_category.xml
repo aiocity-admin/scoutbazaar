@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="product_public_category_in_add_field" model="ir.ui.view">
+       <field name="name">product.public.category.form.inherit</field>
+        <field name="model">product.public.category</field>
+        <field name="inherit_id" ref="website_sale.product_public_category_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sequence']" position="after">
+                <field name="is_thirdparty_order"/>
+                <field name="thirdparty_url" widget="url" attrs="{'invisible': [('is_thirdparty_order','=',False)] ,'required': [('is_thirdparty_order', '=', True)]}"/>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>
