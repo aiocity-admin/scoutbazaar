@@ -14,8 +14,26 @@ class SaleOrderLine(models.Model):
     is_set_multi_gift = fields.Boolean('Set Multi Gift')
     
 class SaleOrderForm(models.Model):
-
+    
     _inherit='sale.order'
+    
+    is_delivery_filter = fields.Boolean('Is Delivery Filter')
+    all_delivery_filter = fields.Boolean('All Delivery Filter',compute="_all_delivery_order_filter")
+    
+    def _all_delivery_order_filter(self):
+        for order in self:
+            done_len = 0
+            all_len = 0
+            for picking in order.picking_ids:
+                all_len += 1
+                if picking.state == 'done':
+                    done_len += 1
+            if all_len == done_len:
+                order.all_delivery_filter = True
+                order.write({'is_delivery_filter' :True})
+            else:
+                order.all_delivery_filter = False
+                order.write({'is_delivery_filter' :False})
     
     @api.multi
     def _cart_update(self, product_id=None, line_id=None, add_qty=0, set_qty=0, **kwargs):

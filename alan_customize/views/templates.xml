@@ -78,7 +78,7 @@
                         <t t-if="product.public_categ_ids">
                             <t t-set="thirdpartyurl" t-value="product.public_categ_ids[0].get_thirdparty_url(product.public_categ_ids[0])"/>
                             <t t-if="thirdpartyurl">
-                                <a itemprop="url" t-att-href="thirdpartyurl" class="preview-image">
+                                <a itemprop="url" target="new" t-att-href="thirdpartyurl" class="preview-image">
                                     <span t-if="product_variant" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.product/{{product_variant.id}}/image" t-field="product_variant.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
                                     <span t-else="" itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.template/{{product.id}}/image" t-field="product.image" t-options="{'widget': 'image', 'resize': None if product_image_big else '300x300', 'zoom': 'image'}" t-att-alt="product.name" />
                                 </a>
@@ -102,7 +102,7 @@
                             <t t-if="product.public_categ_ids">
                                 <t t-set="thirdpartyurl" t-value="product.public_categ_ids[0].get_thirdparty_url(product.public_categ_ids[0])"/>
                                 <t t-if="thirdpartyurl">
-                                    <strong><a itemprop="name" t-att-href="thirdpartyurl" t-field="product.name"/>
+                                    <strong><a itemprop="name" target="new" t-att-href="thirdpartyurl" t-field="product.name"/>
                                     </strong>
                                 </t>
                                 <t t-else="">
