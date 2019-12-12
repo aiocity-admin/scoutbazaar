@@ -24,13 +24,17 @@ class SaleOrderForm(models.Model):
         for order in self:
             done_len = 0
             all_len = 0
-            for picking in order.picking_ids:
-                all_len += 1
-                if picking.state == 'done':
-                    done_len += 1
-            if all_len == done_len:
-                order.all_delivery_filter = True
-                order.write({'is_delivery_filter' :True})
+            if order.picking_ids:
+                for picking in order.picking_ids:
+                    all_len += 1
+                    if picking.state == 'done':
+                        done_len += 1
+                if all_len == done_len:
+                    order.all_delivery_filter = True
+                    order.write({'is_delivery_filter' :True})
+                else:
+                    order.all_delivery_filter = False
+                    order.write({'is_delivery_filter' :False})
             else:
                 order.all_delivery_filter = False
                 order.write({'is_delivery_filter' :False})
