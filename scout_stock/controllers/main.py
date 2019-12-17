@@ -136,6 +136,9 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         domestic_carrier = False
         is_domestic_include_nso_error = False
         vendor_domestic_fees_nso_error = False
+        multi_company = request.env['res.config.settings'].sudo().search([],limit=1)
+        check_multi_company = multi_company.group_multi_company
+        print('======sc========multi_company====',multi_company,check_multi_company)
         res_config = request.env['payment.handling.config'].sudo().search([],limit=1)
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
@@ -170,7 +173,10 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         order = request.website.sale_get_order()
         for line_group in orderlines_country_grouping:
             if orderlines_country_grouping[line_group]:
-                delivery_methods = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[line_group.id]),('shipping_range','=','international')])
+                if check_multi_company:
+                    delivery_methods = request.env['delivery.carrier'].sudo().search([('company_id','=',request.env.user.company_id.id),('source_country_ids','in',[line_group.id]),('shipping_range','=','international')])
+                else:
+                    delivery_methods = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[line_group.id]),('shipping_range','=','international')])
                 if delivery_methods:
                     international_shipping_methods.update({line_group.code:delivery_methods})
             else:
@@ -181,9 +187,15 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 same_delivery_price = 0.0
                 if nso_same_country_code_group:
                     if not same_carrier:
-                        same_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','local')],limit=1)
+                        if check_multi_company:
+                            same_carrier = request.env['delivery.carrier'].sudo().search([('company_id','=',request.env.user.company_id.id),('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','local')],limit=1)
+                        else:
+                            same_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','local')],limit=1)
                         if not same_carrier:
-                            same_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','international')],limit=1)
+                            if check_multi_company:
+                                same_carrier = request.env['delivery.carrier'].sudo().search([('company_id','=',request.env.user.company_id.id),('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','international')],limit=1)
+                            else:
+                                same_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','international')],limit=1)
                 for c_group in nso_same_country_code_group:
                     if c_group.location_id in nso_same_country_location_group:
                         nso_same_country_location_group[c_group.location_id] |= c_group
