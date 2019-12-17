@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <record id="ir_rule_set_multi_amount_transferred_history" model="ir.rule">
+                <field name="name">User: Multi Channel</field>
+                <field name="model_id" ref="scout_split_money.model_amount_transferred_history"/>
+                <field name="domain_force">['|',('order_id.company_id','=',False),('order_id.company_id', '=', user.company_id.id)]</field>
+                <field name="groups" eval="[(4, ref('base.group_multi_company'))]"/>
+        </record>
+
+        <record id="ir_rule_set_scout_stock" model="ir.rule">
+                <field name="name">User: Scout Stock</field>
+                <field name="model_id" ref="scout_stock.model_scout_stock"/>
+                <field name="domain_force">['|',('location_id.company_id','=',False),('location_id.company_id', '=', user.company_id.id)]</field>
+                <field name="groups" eval="[(4, ref('base.group_multi_company'))]"/>
+        </record>
+
+        <record id="ir_rule_set_res_partner" model="ir.rule">
+                <field name="name">User: Res Partner</field>
+                <field name="model_id" ref="base.model_res_partner"/>
+                <field name="domain_force">['|',('company_id','=',False),('company_id', '=', user.company_id.id)]</field>
+                <field name="groups" eval="[(4, ref('base.group_multi_company'))]"/>
+        </record>
+
+        <record id="ir_rule_set_product_template" model="ir.rule">
+                <field name="name">User: Product Template</field>
+                <field name="model_id" ref="product.model_product_template"/>
+                <field name="domain_force">['|',('company_id','=',False),('company_id', '=', user.company_id.id)]</field>
+                <field name="groups" eval="[(4, ref('base.group_multi_company'))]"/>
+        </record>
+
+        <record id="ir_rule_set_delivery_carrier" model="ir.rule">
+                <field name="name">User: Delivery Carrier</field>
+                <field name="model_id" ref="delivery.model_delivery_carrier"/>
+                <field name="domain_force">['|',('company_id','=',False),('company_id', '=', user.company_id.id)]</field>
+                <field name="groups" eval="[(4, ref('base.group_multi_company'))]"/>
+        </record>
+
+</odoo>
