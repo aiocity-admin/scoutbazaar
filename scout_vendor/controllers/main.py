@@ -96,7 +96,6 @@ class VendorPage(WebsiteSale):
         vendor_domestic_fees_nso_error = False
         multi_company = request.env['res.config.settings'].sudo().search([],limit=1)
         check_multi_company = multi_company.group_multi_company
-        print('======vendor========multi_company====',multi_company,check_multi_company)
         res_config = request.env['payment.handling.config'].sudo().search([],limit=1)
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
