@@ -63,7 +63,7 @@
 	                        <span>
 	                            <b>Dropship Total Shipping and Handling Fees</b>
 	                        </span>
-	                        <span class="vendor_amount_delivery" t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str(website_sale_order.vendor_amount_delivery)" style="float:right;"/>
+	                        <span class="vendor_amount_delivery" t-esc="str(website_sale_order.currency_id.symbol) + ' ' + str('%.2f' % round(website_sale_order.vendor_amount_delivery, 2))" style="float:right;"/>
 	                    </div>
 	                </t>
                 </div>

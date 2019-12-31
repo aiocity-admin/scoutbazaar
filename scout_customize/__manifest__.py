@@ -4,7 +4,7 @@
     "summary": 'Scout Customization -- Backend and Frontend',
     "description":"""
         """,
-    "version" : "12.0.0.9",
+    "version" : "12.0.0.11",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
     "depends" : ['alan_customize'],
@@ -27,7 +27,8 @@
              'views/return_order_view.xml',
              'views/sale_order_report_view.xml',
              'views/vendor_account.xml',
-             'views/res_config_setting.xml'
+             'views/res_config_setting.xml',
+             'views/product_public_category.xml',
              ],
     'installable': True,
     'auto_install': False,

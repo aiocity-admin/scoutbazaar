@@ -5,7 +5,7 @@
     "summary": 'scout stock Website Page',
     "description":"""
         """,
-    "version" : "12.0.0.7",
+    "version" : "12.0.0.5",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
     "depends" : ['scout_vendor','scout_customize','jt_express','delivery_ups','payment_paymaya','delivery_easypost'],
@@ -22,6 +22,7 @@
              'views/website_payment_templates.xml',
              'views/shipping_address_view.xml',
              'views/res_config_views.xml',
+            'views/account_invoice_views.xml',
              ],
     'installable': True,
     'auto_install': False,

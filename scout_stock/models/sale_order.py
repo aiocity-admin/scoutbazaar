@@ -267,7 +267,8 @@ class SaleOrder(models.Model):
                     for s_line in nso_same_country_location_group[nso_loc]:
                         price_total += s_line.price_total
                     
-                    temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+#                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                    temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
                     same_delivery_price += (temp_price + res_price.get('price'))
                     delivery_price_split = (temp_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
                     shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
@@ -345,7 +346,8 @@ class SaleOrder(models.Model):
                         price_total = 0.0
                         for s_line in nso_country_location_group[nso_loc]:
                             price_total += s_line.price_total
-                        temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+#                         temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                        temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
                         delivery_price_split = (temp_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
                         delivery_price += (temp_price + res_price.get('price'))
                         shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])

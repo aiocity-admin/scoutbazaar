@@ -1,19 +1,83 @@
 <odoo>
     <record id="sale_order_line_in_add_gift_product" model="ir.ui.view">
-    <field name="name">sale.order.form.extend</field>
-    <field name="model">sale.order</field>
-    <field name="inherit_id" ref="sale.view_order_form"/>
-    <field name="arch" type="xml">
-        <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
-            <field name="is_gift_cart" invisible="1"/>
-            <field name="is_set_multi_gift" invisible="1"/>
-            <field name="gift_cart_email" invisible="1"/>
-        </xpath>
-        <xpath expr="//field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
-            <field name="is_gift_cart" invisible="1"/>
-            <field name="is_set_multi_gift" invisible="1"/>
-            <field name="gift_cart_email" attrs="{'invisible':[('is_gift_cart','=',False)]}"/>
-        </xpath>
-    </field>
-  </record>
+        <field name="name">sale.order.form.extend</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+                <field name="is_gift_cart" invisible="1"/>
+                <field name="is_set_multi_gift" invisible="1"/>
+                <field name="gift_cart_email" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
+                <field name="is_gift_cart" invisible="1"/>
+                <field name="is_set_multi_gift" invisible="1"/>
+                <field name="gift_cart_email" attrs="{'invisible':[('is_gift_cart','=',False)]}"/>
+            </xpath>
+        </field>
+    </record>
+  
+    <record id="sale_order_tree_in_inherit" model="ir.ui.view">
+        <field name="name">sale.order.tree.in.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="all_delivery_filter" invisible="1"/>
+                <field name="is_delivery_filter" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <record id="sale_order_tree_in_inherit_order" model="ir.ui.view">
+        <field name="name">sale.order.tree.in.inherit.order</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="all_delivery_filter" invisible="1"/>
+                <field name="is_delivery_filter" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+    
+<!--     <record id="sale_order_view_in_add_filter_inh_quotation" model="ir.ui.view"> -->
+<!--         <field name="name">sale.order.search.filter.quotation</field> -->
+<!--         <field name="model">sale.order</field> -->
+<!--         <field name="inherit_id" ref="sale.sale_order_view_search_inherit_quotation"/> -->
+<!--         <field name="arch" type="xml"> -->
+<!--             <xpath expr="//filter[@name='sales']" position="after"> -->
+<!--                 <separator/> -->
+<!--                 <filter string="Delivery Order" name="done_delivery_quotation" domain="[('is_delivery_filter','=',True),('state','!=','cancel')]"/> -->
+<!--             </xpath> -->
+<!--         </field> -->
+<!--     </record> -->
+    
+    <record id="sale_order_view_in_add_filter_inh_order" model="ir.ui.view">
+        <field name="name">sale.order.search.filter.order</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                <separator/>
+                <filter string="Shipped" name="done_delivery_order" domain="[('is_delivery_filter','=',True),('state','!=','cancel')]"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <record id="sale_order_view_in_add_group_inh_quotation" model="ir.ui.view">
+        <field name="name">sale.order.search.group.order</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='salesperson']" position="after">
+                <separator/>
+                <filter string="Shipped(Customer)" name="done_delivery_quotation_group_customer" domain="[('is_delivery_filter','=',True),('state','!=','cancel')]" context="{'group_by':'partner_id'}"/>
+                <separator/>
+                <filter string="Shipped(Salesperson)" name="done_delivery_quotation_group_salesperson" domain="[('is_delivery_filter','=',True),('state','!=','cancel')]" context="{'group_by':'user_id'}"/>
+                <separator/>
+            </xpath>
+        </field>
+    </record>
+    
 </odoo>

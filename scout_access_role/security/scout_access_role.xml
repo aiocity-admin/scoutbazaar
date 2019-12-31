@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data noupdate="1">
         
+        <!--         sale order line user  -->
         <record id="sale.sale_menu_root" model="ir.ui.menu">
                 <field name="groups_id" eval="[(6,0,[ref('sales_team.group_sale_salesman')])]"/>
         </record>
@@ -25,6 +26,20 @@
             <field ref="sale.model_sale_report" name="model_id"/>
             <field name="domain_force">[ '|','|',('order_id.all_line_users','in',[user.id]),('user_id','=',user.id),('user_id','=',False)]</field>
             <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        </record>
+        
+        <!--         delivery line user -->
+        <record id="group_delivery_line_user" model="res.groups">
+            <field name="name">User: Own Delivery Only</field>
+            <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        </record>
+        
+        <record id="ir_rule_delivery_line_user" model="ir.rule">
+            <field name="name">Delivery NSO User</field>
+            <field ref="stock.model_stock_picking" name="model_id"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">['|',('location_id.nso_location_id','=',False),('location_id.nso_location_id','=',user.partner_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_delivery_line_user'))]"/>
         </record>
         
     </data>

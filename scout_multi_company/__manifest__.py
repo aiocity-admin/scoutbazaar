@@ -19,16 +19,13 @@
 #
 ##############################################################################
 {
-    "name" : "Scout Access Role",
+    "name" : "Scout Multi Company",
     "version" : "12.0.0.2",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
-    "depends" : ['sale','delivery'],
+    "depends" : ['scout_stock','scout_split_money'],
     'data': [
-             'security/scout_access_role.xml',
-#              'security/ir.model.access.csv',
-             'views/sale_order_view.xml',
-             'views/stock_picking_views.xml',
+             'data/multi_company_data.xml',
              ],
     'demo':[],
     'installable': True,
