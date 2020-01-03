@@ -1,6 +1,35 @@
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 
+
+
+
+
+class AccountInvoice(models.Model):
+    
+    
+    _inherit = 'account.invoice'
+    
+    
+    @api.multi
+    def action_invoice_paid(self):
+        res = super(AccountInvoice,self).action_invoice_paid()
+        sale_order_obj = self.env['sale.order']
+        line_list = []
+        sale_order_line_obj = self.env['sale.order.line'].sudo()
+        for invoice in self:
+            if invoice.type == 'out_invoice':
+                order = sale_order_obj.search([('name','=',invoice.origin)])
+                print("Order==============================",order,order.nso_mail_sent)
+                if order and not order.nso_mail_sent:
+                    for line in order.order_line:
+                        if not line.location_id.id in line_list:
+                            line_list.append(line.location_id.id)
+                    if line_list:
+                        ids = sale_order_line_obj.send_sale_order_email(order,line_list)
+                        order.write({'nso_mail_sent':True})
+        return res
+
 class AccountInvoiceFormLine(models.Model):
     
     _inherit = "account.invoice.line"

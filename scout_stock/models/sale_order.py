@@ -108,21 +108,32 @@ class SaleOrder(models.Model):
         compute='_compute_nso_amount_delivery', digits=0,
         string='NSO Delivery Amount',
         help="The amount without tax.", store=True, track_visibility='always')
+    
+    
+    nso_mail_sent = fields.Boolean('Nso Mail Sent',default=False)
 
 
-
-    # User in order line mail Send ==================
+#     # User in order line mail Send ==================
     @api.multi
     def action_confirm(self):
         res = super(SaleOrder, self).action_confirm()
         line_list = []
         sale_order_line_obj = self.env['sale.order.line'].sudo()
-        order = self
-        for line in self.order_line:
-            if not line.location_id.id  in line_list:
-                line_list.append(line.location_id.id)
-        if line_list:
-            ids = sale_order_line_obj.send_sale_order_email(order,line_list)
+        
+        for order in self:
+            transaction_done = False
+            
+            for tx_id in order.transaction_ids:
+                if tx_id.state == 'done':
+                    transaction_done = True
+            print("Done================",transaction_done)
+            if transaction_done: 
+                for line in order.order_line:
+                    if not line.location_id.id in line_list:
+                        line_list.append(line.location_id.id)
+                
+                if line_list:
+                    ids = sale_order_line_obj.send_sale_order_email(order,line_list)
         return res
     
     @api.depends('order_line.price_unit', 'order_line.tax_id', 'order_line.discount', 'order_line.product_uom_qty')
