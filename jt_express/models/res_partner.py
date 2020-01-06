@@ -183,7 +183,12 @@ class ResPartner(models.Model):
     
     @api.model
     def create(self,vals):
-        if self.country_id.code == 'PH':
+        country_code = False
+        if 'country_id' in vals:
+            res_country = self.env['res.country'].sudo().browse(int(vals.get('country_id')))
+            if res_country:
+                country_code = res_country.code
+        if self.country_id.code == 'PH' or country_code == 'PH':
             town_id = False
             district_id = False
             city_id = False
@@ -207,12 +212,11 @@ class ResPartner(models.Model):
                 if self.city_id and self.city_id.id:
                     city_id = self.city_id.id
             
-            
             if town_id and district_id and city_id:
-                servicable_area = self.env['jt.servicable.areas'].search([
-                                                                          ('town_id','=',town_id),
-                                                                          ('city_id','=',city_id),
-                                                                          ('district_id','=',district_id),
+                servicable_area = self.env['jt.servicable.areas'].sudo().search([
+                                                                          ('town_id','=',int(town_id)),
+                                                                          ('city_id','=',int(city_id)),
+                                                                          ('district_id','=',int(district_id)),
                                                                           ],limit=1)
                 
                 if servicable_area:
