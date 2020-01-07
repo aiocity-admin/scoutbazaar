@@ -17,7 +17,21 @@ class CustomerPortal(CustomerPortal):
     MANDATORY_BILLING_FIELDS = ["name", "phone", "email", "street", "city", "country_id","school_list_ids","boy_scout","scout_user_rank"]
     @http.route('/my/account', type='http', auth='user', website=True)
     def account(self, redirect=None, **post):
-
+        
+        if 'school_list_ids' in self.MANDATORY_BILLING_FIELDS:
+            self.MANDATORY_BILLING_FIELDS.remove("school_list_ids")
+        if 'boy_scout' in self.MANDATORY_BILLING_FIELDS:
+            self.MANDATORY_BILLING_FIELDS.remove("boy_scout")
+        if 'scout_user_rank' in self.MANDATORY_BILLING_FIELDS:
+            self.MANDATORY_BILLING_FIELDS.remove("scout_user_rank")
+        
+        if 'school_list_ids' not in self.OPTIONAL_BILLING_FIELDS:
+                self.OPTIONAL_BILLING_FIELDS.append('school_list_ids')
+        if 'boy_scout' not in self.OPTIONAL_BILLING_FIELDS:
+                self.OPTIONAL_BILLING_FIELDS.append('boy_scout')
+        if 'scout_user_rank' not in CustomerPortal.OPTIONAL_BILLING_FIELDS:
+                self.OPTIONAL_BILLING_FIELDS.append('scout_user_rank')
+        
         values = self._prepare_portal_layout_values()
         partner = request.env.user.partner_id
         values.update({
@@ -66,6 +80,21 @@ class CustomerPortal(CustomerPortal):
     
     def details_form_validate(self, data):
         res = super(CustomerPortal,self).details_form_validate(data)
+        
+        if 'school_list_ids' not in CustomerPortal.OPTIONAL_BILLING_FIELDS:
+                CustomerPortal.OPTIONAL_BILLING_FIELDS.append('school_list_ids')
+        if 'boy_scout' not in CustomerPortal.OPTIONAL_BILLING_FIELDS:
+                CustomerPortal.OPTIONAL_BILLING_FIELDS.append('boy_scout')
+        if 'scout_user_rank' not in CustomerPortal.OPTIONAL_BILLING_FIELDS:
+                CustomerPortal.OPTIONAL_BILLING_FIELDS.append('scout_user_rank')
+        
+        if 'school_list_ids' in CustomerPortal.MANDATORY_BILLING_FIELDS:
+            CustomerPortal.MANDATORY_BILLING_FIELDS.remove("school_list_ids")
+        if 'boy_scout' in CustomerPortal.MANDATORY_BILLING_FIELDS:
+            CustomerPortal.MANDATORY_BILLING_FIELDS.remove("boy_scout")
+        if 'scout_user_rank' in CustomerPortal.MANDATORY_BILLING_FIELDS:
+            CustomerPortal.MANDATORY_BILLING_FIELDS.remove("scout_user_rank")
+        
         user_has = request.env.user.has_group('base.user_admin')
         user_rank = data.get('scout_user_rank')
         scout_list = ['den_master','scout_master','patrol_leader','troop_leader']

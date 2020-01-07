@@ -126,7 +126,6 @@ class SaleOrder(models.Model):
             for tx_id in order.transaction_ids:
                 if tx_id.state == 'done':
                     transaction_done = True
-            print("Done================",transaction_done)
             if transaction_done: 
                 for line in order.order_line:
                     if not line.location_id.id in line_list:
@@ -134,6 +133,7 @@ class SaleOrder(models.Model):
                 
                 if line_list:
                     ids = sale_order_line_obj.send_sale_order_email(order,line_list)
+                    order.write({'nso_mail_sent':True})
         return res
     
     @api.depends('order_line.price_unit', 'order_line.tax_id', 'order_line.discount', 'order_line.product_uom_qty')
