@@ -95,8 +95,7 @@ class SaleOrderShipping(models.Model):
                         price_total = 0.0
                         for s_line in nso_same_country_location_group[nso_loc]:
                             price_total += s_line.price_total
-                        
-                        temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                        temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price) / (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
                         same_delivery_price += (temp_price + res_price.get('price'))
                         delivery_price_split = (temp_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
                         shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
@@ -136,7 +135,8 @@ class SaleOrderShipping(models.Model):
                             price_total = 0.0
                             for s_line in nso_country_location_group[nso_loc]:
                                 price_total += s_line.price_total
-                            temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                            temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price) / (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+#                             temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                             delivery_price_split = (temp_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
                             delivery_price += (temp_price + res_price.get('price'))
                             shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
@@ -189,7 +189,8 @@ class SaleOrderShipping(models.Model):
                         price_total = 0.0
                         for s_line in vendor_same_country_based_group[v_cnt]:
                             price_total += s_line.price_total
-                        temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                        temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price) / (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+#                         temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                         same_delivery_price += (temp_price + res_price.get('price'))
                         delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_same_country_based_group[v_cnt])
                         shipping_price_split = res_price.get('price')/len(vendor_same_country_based_group[v_cnt])
@@ -216,7 +217,8 @@ class SaleOrderShipping(models.Model):
                     price_total = 0.0
                     for s_line in vendor_diff_country_based_group[v_diff_cnt]:
                         price_total += s_line.price_total
-                    temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
+                    temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price) / (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+#                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                     delivery_price += (temp_price + res_price.get('price'))
                     delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_diff_country_based_group[v_diff_cnt])
                     shipping_price_split = res_price.get('price')/len(vendor_diff_country_based_group[v_diff_cnt])

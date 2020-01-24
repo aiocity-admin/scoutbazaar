@@ -89,4 +89,18 @@
         </xpath>
     </template>
     
+    <template id="portal_contact_ph_inherit" name="Contact" inherit_id="portal.portal_contact">
+        <xpath expr="//div/div[3]" position="replace">
+            <div class="d-flex flex-nowrap align-items-center mb-1">
+                <div class="fa fa-map-marker fa-fw mr-1"></div>
+                <t t-if="sales_user.partner_id.country_id.code == 'PH'">
+                    <span t-esc="sales_user.partner_id.district_id.name"/>
+                </t>
+                <t t-else="">
+                    <span t-esc="sales_user.city"/>
+                </t>
+            </div>
+        </xpath>
+    </template>
+    
 </odoo>

@@ -28,55 +28,107 @@
                <p>
                     <strong>Customer Details :</strong>
                     <ul>
-                       <li>Name : ${object.partner_id.name}</li>
-                       <li>Address : 
-                       % if object.partner_id.street:
-                           ${object.partner_id.street} ,<br></br>
-                       % endif
-                       % if object.partner_id.street2:
-                           ${object.partner_id.street2},<br></br>
-                       % endif
-                       % if object.partner_id.city:
-                           ${object.partner_id.city}
-                       % endif
-                       % if object.partner_id.state_id.name:
-                           ${object.partner_id.state_id.name}
-                       % endif
-                       % if object.partner_id.zip:
-                           ${object.partner_id.zip}
-                       % endif
-                       <br></br>
-                       % if object.partner_id.country_id.name:
-                           ${object.partner_id.country_id.name}
-                       % endif
-                       </li>
+                        <li>Name : ${object.partner_id.name}</li>
+                        <li>Address :
+                            % if object.partner_id.country_id.code == 'PH'
+                                
+                                % if object.partner_id.street:
+                                    ${object.partner_id.street},
+                                % endif
+                                % if object.partner_id.town_id:
+                                    ${object.partner_id.town_id.name}<br></br>
+                                % endif
+                                % if object.partner_id.district_id:
+                                    ${object.partner_id.district_id.name},
+                                % endif
+                                % if object.partner_id.city_id:
+                                    ${object.partner_id.city_id.name},
+                                % endif
+                                % if object.partner_id.zip:
+                                    ${object.partner_id.zip}
+                                % endif
+                                <br></br>
+                                % if object.partner_id.country_id:
+                                    ${object.partner_id.country_id.name}
+                                % endif
+                                
+                            % else:
+                                
+                                % if object.partner_id.street:
+                                    ${object.partner_id.street} ,<br></br>
+                                % endif
+                                % if object.partner_id.street2:
+                                    ${object.partner_id.street2},<br></br>
+                                % endif
+                                % if object.partner_id.city:
+                                    ${object.partner_id.city}
+                                % endif
+                                % if object.partner_id.state_id:
+                                    ${object.partner_id.state_id.name}
+                                % endif
+                                % if object.partner_id.zip:
+                                    ${object.partner_id.zip}
+                                % endif
+                                <br></br>
+                                % if object.partner_id.country_id:
+                                    ${object.partner_id.country_id.name}
+                                % endif
+                                
+                            %endif
+                        </li>
                     </ul>
                 </p>
                 <p>
                     <strong>Delivery Address :</strong>
                     <ul>
-                    <li>Name : ${object.partner_shipping_id.name}</li>
-                    <li>Address : 
-                       % if object.partner_shipping_id.street:
-                           ${object.partner_shipping_id.street} ,<br></br>
-                       % endif
-                       % if object.partner_shipping_id.street2:
-                           ${object.partner_shipping_id.street2},<br></br>
-                       % endif
-                       % if object.partner_shipping_id.city:
-                           ${object.partner_shipping_id.city}
-                       % endif
-                       % if object.partner_shipping_id.state_id.name:
-                           ${object.partner_shipping_id.state_id.name}
-                       % endif
-                       % if object.partner_shipping_id.zip:
-                           ${object.partner_shipping_id.zip}
-                       % endif
-                       <br></br>
-                       % if object.partner_shipping_id.country_id.name:
-                           ${object.partner_shipping_id.country_id.name}
-                       % endif
-                       </li>
+                        <li>Name : ${object.partner_shipping_id.name}</li>
+                        <li>Address :
+                            % if object.partner_shipping_id.country_id.code == 'PH'
+                                
+                                % if object.partner_shipping_id.street:
+                                    ${object.partner_shipping_id.street},
+                                % endif
+                                % if object.partner_shipping_id.town_id:
+                                    ${object.partner_shipping_id.town_id.name}<br></br>
+                                % endif
+                                % if object.partner_shipping_id.district_id:
+                                    ${object.partner_shipping_id.district_id.name},
+                                % endif
+                                % if object.partner_shipping_id.city_id:
+                                    ${object.partner_shipping_id.city_id.name},
+                                % endif
+                                % if object.partner_shipping_id.zip:
+                                    ${object.partner_shipping_id.zip}
+                                % endif
+                                <br></br>
+                                % if object.partner_shipping_id.country_id:
+                                    ${object.partner_shipping_id.country_id.name}
+                                % endif
+                                
+                            % else:
+                                
+                                % if object.partner_shipping_id.street:
+                                    ${object.partner_shipping_id.street} ,<br></br>
+                                % endif
+                                % if object.partner_shipping_id.street2:
+                                    ${object.partner_shipping_id.street2},<br></br>
+                                % endif
+                                % if object.partner_shipping_id.city:
+                                    ${object.partner_shipping_id.city}
+                                % endif
+                                % if object.partner_shipping_id.state_id:
+                                    ${object.partner_shipping_id.state_id.name}
+                                % endif
+                                % if object.partner_shipping_id.zip:
+                                    ${object.partner_shipping_id.zip}
+                                % endif
+                                <br></br>
+                                % if object.partner_shipping_id.country_id:
+                                    ${object.partner_shipping_id.country_id.name}
+                                % endif
+                                
+                            % endif
+                        </li>
                     </ul>
                 </p>
                 <p>
