@@ -124,7 +124,8 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         
         if track_line_to_delete:
             for del_line in track_line_to_delete:
-                del order_delivery_track_lines_dict_new[del_line]
+                if del_line in track_line_to_delete:
+                    del order_delivery_track_lines_dict_new[del_line]
         
         return order_delivery_track_lines_dict_new
         
