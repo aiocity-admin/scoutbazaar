@@ -21,13 +21,13 @@ class SaleOrderShipping(models.Model):
                     delivery_charge = 0.0
                     for n_line in nso_location_lines:
                         delivery_charge += n_line.delivery_charge
-                        nso_line = order.order_line.filtered(lambda r: r.name == "Total Shipping and Handling Fees(" + line.location_id.nso_location_id.country_id.name + ")")
+                        nso_line = order.order_line.filtered(lambda r: r.name == "Total Shipping and Handling Fees(" + line.location_id.nso_location_id.name + '-' + line.location_id.nso_location_id.country_id.name + ")")
                 if nso_line:
                     nso_line.write({'price_unit':delivery_charge})
                 else:
                     vals = {
 							'order_id':order.id,
-							'name':"Total Shipping and Handling Fees(" + line.location_id.nso_location_id.country_id.name + ")",
+							'name':"Total Shipping and Handling Fees(" + line.location_id.nso_location_id.name + '-' + line.location_id.nso_location_id.country_id.name + ")",
 							'product_id':delivery_product.id,
 							'product_uom':delivery_product.sudo().uom_id.id,
 							'price_unit':delivery_charge,
