@@ -102,18 +102,23 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         for t_line in order_delivery_track_lines_dict:
             country_name = request.env['res.country'].sudo().search([('code','=',t_line)],limit=1)
             nso_code_line = order.order_line.filtered(lambda m:m.location_id and m.location_id.nso_location_id.country_id.code == t_line)
-            nso_delivery_line = order.order_line.filtered(lambda r:r.is_nso_delivery_line and r.name == "Total Shipping and Handling Fees(" + country_name.name + ")")
-            
-            if nso_code_line:
-                if order.partner_shipping_id.country_id.code != t_line and nso_code_line[0].delivery_method.shipping_range == 'local':
-                    track_line_to_delete.append(t_line)
-            
-            if nso_delivery_line:
-                order_delivery_track_lines_dict_new.update({
-                                                            t_line : [order_delivery_track_lines_dict[t_line],nso_delivery_line.price_total]
-                                                            })
-            else:
-                order_delivery_track_lines_dict_new.update({
+            all_nso_location = []
+            for ord_line in nso_code_line:
+                if ord_line.location_id not in all_nso_location:
+                    all_nso_location.append(ord_line.location_id)
+            for ind_location in  all_nso_location: 
+                nso_delivery_line = order.order_line.filtered(lambda r:r.is_nso_delivery_line and r.name == "Total Shipping and Handling Fees(" + ind_location.nso_location_id.name + '-' + country_name.name + ")")
+                
+                if nso_code_line:
+                    if order.partner_shipping_id.country_id.code != t_line and nso_code_line[0].delivery_method.shipping_range == 'local':
+                        track_line_to_delete.append(t_line)
+                
+                if nso_delivery_line:
+                    order_delivery_track_lines_dict_new.update({
+                                                                t_line : [order_delivery_track_lines_dict[t_line],nso_delivery_line.price_total]
+                                                                })
+                else:
+                    order_delivery_track_lines_dict_new.update({
                                                             t_line : [order_delivery_track_lines_dict[t_line],False]
                                                             })
         
