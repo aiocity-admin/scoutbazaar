@@ -281,7 +281,7 @@ class SaleOrder(models.Model):
                     
 #                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                     temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                    same_delivery_price += (temp_price + res_price.get('price'))
+                    same_delivery_price += round((temp_price + res_price.get('price')),2)
                     delivery_price_split = (temp_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
                     shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
                     extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
@@ -361,7 +361,7 @@ class SaleOrder(models.Model):
 #                         temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
                         temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
                         delivery_price_split = (temp_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
-                        delivery_price += (temp_price + res_price.get('price'))
+                        delivery_price += round((temp_price + res_price.get('price')),2)
                         shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
                         extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
                         nso_country_location_group[nso_loc].write({
