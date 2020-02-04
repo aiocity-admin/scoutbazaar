@@ -13,7 +13,7 @@
        		</xpath>
 	        <xpath expr="//field[@name='categ_id']" position="after">
                 <field name="is_vendor_product" invisible="1"/>
-                <field name="vendor_user_product" attrs="{'invisible': [('is_vendor_product','=',False)] ,'required': [('type', '!=', 'service')]}"/>
+                <field name="vendor_user_product" attrs="{'invisible': [('is_vendor_product','=',False)] ,'required': [('type', '!=', 'service'),('is_vendor_product','=',True)]}"/>
                 <field name="vendor_user_partner_id" invisible="1"/>
                 <field name="international_ids" widget="many2many_tags" domain="[('parent_id', '=', vendor_user_partner_id)]" options="{'no_create': True}" attrs="{'invisible': [('is_vendor_product','=',False)]}"/>
            </xpath>

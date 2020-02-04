@@ -348,10 +348,27 @@
                     
                 </t>
                 <t t-else="">
+<!--                     Scout Quantity Available Code for Quick add to cart -->
                     <t t-if="len(product.product_variant_ids) == 1">
-                        <a href="#" role="button" class="btn btn-secondary btn-sm a-submit" aria-label="Shopping cart" title="Shopping cart">
-                            <span class="fa fa-shopping-cart"/>
-                        </a>
+                        <t t-if="product.inventory_availability == 'always' and product.type == 'product'">
+	                        <t t-if="product.virtual_available > 0">
+		                        <a href="#" role="button" class="btn btn-secondary btn-sm a-submit" aria-label="Shopping cart" title="Shopping cart">
+		                            <span class="fa fa-shopping-cart"/>
+		                        </a>
+	                        </t>
+	                        
+	                        <t t-else="">
+	                        	<a href="#" role="button" class="btn btn-secondary btn-sm a-submit disabled" aria-label="Shopping cart" title="Shopping cart">
+		                            <span class="fa fa-shopping-cart"/>
+		                        </a>
+	                        </t>
+                        </t>
+                        
+                        <t t-else="">
+                        	<a href="#" role="button" class="btn btn-secondary btn-sm a-submit" aria-label="Shopping cart" title="Shopping cart">
+	                            <span class="fa fa-shopping-cart"/>
+	                        </a>
+                        </t>
                     </t>
                     <t t-if="len(product.product_variant_ids) &gt; 1">
                         <a role="button" class="btn btn-secondary btn-sm" t-att-href="keep('/shop/product/%s' % slug(product), page=(None))" aria-label="Shopping cart" title="Shopping cart">
@@ -805,9 +822,24 @@
                 <t t-if="thirdpartyurl">
                     
                 </t>
+                
                 <t t-else="">
-                    <t t-if="product.product_variant_ids">
-                        <a class="btn btn-default btn-xs o_add_compare" title="Compare" t-att-data-product-product-id="product.product_variant_ids[0].id" data-action="o_comparelist">
+                    <t t-if="len(product.product_variant_ids) == 1 and product.type == 'product'">
+                        <t t-if="product.virtual_available > 0">
+	                        <a class="btn btn-default btn-xs o_add_compare" title="Compare" t-att-data-product-product-id="product.product_variant_ids[0].id" data-action="o_comparelist">
+	                            <span class="fa fa-balance-scale"></span>
+	                        </a>
+                        </t>
+                        
+                        <t t-else="">
+                        	 <a class="btn btn-default btn-xs o_add_compare disabled" title="Compare" t-att-data-product-product-id="product.product_variant_ids[0].id" data-action="o_comparelist">
+	                            <span class="fa fa-balance-scale"></span>
+	                        </a>
+                        </t>
+                    </t>
+                    
+                    <t t-else="">
+                    	<a class="btn btn-default btn-xs o_add_compare" title="Compare" t-att-data-product-product-id="product.product_variant_ids[0].id" data-action="o_comparelist">
                             <span class="fa fa-balance-scale"></span>
                         </a>
                     </t>
