@@ -13,9 +13,26 @@
                     
                 </t>
                 <t t-else="">
-                    <a class="btn btn-primary o_quick_view" data-action="o_quick_view" data-target="#my_quick_view_modal" data-toggle="modal" t-att-data-product-product-id="product.product_variant_ids[0].id" t-att-data-product_template_id="product.id" title="Quick View" type="button">
-                        <span class="fa fa-eye"/>
-                    </a>
+<!--                 	Scout Product Quantity on hand check -->
+                	<t t-if="len(product.product_variant_ids) == 1 and product.type == 'product'">
+	                    <t t-if="product.virtual_available > 0">
+		                    <a class="btn btn-primary o_quick_view" data-action="o_quick_view" data-target="#my_quick_view_modal" data-toggle="modal" t-att-data-product-product-id="product.product_variant_ids[0].id" t-att-data-product_template_id="product.id" title="Quick View" type="button">
+		                        <span class="fa fa-eye"/>
+		                    </a>
+	                    </t>
+	                    
+	                    <t t-else="">
+	                    	<a class="btn btn-primary o_quick_view disabled" data-action="o_quick_view" data-target="#my_quick_view_modal" data-toggle="modal" t-att-data-product-product-id="product.product_variant_ids[0].id" t-att-data-product_template_id="product.id" title="Quick View" type="button">
+		                        <span class="fa fa-eye"/>
+		                    </a>
+	                    </t>
+                    </t>
+                    
+                    <t t-else="">
+                    	<a class="btn btn-primary o_quick_view" data-action="o_quick_view" data-target="#my_quick_view_modal" data-toggle="modal" t-att-data-product-product-id="product.product_variant_ids[0].id" t-att-data-product_template_id="product.id" title="Quick View" type="button">
+	                        <span class="fa fa-eye"/>
+	                    </a>
+                    </t>
                 </t>
             </t>
             <t t-else="">
