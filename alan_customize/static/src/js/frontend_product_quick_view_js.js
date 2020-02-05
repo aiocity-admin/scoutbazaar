@@ -55,7 +55,8 @@ odoo.define('alan_customize.frontend_product_quick_view_js', function(require) {
                     self.$el.modal();
                 });
             },
-            update_my_cart: function() {
+            update_my_cart: function(e) {
+            	e.preventDefault();
                 var $prod_id = $("#my_quick_view_modal input[name='product_id']").val();;
                 var $qty_val = $("#my_quick_view_modal div.js_product input[name='add_qty']").val();
                 $("#my_quick_view_modal").hide();
@@ -121,13 +122,14 @@ odoo.define('alan_customize.frontend_product_quick_view_js', function(require) {
 									}
 					            });
 			            	}else{
-				                $.get('/update_my_cart', {
-				                    'prod_id': $prod_id,
-				                    'qty_val': $qty_val,
-				                    'attributes': selected_attribute_value_array
-				                }).then(function(rec) {
-				                    location.reload(true);
-				                });
+			            		console.log($qty_val)
+//				                $.get('/update_my_cart', {
+//				                    'prod_id': $prod_id,
+//				                    'qty_val': $qty_val,
+//				                    'attributes': selected_attribute_value_array
+//				                }).then(function(rec) {
+//				                    location.reload(true);
+//				                });
 			            	}
 		                })
 					}

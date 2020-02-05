@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<template id="sh_shop_product_quantity" inherit_id="website_sale.product_quantity">
+			<xpath expr="//input[@name='add_qty']" position="attributes">
+				<attribute name="id">qty_id</attribute>
+				<attribute name='t-att-data-min'>product.sh_increment_qty</attribute>
+				<attribute name='t-att-data-setqty'>product.sh_increment_qty or 1</attribute>
+				<attribute name="t-att-value">product.sh_increment_qty or 1</attribute>
+			</xpath>
+		</template>
+		
+		
+    <!-- This template is the one at the "Review order" step (the first one) on the checkout workflow. -->
+     <template id="sh_shop_qty_cart_lines" inherit_id="website_sale.cart_lines" name="SH Shopping Cart Lines">
+    	
+    	<xpath expr="//input[hasclass('js_quantity')]" position="attributes">
+				<attribute name="class">js_quantity form-control quantity sh_shop_qty_input_qty</attribute>
+				<attribute name='t-att-data-setqty'>line.product_id.sh_increment_qty</attribute>
+		</xpath>    	
+    
+    </template>	 
+		
+	</data>
+</odoo>
