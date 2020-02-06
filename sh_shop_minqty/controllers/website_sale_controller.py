@@ -3,11 +3,10 @@
 from odoo import http
 from odoo.http import request
 from odoo.addons.website_sale.controllers.main import WebsiteSale
-from odoo.addons.scout_customize.controllers.website_sale_main import WebsiteSaleScout
 import json
 
 
-class WebsiteSale(WebsiteSaleScout):
+class WebsiteSale(WebsiteSale):
     
 #     # inherit controoler to add quantity direct to press add to cart button from product listing
     @http.route(['/shop/cart/update'], type='http', auth="public", methods=['POST','GET'], website=True, csrf=False)
@@ -18,7 +17,7 @@ class WebsiteSale(WebsiteSaleScout):
                     product = request.env['product.product'].sudo().search([('id', '=', int(product_id))])
                     if product.sh_increment_qty != int(add_qty):
                         add_qty = product.sh_increment_qty
-        res = super(WebsiteSaleScout, self).cart_update(product_id, add_qty, set_qty, **kw)
+        res = super(WebsiteSale, self).cart_update(product_id, add_qty, set_qty, **kw)
         return res
     
 class WebsiteSaleMain(WebsiteSale):
