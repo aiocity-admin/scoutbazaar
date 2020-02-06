@@ -339,7 +339,7 @@ class WebsiteSaleScout(WebsiteSale):
     @http.route(['/check/user'], type='json', auth="public", website=True)
     def check_current_user(self, user_email, **post):
         if user_email:
-            partner = request.env['res.users'].search([('partner_id.email','=',user_email)],limit=1)
+            partner = request.env['res.users'].sudo().search([('partner_id.email','=',user_email)],limit=1)
             if partner:
                 return True
             else:
