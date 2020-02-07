@@ -12,7 +12,7 @@
             <div t-if="not only_passwords" class="form-group">
                  <label style="word-wrap:break-word">
                     <input type="checkbox" name="special_offer_email" style="vertical-align:middle;"/> 
-                    Please send me AIOCity.com emails with special offers and other information.
+                    Please send me Scout Bazaar emails with special offers and other information.
                  </label>
             </div>
         </xpath>
