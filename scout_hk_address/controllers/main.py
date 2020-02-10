@@ -36,27 +36,31 @@ class CustomerPortalHKCountry(CustomerPortal):
     def details_form_validate(self, data):
         country_id = data.get('country_id')
         country = request.env['res.country'].browse(int(country_id))
-        if country.code == 'HK':
-            if 'territories_id' not in CustomerPortal.OPTIONAL_BILLING_FIELDS:
-                CustomerPortal.OPTIONAL_BILLING_FIELDS.append('territories_id')
-            
-            if 'street2' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                CustomerPortal.MANDATORY_BILLING_FIELDS.append("street2")
-                 
-            if 'name_building' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                CustomerPortal.MANDATORY_BILLING_FIELDS.append("name_building")
-        else:
-            data.pop('territories_id')
-            data.pop('name_building')
-            data.pop('street2')
-            if 'territories_id' in CustomerPortal.OPTIONAL_BILLING_FIELDS:
-                CustomerPortal.OPTIONAL_BILLING_FIELDS.remove("territories_id")
-                 
-            if 'street2' in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                CustomerPortal.MANDATORY_BILLING_FIELDS.remove("street2")
-                 
-            if 'name_building' in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                CustomerPortal.MANDATORY_BILLING_FIELDS.remove("name_building")
+        if country:
+            if country.code == 'HK':
+                if 'territories_id' not in CustomerPortal.OPTIONAL_BILLING_FIELDS:
+                    CustomerPortal.OPTIONAL_BILLING_FIELDS.append('territories_id')
+                
+                if 'street2' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                    CustomerPortal.MANDATORY_BILLING_FIELDS.append("street2")
+                     
+                if 'name_building' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                    CustomerPortal.MANDATORY_BILLING_FIELDS.append("name_building")
+            else:
+                if 'territories_id' in data:
+                    data.pop('territories_id')
+                if 'name_building' in data:
+                    data.pop('name_building')
+                if 'street2' in data:
+                    data.pop('street2')
+                if 'territories_id' in CustomerPortal.OPTIONAL_BILLING_FIELDS:
+                    CustomerPortal.OPTIONAL_BILLING_FIELDS.remove("territories_id")
+                     
+                if 'street2' in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                    CustomerPortal.MANDATORY_BILLING_FIELDS.remove("street2")
+                     
+                if 'name_building' in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                    CustomerPortal.MANDATORY_BILLING_FIELDS.remove("name_building")
         return super(CustomerPortalHKCountry,self).details_form_validate(data)
     
 # class CustomerPortalHKCountry(CustomerPortal):
