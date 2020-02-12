@@ -80,12 +80,20 @@ sAnimations.registry.WebsiteSale.include({
 	});
 
 	$(document).ready(function(){
+		
 	    var int_phone = $("input[name='phone']");
 	    if (int_phone){
 			int_phone.change(function(){
 				var val = int_phone.val();
 				if (val){
-					if (val.length < 10) {
+					var numbers = /[1-9]/g;
+					var a = val.match(numbers)
+					if (a){
+						if (a.length < 10) {
+							int_phone.val('')
+							int_phone.attr('placeholder', 'Please Enter Phone number more than 10 character!');
+						}
+					}else{
 						int_phone.val('')
 						int_phone.attr('placeholder', 'Please Enter Phone number more than 10 character!');
 					}

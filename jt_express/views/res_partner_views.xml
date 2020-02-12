@@ -60,7 +60,7 @@
                 </xpath>
                 
                 <xpath expr="//field[@name='phone']" position="replace">
-                    <field name="phone" widget="phone" required="1"/>
+                    <field name="phone" widget="phone" attrs="{'required':['|',('customer','=',True),('supplier','=',True)]}"/>
                 </xpath>
                 
                 <xpath expr="//field[@name='email']" position="replace">
