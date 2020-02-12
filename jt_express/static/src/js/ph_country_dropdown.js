@@ -86,7 +86,7 @@ sAnimations.registry.WebsiteSale.include({
 			int_phone.change(function(){
 				var val = int_phone.val();
 				if (val){
-					var numbers = /[1-9]/g;
+					var numbers = /[0-9]/g;
 					var a = val.match(numbers)
 					if (a){
 						if (a.length < 10) {
