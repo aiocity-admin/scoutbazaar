@@ -34,40 +34,41 @@ class CustomerPortalJTExress(CustomerPortal):
     def details_form_validate(self, data):
         country_id = data.get('country_id')
 #         country_id = request.env.user.company_id
-        country = request.env['res.country'].browse(int(country_id))
-        if country:
-            if country.code == 'PH':
-                if 'city' in data:
-                    data.pop('city')
-                if 'city' in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                    CustomerPortal.MANDATORY_BILLING_FIELDS.remove("city")
-                 
-                if 'city_id' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                    CustomerPortal.MANDATORY_BILLING_FIELDS.append("city_id")
+        if country_id:
+            country = request.env['res.country'].browse(int(country_id))
+            if country:
+                if country.code == 'PH':
+                    if 'city' in data:
+                        data.pop('city')
+                    if 'city' in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                        CustomerPortal.MANDATORY_BILLING_FIELDS.remove("city")
                      
-                if 'district_id' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                    CustomerPortal.MANDATORY_BILLING_FIELDS.append("district_id")
-                     
-                if 'town_id' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                    CustomerPortal.MANDATORY_BILLING_FIELDS.append("town_id")
-            else:
-                if 'city_id' in data:
-                    data.pop('city_id')
-                if 'district_id' in data:
-                    data.pop('district_id')
-                if 'town_id' in data:
-                    data.pop('town_id')
-                if 'city' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                    CustomerPortal.MANDATORY_BILLING_FIELDS.append("city")
-                     
-                if 'city_id' in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                    CustomerPortal.MANDATORY_BILLING_FIELDS.remove("city_id")
-                     
-                if 'district_id' in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                    CustomerPortal.MANDATORY_BILLING_FIELDS.remove("district_id")
-                     
-                if 'town_id' in CustomerPortal.MANDATORY_BILLING_FIELDS:
-                    CustomerPortal.MANDATORY_BILLING_FIELDS.remove("town_id")
+                    if 'city_id' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                        CustomerPortal.MANDATORY_BILLING_FIELDS.append("city_id")
+                         
+                    if 'district_id' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                        CustomerPortal.MANDATORY_BILLING_FIELDS.append("district_id")
+                         
+                    if 'town_id' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                        CustomerPortal.MANDATORY_BILLING_FIELDS.append("town_id")
+                else:
+                    if 'city_id' in data:
+                        data.pop('city_id')
+                    if 'district_id' in data:
+                        data.pop('district_id')
+                    if 'town_id' in data:
+                        data.pop('town_id')
+                    if 'city' not in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                        CustomerPortal.MANDATORY_BILLING_FIELDS.append("city")
+                         
+                    if 'city_id' in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                        CustomerPortal.MANDATORY_BILLING_FIELDS.remove("city_id")
+                         
+                    if 'district_id' in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                        CustomerPortal.MANDATORY_BILLING_FIELDS.remove("district_id")
+                         
+                    if 'town_id' in CustomerPortal.MANDATORY_BILLING_FIELDS:
+                        CustomerPortal.MANDATORY_BILLING_FIELDS.remove("town_id")
         return super(CustomerPortalJTExress,self).details_form_validate(data)
     
     @http.route(['/my/account'], type='http', auth='user', website=True)
@@ -88,11 +89,12 @@ class CustomerPortalJTExress(CustomerPortal):
     
     @http.route('/ph/country_infos', type='json', auth="public", website=True)
     def ph_country_infos(self, country):
-        country_id = request.env['res.country'].browse(int(country))
-        if country_id.code == 'PH':
-            return True
-        else:
-            return False
+        if country:
+            country_id = request.env['res.country'].browse(int(country))
+            if country_id.code == 'PH':
+                return True
+            else:
+                return False
     
 class WebsiteSaleJTExress(WebsiteSale):
     
