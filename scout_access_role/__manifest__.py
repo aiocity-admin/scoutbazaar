@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+
 {
     "name" : "Scout Access Role",
     "version" : "12.0.0.2",

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        
         <record id="sale_order_view_extends_set_all_line_user" model="ir.ui.view">
             <field name="name">sale.order.line.user</field>
             <field name="model">sale.order</field>
@@ -11,5 +12,76 @@
                 </xpath>
             </field>
         </record>
+        
+        <record id="my_product_template_action_nso" model="ir.actions.act_window">
+            <field name="name">Products NSO</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">kanban,tree,form,activity</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="product.product_template_kanban_view"/>
+            <field name="search_view_id" ref="product.product_template_search_view"/>
+            <field name="context">{"search_default_filter_to_sell":1, "sale_multi_pricelist_product_template": 1}</field>
+            <field name="domain">[('nso_partner_id.user_ids','in',uid)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new product
+                </p><p>
+                    You must define a product for everything you purchase,
+                    whether it's a physical product, a consumable or services.
+                </p>
+            </field>
+        </record>
+        
+        <record id="my_products_variants_action_nso" model="ir.actions.act_window">
+            <field name="name">Product Variants NSO</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">tree,form,kanban,activity</field>
+            <field name="view_type">form</field>
+            <field name="search_view_id" ref="product.product_search_form_view"/>
+            <field name="view_id" eval="False"/>
+            <field name="domain">[('nso_partner_id.user_ids','in',uid)]</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new product variant
+              </p><p>
+                You must define a product for everything you purchase,
+                whether it's a physical product, a consumable or services.
+              </p>
+            </field>
+        </record>
+        
+        <record id="product_product_action_purchasable_nso" model="ir.actions.act_window">
+            <field name="name">Products NSO</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">kanban,tree,form,activity</field>
+            <field name="view_type">form</field>
+            <field name="context">{'search_default_filter_to_purchase': 1}</field>
+            <field name="view_id" ref="account.product_product_view_tree"/>
+            <field name="domain">[('nso_partner_id.user_ids','in',uid)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                  Create a new purchasable product
+                </p>
+            </field>
+        </record>
+        
+        <menuitem id="product_template_menu_sale_nso" name="Products(NSO)" action="my_product_template_action_nso" parent="sale.product_menu_catalog" sequence="6" groups="sales_team.group_sale_salesman"/>
+        <menuitem id="product_variants_menu_sale_nso" name="Products Variants(NSO)" action="my_products_variants_action_nso" parent="sale.product_menu_catalog" sequence="7" groups="sales_team.group_sale_salesman"/>
+        
+        <menuitem id="product_template_menu_purchase_nso" name="Products(NSO)" action="my_product_template_action_nso" parent="purchase.menu_procurement_management" sequence="6" groups="sales_team.group_sale_salesman"/>
+        <menuitem id="product_variants_menu_purchase_nso" name="Products Variants(NSO)" action="my_products_variants_action_nso" parent="purchase.menu_procurement_management" sequence="7" groups="sales_team.group_sale_salesman"/>
+        
+        <menuitem id="product_template_menu_stock_nso" name="Products(NSO)" action="my_product_template_action_nso" parent="stock.menu_stock_inventory_control" sequence="6" groups="sales_team.group_sale_salesman"/>
+        <menuitem id="product_variants_menu_stock_nso" name="Products Variants(NSO)" action="my_products_variants_action_nso" parent="stock.menu_stock_inventory_control" sequence="7" groups="sales_team.group_sale_salesman"/>
+        
+        <menuitem id="product_template_menu_website_sale_nso" name="Products(NSO)" action="my_product_template_action_nso" parent="website_sale.menu_catalog" sequence="6" groups="sales_team.group_sale_salesman"/>
+        <menuitem id="product_variants_menu_website_sale_nso" name="Products Variants(NSO)" action="my_products_variants_action_nso" parent="website_sale.menu_catalog" sequence="7" groups="sales_team.group_sale_salesman"/>
+        
+        <menuitem id="product_variants_menu_account_nso" name="Products(NSO)" action="product_product_action_purchasable_nso" parent="account.menu_finance_payables" sequence="6" groups="sales_team.group_sale_salesman"/>
+        <menuitem id="product_variants_two_menu_account_nso" name="Products(NSO)" action="product_product_action_purchasable_nso" parent="account.menu_finance_receivables" sequence="7" groups="sales_team.group_sale_salesman"/>
+        
   </data>
 </odoo>
