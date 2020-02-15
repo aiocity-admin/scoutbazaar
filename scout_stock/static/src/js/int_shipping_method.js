@@ -2,6 +2,12 @@ odoo.define('scout_stock.international_shipping', function (require) {
     'use strict';
     var ajax = require('web.ajax');
     $(document).ready(function(){
+    	
+//    	(7 to 9 line) Hide Stock availability messages in Website
+    	if($('div.availability_messages')){
+    		$('div.availability_messages').addClass('d-none')
+    	}
+    	
     	var int_shippping = $("input.int_shippping")
     	var int_vendor_shippping = $("input.vendor_int_shippping")
     	var shipping_length =0
