@@ -524,7 +524,7 @@
             </div>
             <t t-if="not website_sale_order or not website_sale_order.website_order_line">
                 <div class="mini_cart_empty">
-                    <p>Your Shooping Cart is empty</p>
+                    <p>Your Shoping Cart is empty</p>
                     <div class="mini_cart_buttons">
                         <a href="/shop" class="m_c_btn">Shop Now</a>
                     </div>
