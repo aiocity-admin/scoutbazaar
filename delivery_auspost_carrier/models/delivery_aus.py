@@ -64,7 +64,7 @@ class ProviderAUS(models.Model):
                 no_of_parcels = math.ceil(total_weight /self.parcel_max_weight)
                 total_weight = self.parcel_max_weight
                 total_weight = total_weight/1000
-                
+            _logger.info("Service Code ===  %s .", service_code, exc_info=True)    
             params.update({
                            'country_code':order.partner_shipping_id.country_id.code,
                            'weight':total_weight,
