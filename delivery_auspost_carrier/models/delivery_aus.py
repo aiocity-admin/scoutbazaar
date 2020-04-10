@@ -7,7 +7,9 @@ import base64
 import json
 import requests
 import math
+import logging
 
+_logger = logging.getLogger(__name__)
 
 class ProductPackaging(models.Model):
     _inherit = 'product.packaging'
@@ -86,7 +88,7 @@ class ProviderAUS(models.Model):
                 api_url = "https://digitalapi.auspost.com.au/postage/letter/domestic/calculate.json"
                 no_of_parcels = int(total_weight / self.letter_max_weight)
                 total_weight = self.letter_max_weight
-                
+            _logger.info("Service Code ===  %s .", service_code, exc_info=True)
             params.update({
                            'weight':total_weight,
                            'service_code': service_code
