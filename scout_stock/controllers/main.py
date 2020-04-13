@@ -26,6 +26,7 @@ from odoo.addons.website_helpdesk.controllers.main import WebsiteHelpdesk
 from odoo.addons.website_form.controllers.main import WebsiteForm
 from odoo.addons.website_sale_delivery.controllers.main import WebsiteSaleDelivery
 from odoo.addons.portal.controllers.web import Home
+from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 from lxml import etree, html
 import math
 import os
@@ -40,7 +41,45 @@ PPG = 20  # Products Per Page
 PPR = 4   # Products Per Row
 
 
+class AuthSignup(AuthSignupHome):
 
+
+    @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
+    def web_auth_reset_password(self, *args, **kw):
+
+        qcontext = self.get_auth_signup_qcontext()
+        if not qcontext.get('token') and not qcontext.get('reset_password_enabled'):
+            raise werkzeug.exceptions.NotFound()
+
+        if 'error' not in qcontext and request.httprequest.method == 'POST':
+            try:
+                if qcontext.get('token'):
+                    self.do_signup(qcontext)
+                    return self.web_login(*args, **kw)
+                else:
+                    login = qcontext.get('login')
+                    assert login, _("No login provided.")
+                    _logger.info(
+                        "Password reset attempt for <%s> by user <%s> from %s",
+                        login, request.env.user.login, request.httprequest.remote_addr)
+                    request.env['res.users'].sudo().reset_password(login)
+                    # qcontext['message'] = _("An email has been sent with credentials to reset your password")
+                    qcontext['message'] = _("An email has been sent with credentials to reset your password. Please check your Spam and Junk folders in case you don't receive the reset password message in your Inbox.")
+            except UserError as e:
+                qcontext['error'] = e.name or e.value
+            except SignupError:
+                qcontext['error'] = _("Could not reset your password")
+                _logger.exception('error when resetting password')
+            except Exception as e:
+                qcontext['error'] = str(e)
+
+        response = request.render('auth_signup.reset_password', qcontext)
+        response.headers['X-Frame-Options'] = 'DENY'
+        return response
+      
+    def get_auth_signup_qcontext(self):
+        res = super(AuthSignup, self).get_auth_signup_qcontext()
+        return res
 
 class Home(Home):
     @http.route()
