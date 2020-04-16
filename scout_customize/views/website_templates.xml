@@ -359,5 +359,28 @@
             <span></span>
         </xpath>
     </template>    
+        <!--   Product Price Filter Inherit================ -->
+    <template id="continue_shopping" name="Continue Shopping" inherit_id="website_sale.cart">
+        <xpath expr="//div/div/a[@href='/shop']" position="replace">
+            <a role="button" href="/shop?category_url=true" class="btn btn-secondary mb32 d-none d-xl-inline-block " >
+                <span class="fa fa-chevron-left" />
+                <span class="">Continue Shopping</span>
+            </a>
+        </xpath>
+
+        <xpath expr="//div/div[hasclass('d-xl-none')]" position="replace">
+
+            <div class="d-xl-none mt8">
+                <a role="button" href="/shop?category_url=true" class="btn btn-secondary mb32">
+                    <span class="fa fa-chevron-left" />
+                    Continue<span class="d-none d-md-inline"> Shopping</span>
+                </a>
+                <a role="button" t-if="website_sale_order and website_sale_order.website_order_line" class="btn btn-primary float-right" href="/shop/checkout?express=1">
+                    <span class="">Process Checkout</span>
+                    <span class="fa fa-chevron-right" />
+                </a>
+            </div>
+        </xpath>
+    </template>
 
 </odoo>
