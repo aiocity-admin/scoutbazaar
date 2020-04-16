@@ -15,6 +15,9 @@
     display: none !important;
 }
 
+.d-md-block{
+    display: block !important;
+}
 
 @media (min-width: 411px) and (max-width:735px) {
 
