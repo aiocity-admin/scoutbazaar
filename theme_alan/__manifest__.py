@@ -4,7 +4,7 @@
     'name': 'Theme Alan',
     'category': 'Theme/Ecommerce',
     'summary': 'Advanced eCommerce Responsive and Customizable Theme with 170+ Snippets.',
-    'version': '3.23',
+    'version': '3.24',
     'author': 'Atharva System',
     'sequence': 1000,
 	'license' : 'OPL-1',
