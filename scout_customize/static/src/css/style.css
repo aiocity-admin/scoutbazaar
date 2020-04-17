@@ -57,4 +57,17 @@
 .middle-footer .fot-col address{
     color:#1d5861 !important;
 }
+
 /*geminatecs nov18*/
+
+
+
+@media (min-width: 320px) and (max-width:735px) {
+    .oe_website_sale .td-img{
+        display: block !important;
+    }
+    
+    .oe_cart div .col-lg-12{
+        overflow: auto;
+    }
+}
