@@ -70,4 +70,10 @@
     .oe_cart div .col-lg-12{
         overflow: auto;
     }
+   .input-group-append .js_add_cart_json{
+        display: block !important;
+    }
+    .input-group-prepend .js_add_cart_json{
+        display: block !important;
+    }
 }
