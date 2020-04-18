@@ -8,6 +8,14 @@
 <!--             <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/> -->
 <!--         </record> -->
 
+		<record id="group_scout_bazaar_menu" model="res.groups">
+            <field name="name">Scout Bazaar</field>
+        </record>
+
+        <record id="scout_stock.scout_bazaar_menu_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[(6,0,[ref('group_scout_bazaar_menu')])]"/>
+        </record>
+
         <record id="product_template_user_nso_group" model="ir.rule">
             <field name="name">Product NSO User</field>
             <field ref="sale.model_product_template" name="model_id"/>
