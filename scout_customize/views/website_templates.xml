@@ -50,6 +50,12 @@
 	                            <div t-field="res_company.partner_id" t-options='{"widget": "contact","fields": ["name", "address", "phone", "mobile", "fax", "email"]}'/>
 	                        </address>
                         </div>
+                        <div class="col-12 col-sm-6 col-lg-3 fot-col">
+                            <h3>Contact us-Test</h3>
+                            <address class="m-0px" itemscope="itemscope" itemtype="http://schema.org/Organization">
+                                <div t-field="res_company.partner_id" t-options='{"widget": "contact","fields": ["name", "address", "phone", "mobile", "fax", "email"]}'/>
+                            </address>
+                        </div>                        
                     </div>
                 </div>
 	        </div>
