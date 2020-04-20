@@ -22,11 +22,9 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-12 col-sm-6 col-lg-2 fot-col">
-                        </div>
-                        <div class="col-12 col-sm-6 col-lg-4 fot-col">
                             <h3>Information</h3>
                             <ul>
-                            	<li>
+                                <li>
                                     <a href="/shipping_policy" target="new">Shipping Policy</a>
                                 </li>
                                 <li>
@@ -43,19 +41,48 @@
                                 </li>
                             </ul>
                         </div>
-                         
-                        <div class="col-12 col-sm-6 col-lg-3 fot-col">
-	                        <h3>Contact us</h3>
+
+                        <div class="col-12 col-sm-6 col-lg-4 fot-col">
+                            <h3>Scout Bazaar</h3>
+                            <p style="color: rgb(66, 66, 66);">
+                                Here you can find Scout supplies from all National Scout Organizations in Asia Pacific Region. We  provide you online service to find unique items to enrich your scouting experience.
+                            </p>
+                            <p style="color: rgb(66, 66, 66);">
+                                We especially support Eco-friendly &amp; Circular items as top choice to help you to create a Better World.
+                            </p>
+                            <p style="color: rgb(66, 66, 66);">
+                                All profit will be used to support Scouting development in the Region.Copyright 2019 Scout Bazaar. All Rights Reserved. 
+                            </p>
+                        </div>
+
+
+                        <div class="col-12 col-sm-6 col-lg-2 fot-col">
+	                        <h3>Our Partners</h3>
+                            <ul>
+                                <li>
+                                    <a href="#">Partner1</a>
+                                </li>
+                                <li>
+                                    <a href="#">Partner2</a>
+                                </li>                        
+                                <li>
+                                    <a href="#">Partner3</a>
+                                </li>                       
+                                <li>
+                                    <a href="#">Partner4</a>
+                                </li>
+                                <li>
+                                    <a href="#">Partner5</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-lg-4 fot-col">
+                            <h3>Contact us</h3>
 	                        <address class="m-0px" itemscope="itemscope" itemtype="http://schema.org/Organization">
 	                            <div t-field="res_company.partner_id" t-options='{"widget": "contact","fields": ["name", "address", "phone", "mobile", "fax", "email"]}'/>
 	                        </address>
                         </div>
-                        <div class="col-12 col-sm-6 col-lg-3 fot-col">
-                            <h3>Contact us-Test</h3>
-                            <address class="m-0px" itemscope="itemscope" itemtype="http://schema.org/Organization">
-                                <div t-field="res_company.partner_id" t-options='{"widget": "contact","fields": ["name", "address", "phone", "mobile", "fax", "email"]}'/>
-                            </address>
-                        </div>                        
                     </div>
                 </div>
 	        </div>
@@ -365,7 +392,7 @@
             <span></span>
         </xpath>
     </template>    
-        <!--   Product Price Filter Inherit================ -->
+    <!--   Continue Shopping Inherit================ -->
     <template id="continue_shopping" name="Continue Shopping" inherit_id="website_sale.cart">
         <xpath expr="//div/div/a[@href='/shop']" position="replace">
             <a role="button" href="/shop?category_url=true" class="btn btn-secondary mb32 d-none d-xl-inline-block " >
