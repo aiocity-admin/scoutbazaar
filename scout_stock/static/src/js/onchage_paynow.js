@@ -24,10 +24,9 @@ odoo.define('scout_stock.payment_form', function (require) {
                 var button = ev.target;
                 ajax.jsonRpc('/check/all_shipping_are_calculated','call',{}).then(function(val){
                 	if(!val){
-                		$.alert({
-        				    title: 'Warning!',
-        				    content: 'One of Shipping methods are missing.Please Choose!',
-        				});
+                        var bs_modal11 = '<div class="modal fade" id="worning_pay_button" role="dialog"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">WARNING!</h4><button type="button" class="close" data-dismiss="modal">×</button></div><div class="modal-body">One of Shipping methods are missing. Please Choose!</div></div></div></div>'
+                        $(form).append(bs_modal11)
+                        $("#worning_pay_button").modal("show");
                 	}
                 	else{
                 		// first we check that the user has selected a payment method
