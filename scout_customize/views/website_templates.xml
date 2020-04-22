@@ -1,24 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <template id="product_compare_table_inherit" inherit_id="website_sale_comparison.product_compare">
+        <xpath expr="//table[@id='o_comparelist_table']" position="replace">
+            <table class="table table-bordered table-hover text-center mt16 table-comparator table-responsive" id="o_comparelist_table">
+                <thead>
+                    <th t-if="specs.keys()" class='td-top-left'/>
+                    <th t-foreach="products" t-as="product">
+                        <t t-set="combination_info" t-value="product._get_combination_info_variant()"/>
+                        <!-- <a href="#" t-att-data-product_product_id="product.id" class="o_comparelist_remove" t-if="len(products) &gt; 2">
+                            <strong class='float-right'>x</strong>
+                        </a> -->
+                        <a t-att-href="'/shop/product/%s' % slug(product.product_tmpl_id)">
+                            <img t-attf-src="/web/image/product.product/#{product.id}/image/200x150" class="img img-fluid" style="margin:auto;" alt="Product image"/>
+                        </a>
+                        <div class='product_summary'>
+                            <a class="o_product_comparison_table" t-attf-href="/shop/product/#{ slug(product.product_tmpl_id) }">
+                                <span t-esc="combination_info['display_name']"></span><br/>
+                            </a>
 
-	<template id="product_comment" inherit_id="alan_customize.product_details" name="Discussion and Rating">
-	        <xpath expr="//div[@id='product_more_info']//ul" position="inside">
-	            <li role="presentation">
-	                <a href="#document" aria-controls="more_info" role="tab" data-toggle="tab">Document</a>
-	            </li>
-	        </xpath>
-	
-	        <xpath expr="//div[hasclass('tab-content')]" position="inside">
-	            <div role="tabpanel" class="tab-pane" id="document">
-	               <div class="document_row row attachment_document" style="width:120%;">
-	               </div>
-	            </div>
-	        </xpath>
-	</template>
-	
-	<template id="footer" inherit_id="alan_customize.footer_layout_1" name="footer">
-    	<xpath expr="//div[hasclass('middle-footer')]" position="replace">
-    		<div class="middle-footer">
+                            <span>
+                                <strong>Price:</strong>
+                                <t t-if="True"><!-- compatibility 12.0-->
+                                    <del t-attf-class="text-danger mr8 {{'' if combination_info['has_discounted_price'] else 'd-none'}}" style="white-space: nowrap;" t-esc="combination_info['list_price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}" />
+                                </t>
+                                <span t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"></span>
+                            </span>
+
+                            <form action="/shop/cart/update" method="post" class="text-center">
+                                <input name="product_id" t-att-value="product.id" type="hidden"/>
+                                <a role="button" class="btn btn-primary btn-block a-submit" href="#"><i class="fa fa-shopping-cart"></i>&amp;nbsp;Add to Cart</a>
+                            </form>
+                            <a href="#" t-att-data-product_product_id="product.id" class="o_comparelist_remove btn btn-primary btn-block a-submit" t-if="len(products) &gt; 2" role="button">
+                                <span class="text-center">Remove</span>
+                            </a>
+                        </div>
+                    </th>
+                </thead>
+                <tbody>
+                    <t t-foreach="specs.keys()" t-as="spec">
+                        <t t-if="len(specs.keys())&gt;1">
+                            <tr class="clickable" data-toggle="collapse" t-att-data-target="'.'+spec.split()[0]">
+                                <th class="text-left" t-att-colspan="len(products) + 1"><i class="fa fa-chevron-circle-down o_product_comparison_collpase" role="img" aria-label="Collapse" title="Collapse"></i><t t-esc="spec"/></th>
+                            </tr>
+                        </t>
+                        <tr t-foreach="specs[spec].keys()" t-as="att" t-att-class="'collapse in show ' + spec.split()[0]">
+                            <td t-esc="att"/>
+                            <td t-foreach="specs[spec][att]" t-as="val"><t t-esc="val"/></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </xpath>
+    </template>
+
+
+
+    <template id="product_comment" inherit_id="alan_customize.product_details" name="Discussion and Rating">
+            <xpath expr="//div[@id='product_more_info']//ul" position="inside">
+                <li role="presentation">
+                    <a href="#document" aria-controls="more_info" role="tab" data-toggle="tab">Document</a>
+                </li>
+            </xpath>
+    
+            <xpath expr="//div[hasclass('tab-content')]" position="inside">
+                <div role="tabpanel" class="tab-pane" id="document">
+                   <div class="document_row row attachment_document" style="width:120%;">
+                   </div>
+                </div>
+            </xpath>
+    </template>
+    
+    <template id="footer" inherit_id="alan_customize.footer_layout_1" name="footer">
+        <xpath expr="//div[hasclass('middle-footer')]" position="replace">
+            <div class="middle-footer">
                 <div class="container">
                     <div class="row">
                         <div class="col-12 col-sm-6 col-lg-2 fot-col">
@@ -57,7 +111,7 @@
 
 
                         <div class="col-12 col-sm-6 col-lg-2 fot-col">
-	                        <h3>Our Partners</h3>
+                            <h3>Our Partners</h3>
                             <ul>
                                 <li>
                                     <a href="#">Partner1</a>
@@ -79,34 +133,34 @@
 
                         <div class="col-12 col-sm-6 col-lg-4 fot-col">
                             <h3>Contact us</h3>
-	                        <address class="m-0px" itemscope="itemscope" itemtype="http://schema.org/Organization">
-	                            <div t-field="res_company.partner_id" t-options='{"widget": "contact","fields": ["name", "address", "phone", "mobile", "fax", "email"]}'/>
-	                        </address>
+                            <address class="m-0px" itemscope="itemscope" itemtype="http://schema.org/Organization">
+                                <div t-field="res_company.partner_id" t-options='{"widget": "contact","fields": ["name", "address", "phone", "mobile", "fax", "email"]}'/>
+                            </address>
                         </div>
                     </div>
                 </div>
-	        </div>
-    		
-    	</xpath>
+            </div>
+            
+        </xpath>
     </template>
     
     <template id="alan_customize_header_inherit" inherit_id = "alan_customize.header_layout_1">
-    	<xpath expr="//ul[hasclass('htl-social')]" position="replace">
-    	</xpath>
+        <xpath expr="//ul[hasclass('htl-social')]" position="replace">
+        </xpath>
     </template>
     
     
     <template id="event_category_inherit" inherit_id="website_event.event_left_column">
-    	<xpath expr="//div[@id='middle_column']//t[@t-if='not event.is_online']" position="before">
-			   <div>
-		           <t t-if="event.troop_id">
-		               Troop Name: <span t-field="event.troop_id.name"> </span><br/>
-		               Troop Code : <span t-field="event.troop_id.code"></span><br/>
-		               Troop Leader : <span t-field="event.troop_id.user_id.name"></span><br/>
-		           </t>
-	           </div>
-		</xpath>
-	</template>
+        <xpath expr="//div[@id='middle_column']//t[@t-if='not event.is_online']" position="before">
+               <div>
+                   <t t-if="event.troop_id">
+                       Troop Name: <span t-field="event.troop_id.name"> </span><br/>
+                       Troop Code : <span t-field="event.troop_id.code"></span><br/>
+                       Troop Leader : <span t-field="event.troop_id.user_id.name"></span><br/>
+                   </t>
+               </div>
+        </xpath>
+    </template>
     
 <!--         <template id="my_tracking_order" inherit_id="sale.sale_order_portal_content" name="Track Order"> -->
 <!--             <xpath expr="//div/section[@id='details']" position="after"> -->
@@ -188,7 +242,7 @@
 <!--         </xpath> -->
 <!--     </template> -->
     
-	 <template id="company_refund_policy" name="Refund Policy">
+     <template id="company_refund_policy" name="Refund Policy">
         <t t-call="website.layout">
             <div class="row">
                 <div class="col-lg-12">
@@ -329,9 +383,9 @@
     </template>
     
     <template id="protal_home_page_inherit" inherit_id="portal.portal_my_home">
-    	<xpath expr="//div[hasclass('o_portal_my_home')]/h3" position="replace">
-    		<h3> My Account </h3>
-    	</xpath>
+        <xpath expr="//div[hasclass('o_portal_my_home')]/h3" position="replace">
+            <h3> My Account </h3>
+        </xpath>
     </template>
     
     
@@ -380,9 +434,9 @@
     <template id="address_kanban_inherit_div" name="Kanban address" inherit_id="website_sale.address_kanban">
         <xpath expr="//div/div[hasclass('card-body')]/a[hasclass('js_edit_address')]" position="after">
             <t t-if="(contact != order.partner_id) and (not actual_partner or (ship.id in actual_partner.child_ids.ids))">
-	            <span style="color: #5bbbcc;margin-right: 8px;" class="float-right deleteaddress" role="button" title="Delete this address" aria-label="Delete this address" t-att-value="contact.id" t-att-id="contact.id">
-	                <i class='fa fa-remove'/>
-	            </span>
+                <span style="color: #5bbbcc;margin-right: 8px;" class="float-right deleteaddress" role="button" title="Delete this address" aria-label="Delete this address" t-att-value="contact.id" t-att-id="contact.id">
+                    <i class='fa fa-remove'/>
+                </span>
             </t>
         </xpath>
     </template>
