@@ -416,4 +416,10 @@
         </xpath>
     </template>
 
+    <template id="category_title_inherit" inherit_id="alan_customize.category_title" name="Product Category">
+        <xpath expr="//h2[@t-if='categories']" position="replace">
+            <h2 t-if="categories">Filters</h2>
+        </xpath>
+    </template>
+
 </odoo>
