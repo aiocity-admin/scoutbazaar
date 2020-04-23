@@ -8,7 +8,7 @@
                     <field name="name"/>
                     <field name="code"/>
                     <field name="user_id"/>
-                    <field name="member_ids" widget="many2many_tags"/>
+                    <field name="patrol_ids" widget="many2many_tags"/>
                </tree>
              </field>
         </record>
@@ -31,7 +31,9 @@
 			<field name="inherit_id" ref="event.view_event_form"/>
 			<field name="arch" type="xml">
 				<xpath expr="//sheet//field[@name='user_id']" position="after">
-					<field name="troop_id" create="False" edit="False"/>
+                    <field name="event_type"/>
+					<field name="troop_id" create="False" edit="False"  attrs="{'invisible': [('event_type', '=','patrol')]}"/>
+                    <field name="patrol_id" create="False" edit="False"  attrs="{'invisible': ['|',('event_type', '=','troop')]}"/>
 				</xpath>
 			</field>
 		</record>
