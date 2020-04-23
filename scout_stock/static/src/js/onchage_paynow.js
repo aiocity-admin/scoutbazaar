@@ -11,7 +11,38 @@ odoo.define('scout_stock.payment_form', function (require) {
         var _t = core._t;
         var payment_widget = require("payment.payment_form");
         
-        
+        $(document).ready(function(){
+            // var self = this
+            // $("#o_payment_form_pay").click(function(){
+            //   var checked_radio_pm = $("input[type=radio][name=pm_id]:checked")
+            //   if(checked_radio_pm){
+            //     if($(checked_radio_pm).attr("data-provider") == "cod"){
+            //         ajax.jsonRpc('/checked/cod/method','call',{'acquirer_id':$(checked_radio_pm).attr("data-acquirer-id")})
+            //         .then(function(vals){
+            //         })
+            //     }
+            //   }
+            // });
+
+            var checked_radio_pm = false
+            checked_radio_pm = $("input[type=radio][name=pm_id]:checked")
+            $('input[type=radio][name=pm_id]').on('change', function() {
+              checked_radio_pm = $(this).attr("data-acquirer-id")
+              if(checked_radio_pm){
+                    ajax.jsonRpc('/checked/cod/method','call',{'acquirer_id':checked_radio_pm})
+                    .then(function(vals){
+                    })
+                }
+            });
+            if(checked_radio_pm){
+                checked_radio_pm = $(checked_radio_pm).attr("data-acquirer-id");
+                if(checked_radio_pm){
+                    ajax.jsonRpc('/checked/cod/method','call',{'acquirer_id':checked_radio_pm})
+                    .then(function(vals){
+                    })
+                }   
+            }
+        });
         
         
         payment_widget.include({
@@ -27,6 +58,10 @@ odoo.define('scout_stock.payment_form', function (require) {
                         var bs_modal11 = '<div class="modal fade" id="worning_pay_button" role="dialog"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">WARNING!</h4><button type="button" class="close" data-dismiss="modal">×</button></div><div class="modal-body">One of Shipping methods are missing. Please Choose!</div></div></div></div>'
                         $(form).append(bs_modal11)
                         $("#worning_pay_button").modal("show");
+            //     		$.alert({
+        				//     title: 'Warning!',
+        				//     content: 'One of Shipping methods are missing.Please Choose!',
+        				// });
                 	}
                 	else{
                 		// first we check that the user has selected a payment method

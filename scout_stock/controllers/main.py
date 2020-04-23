@@ -167,7 +167,20 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                     del order_delivery_track_lines_dict_new[del_line]
         
         return order_delivery_track_lines_dict_new
-        
+    
+    @http.route(['/checked/cod/method'], type='json', auth="public", website=True)
+    def payment_cod_method(self, acquirer_id):
+        acquirer_id = request.env['payment.acquirer'].sudo().search([('id','=',int(acquirer_id))],limit=1)
+        order = request.website.sale_get_order()
+        if acquirer_id and order:
+            print('=========acquirer_id.provider==============',acquirer_id.provider)
+            if acquirer_id.provider == 'cod':
+                order.is_cod_order = True
+                order.recalculate_nso_lines(order)
+            else:
+                order.is_cod_order = False
+                order.recalculate_nso_lines(order)
+
     #Set Location id on orderline and calculate delivery cost code===============================================================
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
@@ -187,7 +200,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
         transaction_value = res_config.transaction_value
-        
+        print('=====order====c========payment--=--',payment_processing_fee)
         nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line)
         nso_delivery_lines.update({'delivery_charge':0.0})
         if partner_shipping_id:
@@ -248,6 +261,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 for nso_loc in nso_same_country_location_group:
                     if same_carrier:
                         res_price = getattr(same_carrier, '%s_rate_line_shipment' % same_carrier.delivery_type)(order,nso_same_country_location_group[nso_loc])
+                        print('=========1=====res_price=========',res_price)
                         if res_price.get('error_message'):
                             is_domestic_products = True
                             is_domestic_include_nso_error = True
@@ -350,6 +364,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             nso_country_location_group.update({c_group.location_id:c_group})
                     for nso_loc in nso_country_location_group:
                         res_price = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
+                        print('=========2=====res_price=========',res_price)
                         if res_price.get('error_message'):
                             res_price.get("error_message")
                             nso_country_location_group[nso_loc].write({

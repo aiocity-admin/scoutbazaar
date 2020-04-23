@@ -5,6 +5,12 @@ from odoo.osv import expression
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare
 from odoo.addons.delivery_ups.models.ups_request import UPSRequest, Package
 
+class PaymentAcquirerInherit(models.Model):
+
+    _inherit = "payment.acquirer"
+    
+    provider = fields.Selection(selection_add=[("cod", "COD")])
+
 class SaleOrderLine(models.Model):
     
     _inherit='sale.order.line'
@@ -104,6 +110,8 @@ class SaleOrderLine(models.Model):
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
  
+    is_cod_order = fields.Boolean('Is COD Order',default=False)
+
     nso_amount_delivery = fields.Monetary(
         compute='_compute_nso_amount_delivery', digits=0,
         string='NSO Delivery Amount',
@@ -233,8 +241,13 @@ class SaleOrder(models.Model):
         nso_delivery_lines.update({'delivery_charge':0.0})
         res_config = self.env['payment.handling.config'].sudo().search([],limit=1)
         handling_charge = res_config.handling_charge
-        payment_processing_fee = res_config.payment_processing_fee
+        print('==========================recal======',order.is_cod_order,res_config.payment_processing_fee)
+        if order.is_cod_order:
+            payment_processing_fee = 0.0
+        else:
+            payment_processing_fee = res_config.payment_processing_fee
         transaction_value = res_config.transaction_value
+        print('=========payment_processing_fee==========',payment_processing_fee)
         nso_diff_country_code_group_list = {}
         nso_same_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code == order.partner_shipping_id.country_id.code)
         nso_diff_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code != order.partner_shipping_id.country_id.code)
@@ -392,6 +405,7 @@ class SaleOrder(models.Model):
                                                                       'delivery_price':delivery_price,
                                                                       'is_vendor_track':False
                                                                       })
+        print('===============a=end=========',payment_processing_fee)
     
     def check_blank_nso_delivery_lines(self): 
         for line in self.order_line:
