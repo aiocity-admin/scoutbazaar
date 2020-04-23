@@ -158,6 +158,12 @@
                        Troop Code : <span t-field="event.troop_id.code"></span><br/>
                        Troop Leader : <span t-field="event.troop_id.user_id.name"></span><br/>
                    </t>
+                   <t t-if="event.patrol_id">
+                       Patrol Name: <span t-field="event.patrol_id.name"> </span><br/>
+                       Patrol Code : <span t-field="event.patrol_id.code"></span><br/>
+                       Patrol Leader : <span t-field="event.patrol_id.user_id.name"></span><br/>
+                   </t>
+
                </div>
         </xpath>
     </template>

@@ -20,40 +20,15 @@
 ##############################################################################
 from odoo import models, fields, api, _
 
-class TroopEvent(models.Model): 
+class PatrolEvent(models.Model): 
     
-    _name="troop.event"
+    _name="patrol.event"
 
     name=fields.Char(string='Name')
-    
     code = fields.Char('Code')
     
     user_id = fields.Many2one('res.users', string='Responsible',track_visibility="onchange",
         readonly=False)
-    patrol_ids = fields.Many2many('patrol.event',string="Patrols")
     
-class EventEvent(models.Model):
+    member_ids = fields.Many2many('res.users',string="Members")
     
-    _inherit = 'event.event'
-    
-    troop_id = fields.Many2one('troop.event',string="Troop")
-    patrol_id = fields.Many2one('patrol.event',string="Patrol")
-
-    event_type = fields.Selection([
-        ('troop', 'Troop'),
-        ('patrol', 'Patrol'),
-    ], string="Event Type",default='troop', required=True)
-
-
-
-    @api.multi
-    def write(self, values):
-        res = super(EventEvent , self).write(values)
-        if self.event_type == "troop":
-            if self.patrol_id:
-               self.write({'patrol_id':False}) 
-        else:
-            if self.troop_id:
-               self.write({'troop_id':False}) 
-
-        return res
