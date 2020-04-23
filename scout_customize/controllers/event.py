@@ -67,11 +67,29 @@ class WebsiteEventController(WebsiteEventController):
 
             events_new = request.env['event.event'].sudo()
             
-            normal_events = request.env['event.event'].sudo().search([('troop_id' ,'=', False)])
+            normal_events = request.env['event.event'].sudo().search([('troop_id' ,'=', False),('patrol_id' ,'=', False)])
             troop_events = request.env['event.event'].sudo().search([('troop_id' ,'!=', False)])
-            troop_ids = request.env['troop.event'].sudo().search([('member_ids','in',[request.env.user.id])])                            
-            troop_events_ids = Event.search([('troop_id','in',troop_ids.ids),('id','in',troop_events.ids)])
-            events_new = normal_events + troop_events_ids
+
+            patrol_events = request.env['event.event'].sudo().search([('patrol_id' ,'!=', False)])
+
+            troop_patrol_ids = request.env['troop.event'].sudo().search([('patrol_ids.member_ids','in',[request.env.user.id]),
+                                                                ])                            
+            troop_ids = request.env['troop.event'].sudo().search([
+                                                                  ('user_id','in',[request.env.user.id])
+                                                                ])
+
+            patrol_troop_ids = request.env['patrol.event'].sudo().search([
+                                                                  ('member_ids','in',[request.env.user.id])
+                                                                ])  
+
+            if troop_patrol_ids:
+                troop_events_ids = Event.search([('troop_id','in',troop_patrol_ids.ids),('id','in',troop_events.ids)])
+            else:
+                troop_events_ids = Event.search([('troop_id','in',troop_ids.ids),('id','in',troop_events.ids)])
+
+            patrol_events_ids = Event.search([('patrol_id','in',patrol_troop_ids.ids),('id','in',patrol_events.ids)])
+
+            events_new = normal_events + troop_events_ids + patrol_events_ids
             current_date_filter = False
             date_filter = False
 
