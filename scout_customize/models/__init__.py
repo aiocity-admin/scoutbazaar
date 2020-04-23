@@ -12,3 +12,4 @@ from . import return_order
 from . import vendor_account
 from . import res_config_setting
 from . import product_public_category
+from . import patrol_event

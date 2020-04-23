@@ -29,6 +29,7 @@
              'views/vendor_account.xml',
              'views/res_config_setting.xml',
              'views/product_public_category.xml',
+             'views/patrol_event.xml',
              ],
     'installable': True,
     'auto_install': False,
