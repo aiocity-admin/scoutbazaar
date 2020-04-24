@@ -98,17 +98,17 @@ class WebsiteSaleScout(WebsiteSale):
         if category:
             request.session['my_current_category'] = category.id
         
-        if not category:
-            keep = res.qcontext.get('keep')
-            if 'category_url' in request.httprequest.args:
-                if 'my_current_category' in request.session:
-                    if request.session['my_current_category']:
-                        sc_active_id = int(request.session['my_current_category'])
-                        current_sc_id = request.env['product.public.category'].sudo().search([('id','=',int(sc_active_id))],limit=1)
-                        if current_sc_id:
-                            return request.redirect(keep('/shop/category/%s' % slug(current_sc_id),category=0))
-                        else:
-                            return request.render('scout_customize.not_category_msg')
+        #if not category:
+        #    keep = res.qcontext.get('keep')
+        #    if 'category_url' in request.httprequest.args:
+        #        if 'my_current_category' in request.session:
+        #            if request.session['my_current_category']:
+        #                sc_active_id = int(request.session['my_current_category'])
+        #                current_sc_id = request.env['product.public.category'].sudo().search([('id','=',int(sc_active_id))],limit=1)
+        #                if current_sc_id:
+        #                    return request.redirect(keep('/shop/category/%s' % slug(current_sc_id),category=0))
+        #                else:
+        #                    return request.render('scout_customize.not_category_msg')
 
         if not request.env.user._is_public():
             partner = request.env.user.partner_id
