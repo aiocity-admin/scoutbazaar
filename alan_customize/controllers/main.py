@@ -241,11 +241,12 @@ class WebsiteSale(WebsiteSale):
     @http.route([
         '''/shop''',
         '''/shop/page/<int:page>''',
-        '''/shop/brand/<model("product.brand", "[('website_id', 'in', (False, current_website_id))]"):brand>''',
-        '''/shop/brand/<model("product.brand", "[('website_id', 'in', (False, current_website_id))]"):brand>/page/<int:page>''',
         '''/shop/category/<model("product.public.category", "[('website_id', 'in', (False, current_website_id))]"):category>''',
-        '''/shop/category/<model("product.public.category", "[('website_id', 'in', (False, current_website_id))]"):category>/page/<int:page>'''],
-        type='http', auth="public", website=True)
+        '''/shop/category/<model("product.public.category", "[('website_id', 'in', (False, current_website_id))]"):category>/page/<int:page>'''
+# pages issue solve (apr 27 2020)
+        # '''/shop/brand/<model("product.brand", "[('website_id', 'in', (False, current_website_id))]"):brand>''',
+        # '''/shop/brand/<model("product.brand", "[('website_id', 'in', (False, current_website_id))]"):brand>/page/<int:page>''',
+        ], type='http', auth="public", website=True)
     def shop(self, page=0, category=None,search='', ppg=False, **post):
         add_more = False
         max_val = 0
@@ -256,9 +257,7 @@ class WebsiteSale(WebsiteSale):
         if website.shop_product_loader == 'infinite_loader':
             add_more = True
         
-        quantities_per_page = request.env[
-            'product.qty_per_page'].search([], order='sequence')
-        
+        quantities_per_page = request.env['product.qty_per_page'].search([], order='sequence')
         dynamic_product_ppg = request.env['res.config.settings'].sudo().search([('website_id','=',request._context.get('website_id'))])
         if dynamic_product_ppg:
             dynamic_product_ppg = dynamic_product_ppg[-1]
@@ -284,8 +283,7 @@ class WebsiteSale(WebsiteSale):
             ppg = quantities_per_page[0].name if quantities_per_page else PPG
             res = super(WebsiteSale, self).shop(
                 page, category, search, ppg, **post)
-        product_ids = request.env['product.template'].search(
-            ['&', ('sale_ok', '=', True), ('active', '=', True)])
+        product_ids = request.env['product.template'].search(['&', ('sale_ok', '=', True), ('active', '=', True)])
         if product_ids and product_ids.ids:
             request.cr.execute(
                 'select min(list_price),max(list_price) from product_template where id in %s', (tuple(product_ids.ids),))
@@ -298,8 +296,7 @@ class WebsiteSale(WebsiteSale):
             if post.get('min_val') and post.get('max_val'):
                 custom_min_val = float(post.get('min_val'))
                 custom_max_val = float(post.get('max_val'))
-                post.update(
-                    {'attrib_price': '%s-%s' % (custom_min_val, custom_max_val)})
+                post.update({'attrib_price': '%s-%s' % (custom_min_val, custom_max_val)})
             else:
                 post.update({'attrib_price': '%s-%s' % (min_val, max_val)})
 
@@ -342,8 +339,7 @@ class WebsiteSale(WebsiteSale):
         attributes_ids = {v[0] for v in attrib_values}
         attrib_set = {v[1] for v in attrib_values}
 
-        domain = self._get_search_domain_ext(search, category, attrib_values,
-                                             list(tag_set))
+        domain = self._get_search_domain_ext(search, category, attrib_values, list(tag_set))
 
         # if brand:
         #     domain += [('product_brand_id', '=', brand.id)]
@@ -363,8 +359,7 @@ class WebsiteSale(WebsiteSale):
                     {each_p.product_id.id for each_p in prod_collection_rec.product_ids})
                 domain += [('id', 'in', prod_id_list)]
         if post.get('min_val') and post.get('max_val'):
-            domain += [('list_price', '>=', float(post.get('min_val'))),
-                       ('list_price', '<=', float(post.get('max_val')))]
+            domain += [('list_price', '>=', float(post.get('min_val'))),('list_price', '<=', float(post.get('max_val')))]
 
         keep = QueryURL('/shop', category=category and int(category),
                         search=search, attrib=attrib_list,
