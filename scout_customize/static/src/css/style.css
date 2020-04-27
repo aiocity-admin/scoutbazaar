@@ -22,7 +22,9 @@
 .d-md-block{
     display: block !important;
 }
-
+.o_sharing_links .o_google{
+    display: none;
+}
 
 @media (min-width: 411px) and (max-width:735px) {
 
