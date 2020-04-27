@@ -2,8 +2,22 @@ $(document).ready(function () {
 	odoo.define('scout_baazar.website_side', function (require) {
     "use strict";
     var ajax = require('web.ajax');
+    var utils = require('web.utils');
 	var aaa=$('#school_id')
 		$(aaa).select2({placeholder: 'Select an option'});
+
+		$('.as-search form input').addClass("search_shop")
+		$('.search_shop').on('keydown, keyup', function () {
+	  		var texInputValue = $('.search_shop').val();
+	  		if ($(texInputValue)){
+	  			utils.set_cookie('search', true);
+	  		}
+		});
+		if ($(utils.get_cookie('search'))){
+			if ($('.row .oe_product_cart').length == 0){
+				$('.s_carousel_default').hide()
+			}
+		}
 	});
 	
 	var c_id = $('#keep_shop_all_category')
@@ -63,4 +77,5 @@ $(document).ready(function () {
 		$('.offset-lg-1 h1').css("font-family", "inherit")
 	}
 
+	
 });
