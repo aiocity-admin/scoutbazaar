@@ -46,35 +46,35 @@ $(document).ready(function () {
         $("form.js_attributes").submit();
 	});
 
-	if (window.location.href.indexOf('/shipping_policy') > -1) {
-		$('.page_headers').css("font-family", "inherit")
-		$('.s_title_default').css("font-family", "inherit")
-		$('.textrun span' ).css("line-height", "1.4")
-		$('div .offset-lg-1').css("line-height", "1.2")
-		$('.MsoNormal span').css("font-family", "Roboto", "Noto") 
-	}
-	if (window.location.href.indexOf('/refund_policy') > -1) {
-		$('.page_headers').css("font-family", "inherit")
-		$('.s_title_default').css("font-family", "inherit")
-		$('.textrun span' ).css("line-height", "1.4")
-		$('div .offset-lg-1').css("line-height", "1.2")
-		$('.MsoNormal span').css("font-family", "Roboto", "Noto") 
-	}
-	if (window.location.href.indexOf('/term_of_use') > -1) {
-		$('.page_headers').css("font-family", "inherit")
-		$('.s_title_default').css("font-family", "inherit")
-		$('.textrun span' ).css("line-height", "1.4")
-		$('div .offset-lg-1').css("line-height", "1.4")
-		$('.MsoNormal span').css("font-family", "Roboto", "Noto") 
-		$('.offset-lg-1 h1').css("font-family", "inherit")
-	}	
-	if (window.location.href.indexOf('/privacy') > -1) {
-		$('.page_headers').css("font-family", "inherit")
-		$('.s_title_default').css("font-family", "inherit")
-		$('.textrun span' ).css("line-height", "1.4")
-		$('div .offset-lg-1').css("line-height", "1.4")
-		$('.MsoNormal span').css("font-family", "Roboto", "Noto") 
-		$('.offset-lg-1 h1').css("font-family", "inherit")
+	// if (window.location.href.indexOf('/shipping_policy') > -1) {
+	// 	$('.page_headers').css("font-family", "inherit")
+	// 	$('.s_title_default').css("font-family", "inherit")
+	// 	$('.textrun span' ).css("line-height", "1.4")
+	// 	$('div .offset-lg-1').css("line-height", "1.2")
+	// 	$('.MsoNormal span').css("font-family", "Roboto", "Noto") 
+	// }
+	// if (window.location.href.indexOf('/refund_policy') > -1) {
+	// 	$('.page_headers').css("font-family", "inherit")
+	// 	$('.s_title_default').css("font-family", "inherit")
+	// 	$('.textrun span' ).css("line-height", "1.4")
+	// 	$('div .offset-lg-1').css("line-height", "1.2")
+	// 	$('.MsoNormal span').css("font-family", "Roboto", "Noto") 
+	// }
+	// if (window.location.href.indexOf('/term_of_use') > -1) {
+	// 	$('.page_headers').css("font-family", "inherit")
+	// 	$('.s_title_default').css("font-family", "inherit")
+	// 	$('.textrun span' ).css("line-height", "1.4")
+	// 	$('div .offset-lg-1').css("line-height", "1.4")
+	// 	$('.MsoNormal span').css("font-family", "Roboto", "Noto") 
+	// 	$('.offset-lg-1 h1').css("font-family", "inherit")
+	// }	
+	// if (window.location.href.indexOf('/privacy') > -1) {
+	// 	$('.page_headers').css("font-family", "inherit")
+	// 	$('.s_title_default').css("font-family", "inherit")
+	// 	$('.textrun span' ).css("line-height", "1.4")
+	// 	$('div .offset-lg-1').css("line-height", "1.4")
+	// 	$('.MsoNormal span').css("font-family", "Roboto", "Noto") 
+	// 	$('.offset-lg-1 h1').css("font-family", "inherit")
 	}
 
 	
