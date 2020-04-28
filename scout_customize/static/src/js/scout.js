@@ -75,7 +75,7 @@ $(document).ready(function () {
 	// 	$('div .offset-lg-1').css("line-height", "1.4")
 	// 	$('.MsoNormal span').css("font-family", "Roboto", "Noto") 
 	// 	$('.offset-lg-1 h1').css("font-family", "inherit")
-	}
+	// }
 
 	
 });
