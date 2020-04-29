@@ -9,12 +9,12 @@
 			<xpath expr="//notebook" position="inside">
 				<page string="Policies">
 					<group>
-						<field name="shipping_policy"/>
-						<field name="refund_policy"/>
+						<field name="shipping_policy" invisible="1"/>
+						<field name="refund_policy" invisible="1"/>
 					</group>
 					<group>
-						<field name="term_of_use"/>
-						<field name="privacy"/>
+						<field name="term_of_use" invisible="1"/>
+						<field name="privacy" invisible="1"	/>
 					</group>
 				</page>
 			</xpath>

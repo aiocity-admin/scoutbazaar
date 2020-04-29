@@ -26,6 +26,16 @@
     display: none;
 }
 
+#blog_right_column .mt32 h4{
+    color: #323232 !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+}
+#blog_right_column .mt32 p font{
+    color: #6c757d !important;
+    font-family: "Work Sans", sans-serif;
+}
+
 @media (min-width: 411px) and (max-width:735px) {
 
 .scout_shipping{
