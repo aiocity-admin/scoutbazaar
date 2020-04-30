@@ -54,9 +54,9 @@ class WebsiteSaleScout(WebsiteSale):
         attrib_values = [[int(x) for x in v.split("-")]for v in attrib_list if v]
         attributes_ids = {v[0] for v in attrib_values}
         attrib_set = {v[1] for v in attrib_values}
-
+        
         domain = self._get_search_domain_ext(search, category, attrib_values, list(tag_set))
-
+        
         dynamic_product_ppg = request.env['ir.config_parameter'].sudo().get_param('scout_customize.product_count_page')
         if dynamic_product_ppg:
             main.PPG = int(dynamic_product_ppg)
@@ -75,7 +75,6 @@ class WebsiteSaleScout(WebsiteSale):
                 raise NotFound()
             else:
                 url = "/shop/category/%s" % slug(category)
-
         product_count = Product.search_count(domain)
         
         if post.get('product_collection'):
@@ -164,9 +163,9 @@ class WebsiteSaleScout(WebsiteSale):
                             if dup_pro not in products_new: 
                                 products_new.append(dup_pro)
 
-                    product_count = products_new.search_count(domain)
+                    product_count = Product.search_count(domain)
                     pager = request.website.pager(url=url, total=product_count, page=page, step=ppg, scope=7, url_args=post)
-                    products_new = products_new.search(domain, limit=ppg, offset=pager['offset'], order=self._get_search_order(post))
+                    products_new = Product.search(domain, limit=ppg, offset=pager['offset'], order=self._get_search_order(post))
                     res.qcontext.update({
                                      'ppg':ppg,
                                      'search': search,
@@ -223,10 +222,9 @@ class WebsiteSaleScout(WebsiteSale):
                         for dup_pro in total_search_pro: 
                             if dup_pro not in products_new: 
                                 products_new.append(dup_pro)
-
-                    product_count = products_new.search_count(domain)
+                    product_count = Product.search_count(domain)
                     pager = request.website.pager(url=url, total=product_count, page=page, step=ppg, scope=7, url_args=post)
-                    products_new = products_new.search(domain, limit=ppg, offset=pager['offset'], order=self._get_search_order(post))
+                    products_new = Product.search(domain, limit=ppg, offset=pager['offset'], order=self._get_search_order(post))
                     res.qcontext.update({
                                      'ppg':ppg,
                                      'search': search,
