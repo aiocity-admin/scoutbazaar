@@ -1,3 +1,8 @@
+
+.o_product_feature_panel > .o_product_panel > .o_product_panel_header > .o_product_circle{
+    color: white;
+}
+
 .pagination > .page-item > .page-link {
     color: #6c757d;
 }
