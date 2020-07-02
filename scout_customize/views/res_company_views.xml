@@ -21,7 +21,34 @@
 			
 			<xpath expr="//field[@name='email']" position="after">
 				<field name="delivery_product_image" widget="image" class="oe_avatar"/>
+			</xpath>	
+
+
+			<xpath expr="//notebook" position="inside">
+				<page string="Website Powerby">
+					<group>
+						<group>
+
+							<field name="partner1" widget="image"/>
+							<field name="partner2" widget="image"/>
+							<field name="partner3" widget="image"/>
+
+							<field name="website_logo" widget="image"/>
+							<field name="website_email"/>
+							<field name="website_phone"/>
+							<field name="scout_website" widget="url" placeholder="e.g. www.odoo.com"/>
+						</group>
+						<group>
+							<field name="partner4" widget="image"/>
+							<field name="partner5" widget="image"/>
+							<field name="partner6" widget="image"/>
+						</group>
+					</group>
+				</page>
 			</xpath>
+
+
+
 		</field>
 	</record>
 </odoo>

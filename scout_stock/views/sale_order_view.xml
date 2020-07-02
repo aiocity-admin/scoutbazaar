@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data> 
         <record id="sale_order_line_view_extends_location_id" model="ir.ui.view">
             <field name="name">sale.order.form.jt</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//form/sheet/group/group/field[@name='payment_term_id']" position="after">
+                    <field name="is_cod_order"/>
+                </xpath>
                 <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
                     <field name="location_id"/>
                     <field name="delivery_method"/>
@@ -16,6 +19,17 @@
                     <field name="delivery_charge" invisible="1"/>
                     <field name="delivery_method" options="{'no_create':True}"/>
                     <field name="line_delivery_message" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="payment_acquirer_add_cod_payment_acquirer" model="ir.ui.view">
+            <field name="name">payment.acquirer.form.in</field>
+            <field name="model">payment.acquirer</field>
+            <field name="inherit_id" ref="payment.acquirer_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='website_id']" position="after">
+                    <field name="is_cod_payment_acquirer"/>
                 </xpath>
             </field>
         </record>

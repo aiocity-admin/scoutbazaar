@@ -11,26 +11,19 @@ odoo.define('scout_stock.payment_form', function (require) {
         var _t = core._t;
         var payment_widget = require("payment.payment_form");
         
-        $(document).ready(function(){
-            // var self = this
-            // $("#o_payment_form_pay").click(function(){
-            //   var checked_radio_pm = $("input[type=radio][name=pm_id]:checked")
-            //   if(checked_radio_pm){
-            //     if($(checked_radio_pm).attr("data-provider") == "cod"){
-            //         ajax.jsonRpc('/checked/cod/method','call',{'acquirer_id':$(checked_radio_pm).attr("data-acquirer-id")})
-            //         .then(function(vals){
-            //         })
-            //     }
-            //   }
-            // });
-
+        $(document).ready(function(){ 
+            
             var checked_radio_pm = false
             checked_radio_pm = $("input[type=radio][name=pm_id]:checked")
             $('input[type=radio][name=pm_id]').on('change', function() {
               checked_radio_pm = $(this).attr("data-acquirer-id")
+              var provider_cod = $(this).attr("data-provider")
               if(checked_radio_pm){
                     ajax.jsonRpc('/checked/cod/method','call',{'acquirer_id':checked_radio_pm})
                     .then(function(vals){
+                        if (vals){
+                            window.location.reload();
+                        }
                     })
                 }
             });
@@ -39,9 +32,26 @@ odoo.define('scout_stock.payment_form', function (require) {
                 if(checked_radio_pm){
                     ajax.jsonRpc('/checked/cod/method','call',{'acquirer_id':checked_radio_pm})
                     .then(function(vals){
+                        console.log('=======2====',vals)
                     })
                 }   
             }
+            ajax.jsonRpc('/checked/payment/method','call',{})
+            .then(function(data){
+                if(data){
+                    var pay_method = $("input[type=radio][name=pm_id]")
+                    $.each(pay_method, function(key, value) {
+                        var pay_id = $(value).attr('data-acquirer-id')
+                        if(pay_id == data){
+                            $(value).prop("checked", true);
+                            ajax.jsonRpc('/checked/cod/method','call',{'acquirer_id':pay_id})
+                            .then(function(vals){
+                            })
+                        }
+                    });
+                }
+            })
+            
         });
         
         
