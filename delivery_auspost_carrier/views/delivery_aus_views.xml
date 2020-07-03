@@ -15,8 +15,8 @@
 <!--                         	<field name="aus_default_packaging_id" attrs="{'invisible': [('delivery_type', '!=', 'auspost')]}"/> -->
                         	<field name="letter_min_weight" attrs="{'required': [('delivery_type', '=', 'auspost')]}" />
                         	<field name="letter_max_weight" attrs="{'required': [('delivery_type', '=', 'auspost')]}" />
-                        	<field name="parcel_min_weight" attrs="{'invisible' : [('aus_service_type','!=','INT_PARCEL_AIR_OWN_PACKAGING')] ,'required': [('aus_service_type','=','INT_PARCEL_AIR_OWN_PACKAGING'),('delivery_type', '=', 'auspost')]}"/>
-                        	<field name="parcel_max_weight" attrs="{'invisible' : [('aus_service_type','!=','INT_PARCEL_AIR_OWN_PACKAGING')], 'required': [('aus_service_type','=','INT_PARCEL_AIR_OWN_PACKAGING'),('delivery_type', '=', 'auspost')]}"/>
+                        	<field name="parcel_min_weight" attrs="{'invisible' : [('aus_service_type','!=','Economy Air')] ,'required': [('aus_service_type','=','Economy Air'),('delivery_type', '=', 'auspost')]}"/>
+                        	<field name="parcel_max_weight" attrs="{'invisible' : [('aus_service_type','!=','Economy Air')], 'required': [('aus_service_type','=','Economy Air'),('delivery_type', '=', 'auspost')]}"/>
                         </group>
                     </group>
         		</page>
