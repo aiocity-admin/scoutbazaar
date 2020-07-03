@@ -100,7 +100,7 @@ sAnimations.registry.WebsiteSale.include({
 				}
 			})
 	    }
-	    
+	    var int_city = $("input[name='city']");
 	    var city = $("select[name='city_id']");
 	    var district = $("select[name='district_id']");
 	    var town = $("select[name='town_id']");
@@ -162,6 +162,12 @@ sAnimations.registry.WebsiteSale.include({
 	    if (city){
 		   city.change(function(){
 				var city_id = $(this).children("option:selected").val();
+				if(city_id && int_city){
+					var city_id_text = $(this).children("option:selected").text()
+					if(city_id_text){
+						int_city.val(city_id_text.trim())
+					}
+				}
 				if (city_id){
 					ajax.jsonRpc('/filter/ph_servicable_area','call',{'city_id':city_id}).then(function (data) {
 						if (data){
