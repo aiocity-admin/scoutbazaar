@@ -2,10 +2,29 @@
 <odoo>
 	<data noupdate="1">
 		<record id="handling_fees_config" model="payment.handling.config">
-	            <field name="payment_processing_fee">0</field>
-	            <field name="transaction_value">0</field>
-	            <field name="handling_charge">0</field>
+            <field name="payment_processing_fee">0</field>
+            <field name="transaction_value">0</field>
+            <field name="handling_charge">0</field>
 	     </record>
-	     
+	</data>
+	
+	<data>
+		<record id="payment_acquirer_cod_transfer" model="payment.acquirer">
+            <field name="name">Cash On Delivery (cod)</field>
+            <field name="provider">transfer</field>
+            <field name="is_cod_payment_acquirer">True</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="view_template_id" ref="payment_transfer.transfer_form"/>
+            <field name="environment">test</field>
+            <field name="website_published" eval="True"/>
+            <field name="pre_msg"><![CDATA[
+				<p>Transfer information will be provided after choosing the cod payment aquirer.</p>]]>
+            </field>
+            <field name="description" type="html">
+	            <p>
+	                Provide instructions to customers so that they can pay their orders manually.
+	            </p>
+	        </field>
+        </record>
 	</data>
 </odoo>

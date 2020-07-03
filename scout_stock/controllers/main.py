@@ -28,6 +28,7 @@ from odoo.addons.website_sale_delivery.controllers.main import WebsiteSaleDelive
 from odoo.addons.portal.controllers.web import Home
 from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 from lxml import etree, html
+from odoo.osv import expression
 import math
 import os
 import base64
@@ -40,17 +41,13 @@ _logger = logging.getLogger(__name__)
 PPG = 20  # Products Per Page
 PPR = 4   # Products Per Row
 
-
 class AuthSignup(AuthSignupHome):
-
 
     @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
     def web_auth_reset_password(self, *args, **kw):
-
         qcontext = self.get_auth_signup_qcontext()
         if not qcontext.get('token') and not qcontext.get('reset_password_enabled'):
             raise werkzeug.exceptions.NotFound()
-
         if 'error' not in qcontext and request.httprequest.method == 'POST':
             try:
                 if qcontext.get('token'):
@@ -72,7 +69,6 @@ class AuthSignup(AuthSignupHome):
                 _logger.exception('error when resetting password')
             except Exception as e:
                 qcontext['error'] = str(e)
-
         response = request.render('auth_signup.reset_password', qcontext)
         response.headers['X-Frame-Options'] = 'DENY'
         return response
@@ -93,9 +89,7 @@ class Home(Home):
             return http.redirect_with_hash(redirect)
         return response
 
-
 class WebsiteSaleCountrySelect(WebsiteSale):
-    
     
     # Get ProductCountry======================================
     def get_stock_country(self,categ_id):
@@ -131,8 +125,6 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 return False
         else:
             return False
-        
-        
     
     def prepare_international_shipping_dict(self,order,order_delivery_track_lines_dict):
         
@@ -160,14 +152,46 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                     order_delivery_track_lines_dict_new.update({
                                                             t_line : [order_delivery_track_lines_dict[t_line],False]
                                                             })
-        
         if track_line_to_delete:
             for del_line in track_line_to_delete:
                 if del_line in order_delivery_track_lines_dict_new:
                     del order_delivery_track_lines_dict_new[del_line]
-        
         return order_delivery_track_lines_dict_new
-        
+
+    @http.route(['/checked/payment/method'], type='json', auth="public", website=True)
+    def checked_payment_method(self):
+        order = request.website.sale_get_order()
+        if order:
+            if order.save_payment_acquirer:
+                return int(order.save_payment_acquirer)
+
+    @http.route(['/checked/cod/method'], type='json', auth="public", website=True)
+    def payment_cod_method(self, acquirer_id):
+        acquirer_id = request.env['payment.acquirer'].sudo().search([('id','=',int(acquirer_id))],limit=1)
+        order = request.website.sale_get_order()
+        if acquirer_id and order:
+            if acquirer_id.is_cod_payment_acquirer:
+                order.save_payment_acquirer = acquirer_id.id
+                order.is_cod_order = True
+                order.recalculate_nso_lines(order)
+                # order.calculate_nso_lines(order)
+                order.recalculate_vendor_lines(order)
+                # order.calculate_vendor_lines(order)
+                order.save_prev_acquirer = 'pcod'
+                return True
+            else:
+                order.save_payment_acquirer = False
+                order.is_cod_order = False
+                if order.save_prev_acquirer == 'pcod':
+                    order.recalculate_nso_lines(order)
+                    # order.calculate_nso_lines(order)
+                    order.recalculate_vendor_lines(order)
+                    # order.calculate_vendor_lines(order)
+                    order.save_prev_acquirer = False
+                    return True
+                else:
+                    return False
+
     #Set Location id on orderline and calculate delivery cost code===============================================================
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
@@ -187,7 +211,6 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
         transaction_value = res_config.transaction_value
-        
         nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line)
         nso_delivery_lines.update({'delivery_charge':0.0})
         if partner_shipping_id:
@@ -271,14 +294,18 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             for s_line in nso_same_country_location_group[nso_loc]:
                                 price_total += s_line.price_total
                             
-#                             temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
-                            temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                            same_delivery_price += round((temp_price + res_price.get('price')),2)
-                            delivery_price_split = (temp_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
-                            shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
-                            extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
-                            
-                            domestic_price += round((temp_price + res_price.get('price')),2)
+                            if order.is_cod_order:
+                                temp_price = 0.0
+                                delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
+                                shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
+                                extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
+                                domestic_price += round((handling_price + res_price.get('price')),2)
+                            else:
+                                temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                                delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
+                                shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
+                                extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
+                                domestic_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
                             nso_same_country_location_group[nso_loc].write({
                                                                        'delivery_method':same_carrier.id,
                                                                        'delivery_charge':delivery_price_split,
@@ -310,9 +337,6 @@ class WebsiteSaleCountrySelect(WebsiteSale):
             res.qcontext.update({'domestic_fees': "%.2f" % round(domestic_price, 2),
                                  'vendor_domestic_fees_nso_error': vendor_domestic_fees_nso_error,
                                  })
-        
-        
-        
         order_delivery_track_lines_dict = {}
         order_delivery_track_lines = request.env['delivery.line.track'].sudo().search([('order_id','=',order.id),('is_vendor_track','=',False)])
         if order_delivery_track_lines:
@@ -369,12 +393,18 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             for s_line in nso_country_location_group[nso_loc]:
                                 price_total += s_line.price_total
                             
-#                             temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
-                            temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                            delivery_price += round((temp_price + res_price.get('price')),2)
-                            delivery_price_split = (temp_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
-                            shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
-                            extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                            if order.is_cod_order:
+                                temp_price = 0.0
+                                delivery_price += round((handling_price + res_price.get('price')),2)
+                                delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
+                                shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
+                                extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                            else:
+                                temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                                delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
+                                delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
+                                shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
+                                extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
                             nso_country_location_group[nso_loc].write({
                                                                        'delivery_method':carrier.id,
                                                                        'delivery_charge':delivery_price_split,
@@ -406,7 +436,6 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                                             ('order_id','=',order.id),
                                                                             ('is_vendor_track','=',False)
                                                                             ],limit=1)
-                    
                     if track_id:
                         order_delivery_track_lines_dict.update({
                                                                     inter_line:[carrier,track_id.delivery_price]
@@ -415,8 +444,6 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                         order_delivery_track_lines_dict.update({
                                                                     inter_line:[carrier,False]
                                                                     })
-        
-        
         order.recalculate_nso_lines(order)
         order._compute_website_order_line()
         res.qcontext.update({
@@ -424,12 +451,11 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                              'international_shipping_methods':international_shipping_methods,
                              'order_delivery_track_lines_dict':order_delivery_track_lines_dict,
                              })
-        order.check_blank_nso_delivery_lines()  
+        order.check_blank_nso_delivery_lines()
         return res
     
     @http.route(['/get/nso_international_shipping_rates'], type='json', auth="public", website=True)
     def get_nso_international_shipping_rates(self,**post):
-        
         order = request.website.sale_get_order()
         country_code = post.get('nso_country_code')
         carrier_id = int(post.get('nso_delivery_id'))
@@ -460,10 +486,12 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 for s_line in nso_country_location_group[nso_loc]:
                     price_total += s_line.price_total
                 
-#                 temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
-                temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
-                delivery_price += round((temp_price + res.get('price')),2)
-#         return {'nso_delivery_price': order.currency_id.symbol + ' ' + str(round(delivery_price,2))}
+                if order.is_cod_order:
+                    temp_price = 0.0
+                    delivery_price += round((handling_price + res.get('price')),2)
+                else:
+                    temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
+                    delivery_price += round((handling_price + payment_processing_fee + temp_price + res.get('price')),2)
         return {'nso_delivery_price': order.currency_id.symbol + ' ' + str("%.2f" % round(delivery_price, 2))}
     
     @http.route(['/calculate/international_shipping'], type='json', auth="public", website=True)
@@ -512,12 +540,18 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 for s_line in nso_country_location_group[nso_loc]:
                     price_total += s_line.price_total
                 
-#                 temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
-                temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
-                delivery_price += round((temp_price + res.get('price')),2)
-                delivery_price_split = (temp_price + res.get('price'))/len(nso_country_location_group[nso_loc])
-                shipping_price_split = res.get('price')/len(nso_country_location_group[nso_loc])
-                extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                if order.is_cod_order:
+                    temp_price = 0.0
+                    delivery_price += round((handling_price + res.get('price')),2)
+                    delivery_price_split = (handling_price + res.get('price'))/len(nso_country_location_group[nso_loc])
+                    shipping_price_split = res.get('price')/len(nso_country_location_group[nso_loc])
+                    extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                else:
+                    temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
+                    delivery_price += round((handling_price + payment_processing_fee + temp_price + res.get('price')),2)
+                    delivery_price_split = (handling_price + res.get('price'))/len(nso_country_location_group[nso_loc])
+                    shipping_price_split = res.get('price')/len(nso_country_location_group[nso_loc])
+                    extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
                 nso_country_location_group[nso_loc].write({
                                                            'delivery_method':carrier.id,
                                                            'delivery_charge':delivery_price_split,
@@ -544,14 +578,11 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                                                               'delivery_price':delivery_price,
                                                               'is_vendor_track':False
                                                               })
-        
-        
         order = request.website.sale_get_order()
         order._compute_website_order_line()
         value['website_sale.cart_summary'] = request.env['ir.ui.view'].render_template("website_sale.cart_summary",{'website_sale_order':order})
         value['nso_amount_delivery'] = order.currency_id.symbol + ' ' + str("%.2f" % round(order.nso_amount_delivery, 2))
         return value
-    
     
     def _get_shop_payment_values(self, order, **kwargs):
         values = super(WebsiteSaleCountrySelect, self)._get_shop_payment_values(order, **kwargs)
@@ -560,10 +591,8 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         values.update({'website_sale_order':order})
         return values
     
-    
     @http.route(['/check/all_shipping_are_calculated'], type='json', auth="public", website=True)
     def check_all_shipping_are_calculated(self,**post):
-        
         order = request.website.sale_get_order()
         for line in order.order_line:
             if line.location_id:
@@ -571,12 +600,9 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                     return False
                 elif line.delivery_method and line.delivery_charge <= 0:
                     return False
-                
-        
         return True      
-     
     
-class MyWebsiteSaleDelivery(WebsiteSale):
+class MyWebsiteSaleDelivery(WebsiteSale): 
        
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
@@ -599,4 +625,3 @@ class MyWebsiteSaleDelivery(WebsiteSale):
                     acquirers_new.append(acq_id)
             res.qcontext.update({'acquirers':acquirers_new})
         return res
-

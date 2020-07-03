@@ -25,7 +25,6 @@ from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.website_event.controllers.main import WebsiteEventController
 from odoo.addons.website_sale.controllers.main import WebsiteSale
-# from odoo.addons.website_scout_baazar.controllers.main import WebsiteSaleCountrySelect
 from odoo.addons.alan_customize.controllers.main import WebsiteSale as WebsiteSaleAlan
 
 class VendorPage(WebsiteSale):
@@ -76,7 +75,6 @@ class VendorPage(WebsiteSale):
         if track_line_to_delete:
             for del_line in track_line_to_delete:
                 del order_delivery_track_lines_dict_new[del_line]
-                
                 
         return order_delivery_track_lines_dict_new
     
@@ -168,12 +166,18 @@ class VendorPage(WebsiteSale):
                             price_total = 0.0
                             for s_line in vendor_country_based_group[v_cnt]:
                                 price_total += s_line.price_total
-#                             temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
-                            temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                            domestic_vendor_price += round((temp_price + res_price.get('price')),2)
-                            delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
-                            shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
-                            extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
+                            if order.is_cod_order:
+                                temp_price = 0.0
+                                domestic_vendor_price += round((handling_price + res_price.get('price')),2)
+                                delivery_price_split = (handling_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
+                                shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
+                                extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
+                            else:
+                                temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                                domestic_vendor_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
+                                delivery_price_split = (handling_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
+                                shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
+                                extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
                             vendor_country_based_group[v_cnt].write({
                                                                    'delivery_method':same_carrier.id,
                                                                    'delivery_charge':delivery_price_split,
@@ -243,7 +247,6 @@ class VendorPage(WebsiteSale):
                     handling_charge = res_config.handling_charge
                     payment_processing_fee = res_config.payment_processing_fee
                     transaction_value = res_config.transaction_value
-                    
                     stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
                     vendor_country_code_group = order.order_line.filtered(lambda n: not n.location_id and n.product_id.route_ids in stage_ids)
                     vendor_country_based_group = {}
@@ -280,12 +283,18 @@ class VendorPage(WebsiteSale):
                                 price_total = 0.0
                                 for s_line in vendor_country_based_group[v_cnt]:
                                     price_total += s_line.price_total
-#                                 temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
-                                temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                                delivery_price += round((temp_price + res_price.get('price')),2)
-                                delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
-                                shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
-                                extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
+                                if order.is_cod_order:
+                                    temp_price = 0.0
+                                    delivery_price += round((handling_price + res_price.get('price')),2)
+                                    delivery_price_split = (handling_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
+                                    shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
+                                    extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
+                                else:
+                                    temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                                    delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
+                                    delivery_price_split = (handling_price + res_price.get('price'))/len(vendor_country_based_group[v_cnt])
+                                    shipping_price_split = res_price.get('price')/len(vendor_country_based_group[v_cnt])
+                                    extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
                                 vendor_country_based_group[v_cnt].write({
                                                                        'delivery_method':carrier.id,
                                                                        'delivery_charge':delivery_price_split,
@@ -298,7 +307,6 @@ class VendorPage(WebsiteSale):
                                                                                                     ('order_id','=',order.id),
                                                                                                     ('is_vendor_track','=',True)
                                                                                                     ],limit=1)
-#                     if not is_inside_int_include_error:
                     if delivery_line_track_ids:
                         delivery_line_track_ids.update({
                                                         'carrier_id':carrier.id,
@@ -337,7 +345,6 @@ class VendorPage(WebsiteSale):
         order._compute_website_order_line()
         order.recalculate_vendor_lines(order)
         order.check_blank_vendor_delivery_lines()
-        
         return res
     
     #=========all line group price calculate=================
@@ -355,7 +362,6 @@ class VendorPage(WebsiteSale):
         stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
         vendor_country_code_group = order.order_line.filtered(lambda n: not n.location_id and n.product_id.route_ids in stage_ids)
         vendor_country_based_group = {}
-#         is_error = False
         for v_group in vendor_country_code_group:
             vendor = self.get_stock_vendor(order,v_group)
             if vendor.country_id.code == country_code:
@@ -377,12 +383,13 @@ class VendorPage(WebsiteSale):
                     price_total = 0.0
                     for s_line in vendor_country_based_group[v_cnt]:
                         price_total += s_line.price_total
-                    temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
-#                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
-                    delivery_price += round((temp_price + res.get('price')),2)
-#         return {'vendor_delivery_pricei': order.currency_id.symbol + ' ' + str(round(delivery_price,2))}
+                    if order.is_cod_order:
+                        temp_price = 0.0
+                        delivery_price += round((handling_price + res.get('price')),2)
+                    else:
+                        temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
+                        delivery_price += round((handling_price + payment_processing_fee + temp_price + res.get('price')),2)
         return {'vendor_delivery_pricei': order.currency_id.symbol + ' ' + str("%.2f" % round(delivery_price, 2))}
-    
     
     #=========line group price calculate=================
     @http.route(['/calculate/vendor/international_shipping'], type='json', auth="public", website=True)
@@ -435,13 +442,18 @@ class VendorPage(WebsiteSale):
                     price_total = 0.0
                     for s_line in vendor_country_based_group[v_cnt]:
                         price_total += s_line.price_total
-#                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res.get('price') + handling_price))
-                    temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
-                    delivery_price += round((temp_price + res.get('price')),2)
-                    delivery_price_split = (temp_price + res.get('price'))/len(vendor_country_based_group[v_cnt])
-                    shipping_price_split = res.get('price')/len(vendor_country_based_group[v_cnt])
-                    extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
-                    
+                    if order.is_cod_order:
+                        temp_price = 0.0
+                        delivery_price += round((handling_price + res.get('price')),2)
+                        delivery_price_split = (handling_price + res.get('price'))/len(vendor_country_based_group[v_cnt])
+                        shipping_price_split = res.get('price')/len(vendor_country_based_group[v_cnt])
+                        extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
+                    else:
+                        temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
+                        delivery_price += round((handling_price + payment_processing_fee + temp_price + res.get('price')),2)
+                        delivery_price_split = (handling_price + res.get('price'))/len(vendor_country_based_group[v_cnt])
+                        shipping_price_split = res.get('price')/len(vendor_country_based_group[v_cnt])
+                        extra_charge_split = temp_price/len(vendor_country_based_group[v_cnt])
                     vendor_country_based_group[v_cnt].write({
                                                            'delivery_method':carrier.id,
                                                            'delivery_charge':delivery_price_split,
@@ -472,8 +484,6 @@ class VendorPage(WebsiteSale):
                 
         order = request.website.sale_get_order()
         order._compute_website_order_line()
-
         value['website_sale.cart_summary'] = request.env['ir.ui.view'].render_template("website_sale.cart_summary",{'website_sale_order':order})
         value['vendor_amount_delivery'] = order.currency_id.symbol + ' ' + str("%.2f" % round(order.vendor_amount_delivery, 2))
         return value
-    

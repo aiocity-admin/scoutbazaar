@@ -54,18 +54,6 @@ class VendorUsers(models.Model):
                             res.write({'route_ids':[(6,0,stage_ids.ids)]})
         return res
     
-    # @api.multi
-    # def write(self,vals):
-    #     res = super(VendorUsers,self).write(vals)
-    #     user_id = self.env['res.users'].has_group('scout_vendor.group_vendor_product')
-    #     if user_id:
-    #         rule_location = self.env['stock.location.route'].sudo()
-    #         for i in res.route_ids:
-    #             stage_ids = rule_location.search([('name','=','Dropship')])
-    #             if stage_ids:
-    #                 res.write({'route_ids':[(6,0,stage_ids.ids)]})
-    #     return res
-    
 class VendorSaleOrder(models.Model):
      
     _inherit='sale.order'
@@ -140,11 +128,22 @@ class VendorSaleOrder(models.Model):
     def calculate_vendor_lines(self,order):
         sale_order_line_obj = self.env['sale.order.line'].sudo()
         delivery_product = self.env.ref('delivery.product_product_delivery').sudo()
+        res_config = self.env['payment.handling.config'].sudo().search([],limit=1)
+        payment_processing_fee = res_config.payment_processing_fee
+        if order.currency_id != order.company_id.currency_id:
+            payment_processing_fee = order.currency_id._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
+        is_cod_order = False
         delivery_charge = 0.0
         for line in order.order_line:
             stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
             if not line.location_id and line.product_id.route_ids in stage_ids:
                 delivery_charge += line.delivery_charge
+                if not order.is_cod_order:
+                    delivery_charge += line.extra_charge_product
+                    is_cod_order = True
+                    delivery_charge += payment_processing_fee
+        # if is_cod_order:
+
         delivery_line = order.order_line.filtered(lambda r: r.name == "Total Shipping and Handling Charges(Dropshipper)")
         if delivery_line:
             delivery_line.write({'price_unit':delivery_charge})
@@ -168,7 +167,6 @@ class VendorSaleOrder(models.Model):
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
         transaction_value = res_config.transaction_value
-        
         stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
         vendor_country_code_group = order.order_line.filtered(lambda n: not n.location_id and n.product_id.route_ids in stage_ids)
         vendor_same_country_based_group = {}
@@ -186,8 +184,6 @@ class VendorSaleOrder(models.Model):
                     vendor_diff_country_based_group[vendor] |= v_group
                 else:
                     vendor_diff_country_based_group.update({vendor:v_group})
-                    
-                    
         
         #Same Source destination code==================================
         same_carrier = False
@@ -219,12 +215,18 @@ class VendorSaleOrder(models.Model):
                     price_total = 0.0
                     for s_line in vendor_same_country_based_group[v_cnt]:
                         price_total += s_line.price_total
-#                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
-                    temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                    same_delivery_price += round((temp_price + res_price.get('price')),2)
-                    delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_same_country_based_group[v_cnt])
-                    shipping_price_split = res_price.get('price')/len(vendor_same_country_based_group[v_cnt])
-                    extra_charge_split = temp_price/len(vendor_same_country_based_group[v_cnt])
+                    if order.is_cod_order:
+                        temp_price = 0.0
+                        same_delivery_price += round((handling_price + res_price.get('price')),2)
+                        delivery_price_split = (handling_price + res_price.get('price'))/len(vendor_same_country_based_group[v_cnt])
+                        shipping_price_split = res_price.get('price')/len(vendor_same_country_based_group[v_cnt])
+                        extra_charge_split = temp_price/len(vendor_same_country_based_group[v_cnt])
+                    else:
+                        temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                        same_delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
+                        delivery_price_split = (handling_price + res_price.get('price'))/len(vendor_same_country_based_group[v_cnt])
+                        shipping_price_split = res_price.get('price')/len(vendor_same_country_based_group[v_cnt])
+                        extra_charge_split = temp_price/len(vendor_same_country_based_group[v_cnt])
                     vendor_same_country_based_group[v_cnt].write({
                                                            'delivery_method':same_carrier.id,
                                                            'delivery_charge':delivery_price_split,
@@ -232,7 +234,6 @@ class VendorSaleOrder(models.Model):
                                                            'extra_charge_product':extra_charge_split,
                                                         })
                     order.calculate_vendor_lines(order)
-        
         if same_carrier:
             delivery_line_track_ids = self.env['delivery.line.track'].sudo().search([
                                                                             ('country_id','=',order.partner_shipping_id.country_id.id),
@@ -281,12 +282,18 @@ class VendorSaleOrder(models.Model):
                     price_total = 0.0
                     for s_line in vendor_diff_country_based_group[v_diff_cnt]:
                         price_total += s_line.price_total
-#                     temp_price = payment_processing_fee + ((transaction_value/100) * (price_total + res_price.get('price') + handling_price))
-                    temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                    delivery_price += round((temp_price + res_price.get('price')),2)
-                    delivery_price_split = (temp_price + res_price.get('price'))/len(vendor_diff_country_based_group[v_diff_cnt])
-                    shipping_price_split = res_price.get('price')/len(vendor_diff_country_based_group[v_diff_cnt])
-                    extra_charge_split = temp_price/len(vendor_diff_country_based_group[v_diff_cnt])
+                    if order.is_cod_order:
+                        temp_price = 0.0
+                        delivery_price += round((handling_price + res_price.get('price')),2)
+                        delivery_price_split = (handling_price + res_price.get('price'))/len(vendor_diff_country_based_group[v_diff_cnt])
+                        shipping_price_split = res_price.get('price')/len(vendor_diff_country_based_group[v_diff_cnt])
+                        extra_charge_split = temp_price/len(vendor_diff_country_based_group[v_diff_cnt])
+                    else:
+                        temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                        delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
+                        delivery_price_split = (handling_price + res_price.get('price'))/len(vendor_diff_country_based_group[v_diff_cnt])
+                        shipping_price_split = res_price.get('price')/len(vendor_diff_country_based_group[v_diff_cnt])
+                        extra_charge_split = temp_price/len(vendor_diff_country_based_group[v_diff_cnt])
                     vendor_diff_country_based_group[v_diff_cnt].write({
                                                            'delivery_method':carrier.id,
                                                            'delivery_charge':delivery_price_split,
@@ -314,7 +321,7 @@ class VendorSaleOrder(models.Model):
                                                                       'delivery_price':round(delivery_price,2),
                                                                       'is_vendor_track':True
                                                                       })
-                
+                    
     def check_blank_vendor_delivery_lines(self): 
         for line in self.order_line:
             if line.is_vendor_delivery_line and line.delivery_charge <= 0:
