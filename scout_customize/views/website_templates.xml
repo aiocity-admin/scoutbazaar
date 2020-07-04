@@ -122,41 +122,78 @@
                                 <div class="col-sm-6 col-12 col-lg-12">
                                     <div style="text-align: center;margin-top:8%;"> 
                                         <t t-if="request.env.user.sudo().company_id.partner1">
-                                            <a t-attf-href="request.env.user.sudo().company_id.partner_website1">
+                                            <t t-if="request.env.user.sudo().company_id.partner_website1">
+                                                <a href="request.env.user.sudo().company_id.partner_website1">
+                                                    <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner1}}"/>
+                                                </a>
+                                            </t>
+
+                                            <t t-else="">
                                                 <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner1}}"/>
-                                            </a>
+                                            </t>
+
                                         </t>
 
                                         <t t-if="request.env.user.sudo().company_id.partner2">
-                                            <a t-attf-href="request.env.user.sudo().company_id.partner_website2">
-                                                <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner2}}"/>
-                                            </a>
+                                            <t t-if="request.env.user.sudo().company_id.partner_website2">
+
+                                                <a href="request.env.user.sudo().company_id.partner_website2">
+                                                    <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner2}}"/>
+                                                </a>
+                                            </t>
+                                            <t t-else="">
+                                                 <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner2}}"/>
+                                            </t> 
+
                                         </t>
 
                                         <t t-if="request.env.user.sudo().company_id.partner3">
-                                            <a t-attf-href="request.env.user.sudo().company_id.partner_website3">
+                                            <t t-if="request.env.user.sudo().company_id.partner_website3"/>
+                                                <a href="request.env.user.sudo().company_id.partner_website3">
+                                                    <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner3}}"/>
+                                                </a>
+                                            </t>
+                                            <t t-else="">
                                                 <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner3}}"/>
-                                            </a>
+                                            </t>
+
                                         </t>
 
                                         <t t-if="request.env.user.sudo().company_id.partner4">
-                                            <a t-attf-href="request.env.user.sudo().company_id.partner_website4">
+                                            <t t-if="request.env.user.sudo().company_id.partner_website4"/>
+                                                <a href="request.env.user.sudo().company_id.partner_website4">
 
+                                                    <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner4}}"/>
+                                                </a>
+                                            </t>
+                                            <t t-else="">
                                                 <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner4}}"/>
-                                            </a>
-                                        </t>
-                                        
-                                        <t t-if="request.env.user.sudo().company_id.partner5">
-                                            <a t-attf-href="request.env.user.sudo().company_id.partner_website5">
+                                            </t>
 
+                                        </t>
+
+                                        <t t-if="request.env.user.sudo().company_id.partner5">
+                                            <t t-if="request.env.user.sudo().company_id.partner_website5">
+                                                <a href="request.env.user.sudo().company_id.partner_website5">
+
+                                                    <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner5}}"/>
+                                                </a>
+                                            </t>
+                                            <t t-else="">
                                                 <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner5}}"/>
-                                            </a>
+                                            </t>
                                         </t>
 
                                         <t t-if="request.env.user.sudo().company_id.partner6">
-                                            <a t-attf-href="request.env.user.sudo().company_id.partner_website6">
+                                            <t t-if="request.env.user.sudo().company_id.partner_website6">
+                                                <a href="request.env.user.sudo().company_id.partner_website6">
+                                                    <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner6}}"/>
+                                                </a>
+                                            </t>
+                                            <t t-else="">
                                                 <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner6}}"/>
-                                            </a>
+                                            </t>
+
                                         </t>
                                     </div>
 
