@@ -148,7 +148,7 @@
                                         </t>
 
                                         <t t-if="request.env.user.sudo().company_id.partner3">
-                                            <t t-if="request.env.user.sudo().company_id.partner_website3"/>
+                                            <t t-if="request.env.user.sudo().company_id.partner_website3">
                                                 <a href="request.env.user.sudo().company_id.partner_website3">
                                                     <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner3}}"/>
                                                 </a>
@@ -160,7 +160,7 @@
                                         </t>
 
                                         <t t-if="request.env.user.sudo().company_id.partner4">
-                                            <t t-if="request.env.user.sudo().company_id.partner_website4"/>
+                                            <t t-if="request.env.user.sudo().company_id.partner_website4">
                                                 <a href="request.env.user.sudo().company_id.partner_website4">
 
                                                     <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner4}}"/>
