@@ -36,9 +36,22 @@
     font-size: 18px !important;
     font-weight: 600 !important;
 }
+
 #blog_right_column .mt32 p font{
     color: #6c757d !important;
     font-family: "Work Sans", sans-serif;
+}
+
+.partner_contact{
+    color: #1d5861 !important;
+    border-right: 2px solid #333333;
+    margin-right: -17px
+}
+
+.website_image{
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
 }
 
 @media (min-width: 411px) and (max-width:735px) {
@@ -79,6 +92,9 @@
 .middle-footer .fot-col address{
     color:#1d5861 !important;
 }
+.contact{
+    margin-top:14%;
+}
 /*geminatecs nov18*/
 @media (min-width: 320px) and (max-width:735px) {
     .oe_website_sale .td-img{
@@ -93,5 +109,27 @@
     }
     .input-group-prepend .js_add_cart_json{
         display: block !important;
+    }
+}
+@media (min-width: 481px) and (max-width:1023px) {
+    .contact{
+        margin-top:0% !important;
+    }
+}
+
+@media (min-width: 320px) and (max-width:960px) {
+    
+    .website_logo_scout{
+        margin-top: 20px;
+    }
+    .partner_contact{
+        border-right:none;
+
+    }
+
+}
+@media (min-width: 1024px) and (max-width:1024px) {
+    .partner_contact{
+        font-size: 12px !important; 
     }
 }
