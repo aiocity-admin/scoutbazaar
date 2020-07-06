@@ -21,13 +21,25 @@ class ResCompany(models.Model):
 
 
     partner1 = fields.Binary(string="Partner1")
+    partner_website1 = fields.Char(string="Partner Website1")
+
     partner2 = fields.Binary(string="Partner2")
+    partner_website2 = fields.Char(string="Partner Website2")
+
     partner3 = fields.Binary(string="Partner3")
+    partner_website3 = fields.Char(string="Partner Website3")
+
     partner4 = fields.Binary(string="Partner4")
+    partner_website4 = fields.Char(string="Partner Website4")
+
     partner5 = fields.Binary(string="Partner5")
+    partner_website5 = fields.Char(string="Partner Website5")
+
     partner6 = fields.Binary(string="Partner6")
+    partner_website6 = fields.Char(string="Partner Website6")
 
     website_logo = fields.Binary(string="Logo")
+
     website_email = fields.Char(string='Website Email')
     website_phone = fields.Char(string='Website Phone')
     scout_website = fields.Char(string='Website')
