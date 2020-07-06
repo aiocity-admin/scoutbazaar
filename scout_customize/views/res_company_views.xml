@@ -29,28 +29,28 @@
 					<group>
 						<group>
 
-							<field name="partner1" widget="image"/>
+							<field name="partner1" widget="image" style="width:100px;height:50px"/>
 							<field name="partner_website1"/>
 
-							<field name="partner2" widget="image"/>
+							<field name="partner2" widget="image" style="width:100px;height:50px"/>
 							<field name="partner_website2"/>
 
 
-							<field name="partner3" widget="image"/>
+							<field name="partner3" widget="image" style="width:100px;height:50px"/>
 							<field name="partner_website3"/>
 
-							<field name="website_logo" widget="image"/>
+							<field name="website_logo" widget="image" style="width:100px;height:50px"/>
 							<field name="website_email"/>
 							<field name="website_phone"/>
 							<field name="scout_website" widget="url" placeholder="e.g. www.odoo.com"/>
 						</group>
 						<group>
-							<field name="partner4" widget="image"/>
+							<field name="partner4" widget="image" style="width:100px;height:50px"/>
 							<field name="partner_website4"/>
 
-							<field name="partner5" widget="image"/>
+							<field name="partner5" widget="image" style="width:100px;height:50px"/>
 							<field name="partner_website5"/>
-							<field name="partner6" widget="image"/>
+							<field name="partner6" widget="image" style="width:100px;height:50px"/>
 							<field name="partner_website6"/>
 
 						</group>
