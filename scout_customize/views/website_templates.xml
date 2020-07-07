@@ -138,7 +138,7 @@
                                         <t t-if="request.env.user.sudo().company_id.partner2">
                                             <t t-if="request.env.user.sudo().company_id.partner_website2">
 
-                                                <a t-att-href="request.env.user.sudo().company_id.partner_website2" target="new">
+                                                <a t-attf-href="request.env.user.sudo().company_id.partner_website2" target="new">
                                                     <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner2}}"/>
                                                 </a>
                                             </t>
@@ -150,7 +150,7 @@
 
                                         <t t-if="request.env.user.sudo().company_id.partner3">
                                             <t t-if="request.env.user.sudo().company_id.partner_website3">
-                                                <a t-att-href="request.env.user.sudo().company_id.partner_website3" target="new">
+                                                <a t-attf-href="request.env.user.sudo().company_id.partner_website3" target="new">
                                                     <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner3}}"/>
                                                 </a>
                                             </t>
@@ -162,7 +162,7 @@
 
                                         <t t-if="request.env.user.sudo().company_id.partner4">
                                             <t t-if="request.env.user.sudo().company_id.partner_website4">
-                                                <a t-att-href="request.env.user.sudo().company_id.partner_website4" target="new">
+                                                <a t-attf-href="request.env.user.sudo().company_id.partner_website4" target="new">
 
                                                     <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner4}}"/>
                                                 </a>
@@ -175,7 +175,7 @@
 
                                         <t t-if="request.env.user.sudo().company_id.partner5">
                                             <t t-if="request.env.user.sudo().company_id.partner_website5">
-                                                <a t-att-href="request.env.user.sudo().company_id.partner_website5" target="new">
+                                                <a t-attf-href="request.env.user.sudo().company_id.partner_website5" target="new">
 
                                                     <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner5}}"/>
                                                 </a>
@@ -187,7 +187,7 @@
 
                                         <t t-if="request.env.user.sudo().company_id.partner6">
                                             <t t-if="request.env.user.sudo().company_id.partner_website6">
-                                                <a t-att-href="request.env.user.sudo().company_id.partner_website6" target="new">
+                                                <a t-attf-href="request.env.user.sudo().company_id.partner_website6" target="new">
                                                     <img class="website_image" t-attf-src="data:image/*;base64,{{request.env.user.sudo().company_id.partner6}}"/>
                                                 </a>
                                             </t>
@@ -584,5 +584,49 @@
             <h2 t-if="categories">Filters</h2>
         </xpath>
     </template>
+    
+    <template id="total_td" inherit_id="website_sale.cart_lines">
+        <xpath expr="//thead/tr/th[hasclass('td-price')]" position="after">
+            <th class="text-center td-total">Total</th>
+        </xpath>
+    </template>
+
+    <template id="total_tbody" inherit_id="website_sale.cart_lines">
+        <xpath expr="//tbody/t/tr/td[hasclass('td-price')]" position="after">
+
+            <td class="td_total">
+               <t t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}" t-esc="int(line.product_uom_qty) == line.product_uom_qty and int(line.product_uom_qty) * website.currency_id._convert(combination_info['list_price'], website_sale_order.currency_id, website_sale_order.company_id, date) or line.product_uom_qty * website.currency_id._convert(combination_info['list_price'], website_sale_order.currency_id, website_sale_order.company_id, date)" />
+            </td>
+
+        </xpath>
+    </template>
+
+    <template id="mini_cart_total_prize" inherit_id="alan_customize.cart_lines_popup_content">
+        
+        <xpath expr="//div/div[hasclass('m_c_prod_price')]" position="after">
+            
+            <div style="display:inline-block"><b>=</b></div>
+            <div class="m_c_prod_total" style="display:inline-block"><t t-esc="int(each_o_line.product_uom_qty) == each_o_line.product_uom_qty and int(each_o_line.product_uom_qty) * website.currency_id._convert(combination_info['list_price'], website_sale_order.currency_id, website_sale_order.company_id, date)  or each_o_line.product_uom_qty * website.currency_id._convert(combination_info['list_price'], website_sale_order.currency_id, website_sale_order.company_id, date)" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}"/></div>
+
+        </xpath>
+    </template>
+
+
+    <template id="cart_summary_total_label" inherit_id="website_sale.cart_summary">
+        
+        <xpath expr="//thead/tr/th[hasclass('td-price')]" position="after">
+            <th class="text-center td-total">Total</th>
+        </xpath>
+
+        <xpath expr="//tbody/tr/td[hasclass('td-price')]" position="after">
+            <td class="td_total">
+               <t t-esc="line.product_uom_qty * line.price_reduce_taxexcl" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}" />
+            </td>
+
+        </xpath>
+
+
+    </template>
+
 
 </odoo>
