@@ -95,6 +95,9 @@
 .contact{
     margin-top:14%;
 }
+.toggle_summary_div{
+    overflow: auto;
+}
 /*geminatecs nov18*/
 @media (min-width: 320px) and (max-width:735px) {
     .oe_website_sale .td-img{
