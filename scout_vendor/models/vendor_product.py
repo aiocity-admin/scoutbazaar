@@ -23,6 +23,7 @@ from odoo import api, fields, models, _
 import datetime
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 from odoo.exceptions import ValidationError, UserError
+from odoo.tools.safe_eval import safe_eval
 
 class VendorSaleOrderLine(models.Model):
     
@@ -134,15 +135,25 @@ class VendorSaleOrder(models.Model):
             payment_processing_fee = order.currency_id._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
         is_cod_order = False
         delivery_charge = 0.0
+        
+        free_product_list = []
+        free_shipping_prgs_ids = self._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = self.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+
         for line in order.order_line:
-            stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
-            if not line.location_id and line.product_id.route_ids in stage_ids:
-                delivery_charge += line.delivery_charge
-                if not order.is_cod_order:
-                    delivery_charge += line.extra_charge_product
-                    is_cod_order = True
-                    delivery_charge += payment_processing_fee
-        # if is_cod_order:
+            if not line.product_id.id in free_product_list:
+                stage_ids = self.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+                if not line.location_id and line.product_id.route_ids in stage_ids:
+                    delivery_charge += line.delivery_charge
+                    if not order.is_cod_order:
+                        delivery_charge += line.extra_charge_product
+                        is_cod_order = True
+                        delivery_charge += payment_processing_fee
 
         delivery_line = order.order_line.filtered(lambda r: r.name == "Total Shipping and Handling Charges(Dropshipper)")
         if delivery_line:
@@ -172,18 +183,28 @@ class VendorSaleOrder(models.Model):
         vendor_same_country_based_group = {}
         vendor_diff_country_based_group = {}
         
+        free_product_list = []
+        free_shipping_prgs_ids = self._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = self.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+
         for v_group in vendor_country_code_group:
-            vendor = self.get_stock_vendor(order,v_group)
-            if vendor.country_id == order.partner_shipping_id.country_id:
-                if vendor in vendor_same_country_based_group:
-                    vendor_same_country_based_group[vendor] |= v_group
+            if not v_group.product_id.id in free_product_list:
+                vendor = self.get_stock_vendor(order,v_group)
+                if vendor.country_id == order.partner_shipping_id.country_id:
+                    if vendor in vendor_same_country_based_group:
+                        vendor_same_country_based_group[vendor] |= v_group
+                    else:
+                        vendor_same_country_based_group.update({vendor:v_group})
                 else:
-                    vendor_same_country_based_group.update({vendor:v_group})
-            else:
-                if vendor in vendor_diff_country_based_group:
-                    vendor_diff_country_based_group[vendor] |= v_group
-                else:
-                    vendor_diff_country_based_group.update({vendor:v_group})
+                    if vendor in vendor_diff_country_based_group:
+                        vendor_diff_country_based_group[vendor] |= v_group
+                    else:
+                        vendor_diff_country_based_group.update({vendor:v_group})
         
         #Same Source destination code==================================
         same_carrier = False

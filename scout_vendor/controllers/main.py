@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
- 
+
 from odoo import fields
 from odoo import http
 from odoo.http import request
@@ -26,6 +26,7 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.website_event.controllers.main import WebsiteEventController
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 from odoo.addons.alan_customize.controllers.main import WebsiteSale as WebsiteSaleAlan
+from odoo.tools.safe_eval import safe_eval
 
 class VendorPage(WebsiteSale):
     
@@ -98,16 +99,27 @@ class VendorPage(WebsiteSale):
         handling_charge = res_config.handling_charge
         payment_processing_fee = res_config.payment_processing_fee
         transaction_value = res_config.transaction_value
+
+        free_product_list = []
+        free_shipping_prgs_ids = order._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = request.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+
         if order.partner_shipping_id:
             for line in order.order_line:
-                stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
-                if not line.location_id and line.product_id.route_ids in stage_ids and line.product_id.product_tmpl_id.type != 'service':
-                    vendor = self.get_stock_vendor(order,line)
-                    if vendor:
-                        if vendor.country_id == order.partner_shipping_id.country_id:
-                            orderlines_vendor_country_grouping.update({vendor.country_id:False})
-                        else:
-                            orderlines_vendor_country_grouping.update({vendor.country_id:True})
+                if not line.product_id.id in free_product_list:
+                    stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+                    if not line.location_id and line.product_id.route_ids in stage_ids and line.product_id.product_tmpl_id.type != 'service':
+                        vendor = self.get_stock_vendor(order,line)
+                        if vendor:
+                            if vendor.country_id == order.partner_shipping_id.country_id:
+                                orderlines_vendor_country_grouping.update({vendor.country_id:False})
+                            else:
+                                orderlines_vendor_country_grouping.update({vendor.country_id:True})
         order = request.website.sale_get_order()
         for line_group in orderlines_vendor_country_grouping:
             if orderlines_vendor_country_grouping[line_group]:
@@ -124,11 +136,12 @@ class VendorPage(WebsiteSale):
                 vendor_country_based_group = {}
                 same_carrier = False
                 for v_group in vendor_country_code_group:
-                    vendor = self.get_stock_vendor(order,v_group)
-                    if vendor in vendor_country_based_group:
-                        vendor_country_based_group[vendor] |= v_group
-                    else:
-                        vendor_country_based_group.update({vendor:v_group})
+                    if not v_group.product_id.id in free_product_list:
+                        vendor = self.get_stock_vendor(order,v_group)
+                        if vendor in vendor_country_based_group:
+                            vendor_country_based_group[vendor] |= v_group
+                        else:
+                            vendor_country_based_group.update({vendor:v_group})
                         
                 if vendor_country_code_group:
                     if check_multi_company:
@@ -252,11 +265,12 @@ class VendorPage(WebsiteSale):
                     vendor_country_based_group = {}
                     
                     for v_group in vendor_country_code_group:
-                        vendor = self.get_stock_vendor(order,v_group)
-                        if vendor in vendor_country_based_group:
-                            vendor_country_based_group[vendor] |= v_group
-                        else:
-                            vendor_country_based_group.update({vendor:v_group})
+                        if not v_group.product_id.id in free_product_list:
+                            vendor = self.get_stock_vendor(order,v_group)
+                            if vendor in vendor_country_based_group:
+                                vendor_country_based_group[vendor] |= v_group
+                            else:
+                                vendor_country_based_group.update({vendor:v_group})
                             
                     for v_cnt in vendor_country_based_group:
                         if v_cnt.country_id.code == country_code:
@@ -362,13 +376,24 @@ class VendorPage(WebsiteSale):
         stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
         vendor_country_code_group = order.order_line.filtered(lambda n: not n.location_id and n.product_id.route_ids in stage_ids)
         vendor_country_based_group = {}
+
+        free_product_list = []
+        free_shipping_prgs_ids = order._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = request.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+
         for v_group in vendor_country_code_group:
-            vendor = self.get_stock_vendor(order,v_group)
-            if vendor.country_id.code == country_code:
-                if vendor in vendor_country_based_group:
-                    vendor_country_based_group[vendor] |= v_group
-                else:
-                    vendor_country_based_group.update({vendor:v_group})
+            if not v_group.product_id.id in free_product_list:
+                vendor = self.get_stock_vendor(order,v_group)
+                if vendor.country_id.code == country_code:
+                    if vendor in vendor_country_based_group:
+                        vendor_country_based_group[vendor] |= v_group
+                    else:
+                        vendor_country_based_group.update({vendor:v_group})
         for v_cnt in vendor_country_based_group:
             if v_cnt.country_id.code == country_code:
                 res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,vendor_country_based_group[v_cnt])
@@ -409,13 +434,23 @@ class VendorPage(WebsiteSale):
         vendor_country_code_group = order.order_line.filtered(lambda n: not n.location_id and n.product_id.route_ids in stage_ids)
         vendor_country_based_group = {}
         
+        free_product_list = []
+        free_shipping_prgs_ids = order._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = request.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+
         for v_group in vendor_country_code_group:
-            vendor = self.get_stock_vendor(order,v_group)
-            if vendor.country_id.code == country_code:
-                if vendor in vendor_country_based_group:
-                    vendor_country_based_group[vendor] |= v_group
-                else:
-                    vendor_country_based_group.update({vendor:v_group})
+            if not v_group.product_id.id in free_product_list:
+                vendor = self.get_stock_vendor(order,v_group)
+                if vendor.country_id.code == country_code:
+                    if vendor in vendor_country_based_group:
+                        vendor_country_based_group[vendor] |= v_group
+                    else:
+                        vendor_country_based_group.update({vendor:v_group})
                 
         for v_cnt in vendor_country_based_group:
             if v_cnt.country_id.code == country_code:

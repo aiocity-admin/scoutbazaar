@@ -36,6 +36,7 @@ import uuid
 import werkzeug
 import json
 import requests
+from odoo.tools.safe_eval import safe_eval
 _logger = logging.getLogger(__name__)
 
 PPG = 20  # Products Per Page
@@ -213,30 +214,41 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         transaction_value = res_config.transaction_value
         nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line)
         nso_delivery_lines.update({'delivery_charge':0.0})
+
+        free_product_list = []
+        free_shipping_prgs_ids = order._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = request.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+
         if partner_shipping_id:
             for line in order.order_line:
-                stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
-                if line.product_id.public_categ_ids and not line.product_id.route_ids in stage_ids and line.product_id.product_tmpl_id.type != 'service':
-                    stock_locations = request.env['stock.location'].sudo().search([('nso_location_id','=',line.product_id.product_tmpl_id.nso_partner_id.id)])
-                    if stock_locations:
-                        stock_scout_loc = request.env['scout.stock'].sudo().search([('location_id','in',stock_locations.ids)])
-                        if stock_scout_loc:
-                            for ss_id in stock_scout_loc:
-                                if partner_shipping_id.state_id.id in ss_id.state_ids.ids and partner_shipping_id.country_id == ss_id.country_id:
-                                    line.location_id = ss_id.location_id
+                if not line.product_id.id in free_product_list:
+                    stage_ids = request.env['stock.location.route'].sudo().search([('name','=','Dropship')])
+                    if line.product_id.public_categ_ids and not line.product_id.route_ids in stage_ids and line.product_id.product_tmpl_id.type != 'service':
+                        stock_locations = request.env['stock.location'].sudo().search([('nso_location_id','=',line.product_id.product_tmpl_id.nso_partner_id.id)])
+                        if stock_locations:
+                            stock_scout_loc = request.env['scout.stock'].sudo().search([('location_id','in',stock_locations.ids)])
+                            if stock_scout_loc:
+                                for ss_id in stock_scout_loc:
+                                    if partner_shipping_id.state_id.id in ss_id.state_ids.ids and partner_shipping_id.country_id == ss_id.country_id:
+                                        line.location_id = ss_id.location_id
+                                
+                                if not line.location_id:
+                                    stock_scout_country_filter = stock_scout_loc.filtered(lambda r:r.country_id == partner_shipping_id.country_id)
+                                    if stock_scout_country_filter:
+                                        line.location_id = stock_scout_country_filter[0].location_id
+                                
+                                if not line.location_id:
+                                    line.location_id = stock_scout_loc[0].location_id
                             
-                            if not line.location_id:
-                                stock_scout_country_filter = stock_scout_loc.filtered(lambda r:r.country_id == partner_shipping_id.country_id)
-                                if stock_scout_country_filter:
-                                    line.location_id = stock_scout_country_filter[0].location_id
-                            
-                            if not line.location_id:
-                                line.location_id = stock_scout_loc[0].location_id
-                        
-                        if line.location_id.nso_location_id.country_id == partner_shipping_id.country_id:
-                            orderlines_country_grouping.update({line.location_id.nso_location_id.country_id:False})
-                        else:
-                            orderlines_country_grouping.update({line.location_id.nso_location_id.country_id:True})
+                            if line.location_id.nso_location_id.country_id == partner_shipping_id.country_id:
+                                orderlines_country_grouping.update({line.location_id.nso_location_id.country_id:False})
+                            else:
+                                orderlines_country_grouping.update({line.location_id.nso_location_id.country_id:True})
         order = request.website.sale_get_order()
         for line_group in orderlines_country_grouping:
             if orderlines_country_grouping[line_group]:
@@ -264,10 +276,11 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             else:
                                 same_carrier = request.env['delivery.carrier'].sudo().search([('source_country_ids','in',[order.partner_shipping_id.country_id.id]),('shipping_range','=','international')],limit=1)
                 for c_group in nso_same_country_code_group:
-                    if c_group.location_id in nso_same_country_location_group:
-                        nso_same_country_location_group[c_group.location_id] |= c_group
-                    else:
-                        nso_same_country_location_group.update({c_group.location_id:c_group})
+                    if not c_group.product_id.id in free_product_list:
+                        if c_group.location_id in nso_same_country_location_group:
+                            nso_same_country_location_group[c_group.location_id] |= c_group
+                        else:
+                            nso_same_country_location_group.update({c_group.location_id:c_group})
                 for nso_loc in nso_same_country_location_group:
                     if same_carrier:
                         res_price = getattr(same_carrier, '%s_rate_line_shipment' % same_carrier.delivery_type)(order,nso_same_country_location_group[nso_loc])
@@ -368,10 +381,11 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                     nso_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code == country_code)
                     nso_country_location_group = {}
                     for c_group in nso_country_code_group:
-                        if c_group.location_id in nso_country_location_group:
-                            nso_country_location_group[c_group.location_id] |= c_group
-                        else:
-                            nso_country_location_group.update({c_group.location_id:c_group})
+                        if not c_group.product_id.id in free_product_list:
+                            if c_group.location_id in nso_country_location_group:
+                                nso_country_location_group[c_group.location_id] |= c_group
+                            else:
+                                nso_country_location_group.update({c_group.location_id:c_group})
                     for nso_loc in nso_country_location_group:
                         res_price = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
                         if res_price.get('error_message'):
@@ -467,11 +481,22 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         transaction_value = res_config.transaction_value
         nso_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code == country_code)
         nso_country_location_group = {}
+
+        free_product_list = []
+        free_shipping_prgs_ids = order._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = request.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+
         for c_group in nso_country_code_group:
-            if c_group.location_id in nso_country_location_group:
-                nso_country_location_group[c_group.location_id] |= c_group
-            else:
-                nso_country_location_group.update({c_group.location_id:c_group})
+            if not c_group.product_id.id in free_product_list:
+                if c_group.location_id in nso_country_location_group:
+                    nso_country_location_group[c_group.location_id] |= c_group
+                else:
+                    nso_country_location_group.update({c_group.location_id:c_group})
         for nso_loc in nso_country_location_group:
             res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
             if res.get('error_message'):
@@ -510,11 +535,22 @@ class WebsiteSaleCountrySelect(WebsiteSale):
         is_error_in_change_input = False
         nso_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code == country_code)
         nso_country_location_group = {}
+
+        free_product_list = []
+        free_shipping_prgs_ids = order._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = request.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+
         for c_group in nso_country_code_group:
-            if c_group.location_id in nso_country_location_group:
-                nso_country_location_group[c_group.location_id] |= c_group
-            else:
-                nso_country_location_group.update({c_group.location_id:c_group})
+            if not c_group.product_id.id in free_product_list:
+                if c_group.location_id in nso_country_location_group:
+                    nso_country_location_group[c_group.location_id] |= c_group
+                else:
+                    nso_country_location_group.update({c_group.location_id:c_group})
         for nso_loc in nso_country_location_group:
             res = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
             if res.get('error_message'):
