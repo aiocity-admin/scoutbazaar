@@ -1,9 +1,10 @@
 from odoo import api, models, fields, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import pdf 
 from odoo.osv import expression
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare
 from odoo.addons.delivery_ups.models.ups_request import UPSRequest, Package
+from odoo.tools.safe_eval import safe_eval
 
 class PaymentAcquirerInherit(models.Model):
 
@@ -169,34 +170,44 @@ class SaleOrder(models.Model):
         payment_processing_fee = res_config.payment_processing_fee
         if order.currency_id != order.company_id.currency_id:
             payment_processing_fee = order.currency_id._convert(payment_processing_fee,order.currency_id,order.company_id,fields.Date.today())
-        for line in order.order_line: 
-            if line.location_id:
-                nso_location_lines = order.order_line.filtered(lambda r: r.location_id.nso_location_id == line.location_id.nso_location_id)
-                if nso_location_lines:
-                    delivery_charge = 0.0
-                    for n_line in nso_location_lines:
-                       delivery_charge += n_line.delivery_charge
-                    if not order.is_cod_order:
+        
+        free_product_list = []
+        free_shipping_prgs_ids = self._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = self.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+        
+        for line in order.order_line:
+            if not line.product_id.id in free_product_list:
+                if line.location_id:
+                    nso_location_lines = order.order_line.filtered(lambda r: r.location_id.nso_location_id == line.location_id.nso_location_id)
+                    if nso_location_lines:
+                        delivery_charge = 0.0
                         for n_line in nso_location_lines:
-                            delivery_charge += n_line.extra_charge_product
-                        delivery_charge += payment_processing_fee
-                
-                nso_line = order.order_line.filtered(lambda r: r.name == "Total Shipping and Handling Fees(" + line.location_id.nso_location_id.name + '-' + line.location_id.nso_location_id.country_id.name + ")")
-                
-                if nso_line:
-                    nso_line.write({'price_unit':delivery_charge})
-                else:
-                    vals = {
-                            'order_id':order.id,
-                            'name': "Total Shipping and Handling Fees(" + line.location_id.nso_location_id.name + '-' + line.location_id.nso_location_id.country_id.name + ")",
-                            'product_id':delivery_product.id,
-                            'product_uom': delivery_product.sudo().uom_id.id,
-                            'price_unit':delivery_charge,
-                            'product_uom_qty':1.0,
-                            'is_nso_delivery_line':True
-                            }
-                    if delivery_charge > 0:
-                        sale_order_line_obj.create(vals)
+                           delivery_charge += n_line.delivery_charge
+                        if not order.is_cod_order:
+                            for n_line in nso_location_lines:
+                                delivery_charge += n_line.extra_charge_product
+                            delivery_charge += payment_processing_fee
+                    
+                    nso_line = order.order_line.filtered(lambda r: r.name == "Total Shipping and Handling Fees(" + line.location_id.nso_location_id.name + '-' + line.location_id.nso_location_id.country_id.name + ")")
+                    if nso_line:
+                        nso_line.write({'price_unit':delivery_charge})
+                    else:
+                        vals = {
+                                'order_id':order.id,
+                                'name': "Total Shipping and Handling Fees(" + line.location_id.nso_location_id.name + '-' + line.location_id.nso_location_id.country_id.name + ")",
+                                'product_id':delivery_product.id,
+                                'product_uom': delivery_product.sudo().uom_id.id,
+                                'price_unit':delivery_charge,
+                                'product_uom_qty':1.0,
+                                'is_nso_delivery_line':True
+                                }
+                        if delivery_charge > 0:
+                            sale_order_line_obj.create(vals)
                         
     def recalculate_nso_lines(self,order):
         nso_delivery_lines = order.order_line.filtered(lambda r:r.is_nso_delivery_line)
@@ -208,6 +219,16 @@ class SaleOrder(models.Model):
         nso_diff_country_code_group_list = {}
         nso_same_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code == order.partner_shipping_id.country_id.code)
         nso_diff_country_code_group = order.order_line.filtered(lambda n:n.location_id and n.location_id.nso_location_id.country_id.code != order.partner_shipping_id.country_id.code)
+        
+        free_product_list = []
+        free_shipping_prgs_ids = self._get_applied_programs_with_rewards_on_current_order().filtered(lambda p: p.reward_type == 'free_shipping')
+        for free_shipping_prgs_id in free_shipping_prgs_ids:
+            if free_shipping_prgs_id.rule_products_domain:
+                domain = safe_eval(free_shipping_prgs_id.rule_products_domain)
+                products = self.env['product.product'].search(domain)
+                for product in products:
+                    free_product_list.append(product.id)
+
         #Same Source Destination Code====================
         nso_same_country_location_group = {}
         same_carrier = False
@@ -221,10 +242,11 @@ class SaleOrder(models.Model):
             same_country_id = nso_same_country_code_group[0].location_id.nso_location_id.country_id
        
         for c_group in nso_same_country_code_group:
-            if c_group.location_id in nso_same_country_location_group:
-                nso_same_country_location_group[c_group.location_id] |= c_group
-            else:
-                nso_same_country_location_group.update({c_group.location_id:c_group})
+            if not c_group.product_id.id in free_product_list:
+                if c_group.location_id in nso_same_country_location_group:
+                    nso_same_country_location_group[c_group.location_id] |= c_group
+                else:
+                    nso_same_country_location_group.update({c_group.location_id:c_group})
         for nso_loc in nso_same_country_location_group:
             if same_carrier:
                 res_price = getattr(same_carrier, '%s_rate_line_shipment' % same_carrier.delivery_type)(order,nso_same_country_location_group[nso_loc])
@@ -259,7 +281,7 @@ class SaleOrder(models.Model):
                         delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
                         shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
                         extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
-                    nso_same_country_location_group[nso_loc].write({
+                    nso_same_country_location_group[nso_loc].write({ 
                                                                'delivery_method':same_carrier.id,
                                                                'delivery_charge':delivery_price_split,
                                                                'shipping_charge':shipping_price_split,
@@ -304,10 +326,11 @@ class SaleOrder(models.Model):
                 carrier = self.env['delivery.carrier'].sudo().search([('source_country_ids','in',[country_id]),('shipping_range','=','international')],limit=1)
             delivery_price = 0.0
             for c_group in nso_country_code_group:
-                if c_group.location_id in nso_country_location_group:
-                    nso_country_location_group[c_group.location_id] |= c_group
-                else:
-                    nso_country_location_group.update({c_group.location_id:c_group})
+                if not c_group.product_id.id in free_product_list:
+                    if c_group.location_id in nso_country_location_group:
+                        nso_country_location_group[c_group.location_id] |= c_group
+                    else:
+                        nso_country_location_group.update({c_group.location_id:c_group})
             for nso_loc in nso_country_location_group:
                 if carrier:
                     res_price = getattr(carrier, '%s_rate_line_shipment' % carrier.delivery_type)(order,nso_country_location_group[nso_loc])
