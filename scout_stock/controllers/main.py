@@ -159,39 +159,39 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                     del order_delivery_track_lines_dict_new[del_line]
         return order_delivery_track_lines_dict_new
 
-    @http.route(['/checked/payment/method'], type='json', auth="public", website=True)
-    def checked_payment_method(self):
-        order = request.website.sale_get_order()
-        if order:
-            if order.save_payment_acquirer:
-                return int(order.save_payment_acquirer)
+    # @http.route(['/checked/payment/method'], type='json', auth="public", website=True)
+    # def checked_payment_method(self):
+    #     order = request.website.sale_get_order()
+    #     if order:
+    #         if order.save_payment_acquirer:
+    #             return int(order.save_payment_acquirer)
 
-    @http.route(['/checked/cod/method'], type='json', auth="public", website=True)
-    def payment_cod_method(self, acquirer_id):
-        acquirer_id = request.env['payment.acquirer'].sudo().search([('id','=',int(acquirer_id))],limit=1)
-        order = request.website.sale_get_order()
-        if acquirer_id and order:
-            if acquirer_id.is_cod_payment_acquirer:
-                order.save_payment_acquirer = acquirer_id.id
-                order.is_cod_order = True
-                order.recalculate_nso_lines(order)
-                # order.calculate_nso_lines(order)
-                order.recalculate_vendor_lines(order)
-                # order.calculate_vendor_lines(order)
-                order.save_prev_acquirer = 'pcod'
-                return True
-            else:
-                order.save_payment_acquirer = False
-                order.is_cod_order = False
-                if order.save_prev_acquirer == 'pcod':
-                    order.recalculate_nso_lines(order)
-                    # order.calculate_nso_lines(order)
-                    order.recalculate_vendor_lines(order)
-                    # order.calculate_vendor_lines(order)
-                    order.save_prev_acquirer = False
-                    return True
-                else:
-                    return False
+    # @http.route(['/checked/cod/method'], type='json', auth="public", website=True)
+    # def payment_cod_method(self, acquirer_id):
+    #     acquirer_id = request.env['payment.acquirer'].sudo().search([('id','=',int(acquirer_id))],limit=1)
+    #     order = request.website.sale_get_order()
+    #     if acquirer_id and order:
+    #         if acquirer_id.is_cod_payment_acquirer:
+    #             order.save_payment_acquirer = acquirer_id.id
+    #             order.is_cod_order = True
+    #             order.recalculate_nso_lines(order)
+    #             # order.calculate_nso_lines(order)
+    #             order.recalculate_vendor_lines(order)
+    #             # order.calculate_vendor_lines(order)
+    #             order.save_prev_acquirer = 'pcod'
+    #             return True
+    #         else:
+    #             order.save_payment_acquirer = False
+    #             order.is_cod_order = False
+    #             if order.save_prev_acquirer == 'pcod':
+    #                 order.recalculate_nso_lines(order)
+    #                 # order.calculate_nso_lines(order)
+    #                 order.recalculate_vendor_lines(order)
+    #                 # order.calculate_vendor_lines(order)
+    #                 order.save_prev_acquirer = False
+    #                 return True
+    #             else:
+    #                 return False
 
     #Set Location id on orderline and calculate delivery cost code===============================================================
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
@@ -307,18 +307,18 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             for s_line in nso_same_country_location_group[nso_loc]:
                                 price_total += s_line.price_total
                             
-                            if order.is_cod_order:
-                                temp_price = 0.0
-                                delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
-                                shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
-                                extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
-                                domestic_price += round((handling_price + res_price.get('price')),2)
-                            else:
-                                temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                                delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
-                                shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
-                                extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
-                                domestic_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
+                            # if order.is_cod_order:
+                            #     temp_price = 0.0
+                            #     delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
+                            #     shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
+                            #     extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
+                            #     domestic_price += round((handling_price + res_price.get('price')),2)
+                            # else:
+                            temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                            delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
+                            shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
+                            extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
+                            domestic_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
                             nso_same_country_location_group[nso_loc].write({
                                                                        'delivery_method':same_carrier.id,
                                                                        'delivery_charge':delivery_price_split,
@@ -407,18 +407,18 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                             for s_line in nso_country_location_group[nso_loc]:
                                 price_total += s_line.price_total
                             
-                            if order.is_cod_order:
-                                temp_price = 0.0
-                                delivery_price += round((handling_price + res_price.get('price')),2)
-                                delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
-                                shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
-                                extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
-                            else:
-                                temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                                delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
-                                delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
-                                shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
-                                extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                            # if order.is_cod_order:
+                            #     temp_price = 0.0
+                            #     delivery_price += round((handling_price + res_price.get('price')),2)
+                            #     delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
+                            #     shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
+                            #     extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                            # else:
+                            temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                            delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
+                            delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
+                            shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
+                            extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
                             nso_country_location_group[nso_loc].write({
                                                                        'delivery_method':carrier.id,
                                                                        'delivery_charge':delivery_price_split,
@@ -511,12 +511,12 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 for s_line in nso_country_location_group[nso_loc]:
                     price_total += s_line.price_total
                 
-                if order.is_cod_order:
-                    temp_price = 0.0
-                    delivery_price += round((handling_price + res.get('price')),2)
-                else:
-                    temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
-                    delivery_price += round((handling_price + payment_processing_fee + temp_price + res.get('price')),2)
+                # if order.is_cod_order:
+                #     temp_price = 0.0
+                #     delivery_price += round((handling_price + res.get('price')),2)
+                # else:
+                temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
+                delivery_price += round((handling_price + payment_processing_fee + temp_price + res.get('price')),2)
         return {'nso_delivery_price': order.currency_id.symbol + ' ' + str("%.2f" % round(delivery_price, 2))}
     
     @http.route(['/calculate/international_shipping'], type='json', auth="public", website=True)
@@ -576,18 +576,18 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 for s_line in nso_country_location_group[nso_loc]:
                     price_total += s_line.price_total
                 
-                if order.is_cod_order:
-                    temp_price = 0.0
-                    delivery_price += round((handling_price + res.get('price')),2)
-                    delivery_price_split = (handling_price + res.get('price'))/len(nso_country_location_group[nso_loc])
-                    shipping_price_split = res.get('price')/len(nso_country_location_group[nso_loc])
-                    extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
-                else:
-                    temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
-                    delivery_price += round((handling_price + payment_processing_fee + temp_price + res.get('price')),2)
-                    delivery_price_split = (handling_price + res.get('price'))/len(nso_country_location_group[nso_loc])
-                    shipping_price_split = res.get('price')/len(nso_country_location_group[nso_loc])
-                    extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                # if order.is_cod_order:
+                #     temp_price = 0.0
+                #     delivery_price += round((handling_price + res.get('price')),2)
+                #     delivery_price_split = (handling_price + res.get('price'))/len(nso_country_location_group[nso_loc])
+                #     shipping_price_split = res.get('price')/len(nso_country_location_group[nso_loc])
+                #     extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                # else:
+                temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
+                delivery_price += round((handling_price + payment_processing_fee + temp_price + res.get('price')),2)
+                delivery_price_split = (handling_price + res.get('price'))/len(nso_country_location_group[nso_loc])
+                shipping_price_split = res.get('price')/len(nso_country_location_group[nso_loc])
+                extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
                 nso_country_location_group[nso_loc].write({
                                                            'delivery_method':carrier.id,
                                                            'delivery_charge':delivery_price_split,

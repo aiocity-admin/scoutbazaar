@@ -110,7 +110,7 @@ class SaleOrderLine(models.Model):
 class SaleOrder(models.Model):
     _inherit = 'sale.order' 
  
-    is_cod_order = fields.Boolean('Is COD Order',default=False)
+    # is_cod_order = fields.Boolean('Is COD Order',default=False)
     save_next_acquirer = fields.Char('Save Next Acquirer')
     save_prev_acquirer = fields.Char('Save Prev Acquirer')
     nso_amount_delivery = fields.Monetary(
@@ -188,10 +188,10 @@ class SaleOrder(models.Model):
                         delivery_charge = 0.0
                         for n_line in nso_location_lines:
                            delivery_charge += n_line.delivery_charge
-                        if not order.is_cod_order:
-                            for n_line in nso_location_lines:
-                                delivery_charge += n_line.extra_charge_product
-                            delivery_charge += payment_processing_fee
+                        # if not order.is_cod_order:
+                        for n_line in nso_location_lines:
+                            delivery_charge += n_line.extra_charge_product
+                        delivery_charge += payment_processing_fee
                     
                     nso_line = order.order_line.filtered(lambda r: r.name == "Total Shipping and Handling Fees(" + line.location_id.nso_location_id.name + '-' + line.location_id.nso_location_id.country_id.name + ")")
                     if nso_line:
@@ -269,18 +269,18 @@ class SaleOrder(models.Model):
                     for s_line in nso_same_country_location_group[nso_loc]:
                         price_total += s_line.price_total
                     
-                    if order.is_cod_order:
-                        temp_price = 0.0
-                        same_delivery_price += round((handling_price + res_price.get('price')),2)
-                        delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
-                        shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
-                        extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
-                    else:
-                        temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                        same_delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
-                        delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
-                        shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
-                        extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
+                    # if order.is_cod_order:
+                    #     temp_price = 0.0
+                    #     same_delivery_price += round((handling_price + res_price.get('price')),2)
+                    #     delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
+                    #     shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
+                    #     extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
+                    # else:
+                    temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                    same_delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
+                    delivery_price_split = (handling_price + res_price.get('price'))/len(nso_same_country_location_group[nso_loc])
+                    shipping_price_split = res_price.get('price')/len(nso_same_country_location_group[nso_loc])
+                    extra_charge_split = temp_price/len(nso_same_country_location_group[nso_loc])
                     nso_same_country_location_group[nso_loc].write({ 
                                                                'delivery_method':same_carrier.id,
                                                                'delivery_charge':delivery_price_split,
@@ -352,18 +352,18 @@ class SaleOrder(models.Model):
                         price_total = 0.0
                         for s_line in nso_country_location_group[nso_loc]:
                             price_total += s_line.price_total
-                        if order.is_cod_order:
-                            temp_price = 0.0
-                            delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
-                            delivery_price += round((handling_price + res_price.get('price')),2)
-                            shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
-                            extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
-                        else:
-                            temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
-                            delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
-                            delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
-                            shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
-                            extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                        # if order.is_cod_order:
+                        #     temp_price = 0.0
+                        #     delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
+                        #     delivery_price += round((handling_price + res_price.get('price')),2)
+                        #     shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
+                        #     extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
+                        # else:
+                        temp_price = ((payment_processing_fee + res_price.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res_price.get('price') + price_total + handling_price))
+                        delivery_price_split = (handling_price + res_price.get('price'))/len(nso_country_location_group[nso_loc])
+                        delivery_price += round((handling_price + payment_processing_fee + temp_price + res_price.get('price')),2)
+                        shipping_price_split = res_price.get('price')/len(nso_country_location_group[nso_loc])
+                        extra_charge_split = temp_price/len(nso_country_location_group[nso_loc])
                         nso_country_location_group[nso_loc].write({
                                                                'delivery_method':carrier.id,
                                                                'delivery_charge':delivery_price_split,
