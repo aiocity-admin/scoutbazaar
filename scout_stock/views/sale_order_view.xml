@@ -6,9 +6,9 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//form/sheet/group/group/field[@name='payment_term_id']" position="after">
+                <!-- <xpath expr="//form/sheet/group/group/field[@name='payment_term_id']" position="after">
                     <field name="is_cod_order"/>
-                </xpath>
+                </xpath> -->
                 <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
                     <field name="location_id"/>
                     <field name="delivery_method"/>
