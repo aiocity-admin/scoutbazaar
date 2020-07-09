@@ -611,7 +611,7 @@
         </xpath>
     </template>
 
-
+<!-- 
     <template id="cart_summary_total_label" inherit_id="website_sale.cart_summary">
         
         <xpath expr="//thead/tr/th[hasclass('td-price')]" position="after">
@@ -626,7 +626,7 @@
         </xpath>
 
 
-    </template>
+    </template> -->
 
 
 </odoo>
