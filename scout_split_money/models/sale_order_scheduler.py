@@ -255,11 +255,13 @@ class SaleOrder(models.Model):
                 
             if product_extra_charge_ph:
                 lines_payment_acquirer = []
+                tr_id = self.env['payment.transaction'].search([('state','=','done'),('id','in',order.transaction_ids.ids)],limit=1)
+                pay_acquirer_id = tr_id.acquirer_id.payment_acquirer_id.id
                 credit_move_line_src_payment_acquirer = {
                                     'name':order.name + '/' + 'Credit' or '/',
                                     'debit':False,
                                     'credit':product_extra_charge_ph,
-                                    'account_id':order.transaction_ids.acquirer_id.payment_acquirer_id.id,
+                                    'account_id':pay_acquirer_id,
                                     'currency_id':order.currency_id.id,
                                     'date':fields.Date().today(),
                                     'date_maturity':fields.Date().today(),
@@ -285,10 +287,11 @@ class SaleOrder(models.Model):
                 ctx['company_id'] = order.company_id.id
                 move_payment_acquirer = AccountMove.with_context(ctx).create(move_vals_payment_acquirer)
                 
-                
+                tr_id = self.env['payment.transaction'].search([('state','=','done'),('id','in',order.transaction_ids.ids)],limit=1)
+                pay_acquirer_id = tr_id.acquirer_id.payment_acquirer_id.id
                 #History Code===========================
                 amount_transferred_history_obj.create({
-                                               'account_received_id':order.transaction_ids.acquirer_id.payment_acquirer_id.id,
+                                               'account_received_id':pay_acquirer_id,
                                                'order_id':order.id,
                                                'partner_id':False,
                                                'payment_reference':'acquirer',
@@ -428,11 +431,13 @@ class SaleOrder(models.Model):
                 
             if vendor_extra_charge:
                 lines_payment_extra = []
+                tr_id = self.env['payment.transaction'].search([('state','=','done'),('id','in',order.transaction_ids.ids)],limit=1)
+                pay_acquirer_id = tr_id.acquirer_id.payment_acquirer_id.id
                 credit_vendor_move_line_src_payment_extra = {
                                 'name':order.name + '/' + 'Credit' or '/',
                                 'debit':False,
                                 'credit':vendor_extra_charge,
-                                'account_id':order.transaction_ids.acquirer_id.payment_acquirer_id.id,
+                                'account_id':pay_acquirer_id,
                                 'currency_id':order.currency_id.id,
                                 'date':fields.Date().today(),
                                 'date_maturity':fields.Date().today(),
@@ -447,10 +452,12 @@ class SaleOrder(models.Model):
                                'date_maturity': fields.Date().today(),
                                }
                 ctx ={}
+                tr_id = self.env['payment.transaction'].search([('state','=','done'),('id','in',order.transaction_ids.ids)],limit=1)
+                pay_acquirer_id = tr_id.acquirer_id.payment_acquirer_id.id
                 
                 #History Code===========================
                 amount_transferred_history_obj.create({
-                                                   'account_received_id':order.transaction_ids.acquirer_id.payment_acquirer_id.id,
+                                                   'account_received_id' : pay_acquirer_id,
                                                    'order_id':order.id,
                                                    'partner_id':False,
                                                    'payment_reference':'acquirer',
