@@ -5,7 +5,7 @@
     "summary": 'scout money Website Page',
     "description":"""
         """,
-    "version" : "12.0.0.2",
+    "version" : "12.0.0.3",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
     "depends" : ['scout_stock'],
