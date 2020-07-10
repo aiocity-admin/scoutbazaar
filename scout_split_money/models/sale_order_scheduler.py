@@ -8,7 +8,8 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
     
     is_settled = fields.Boolean("Is settled?", readonly=True)
-    
+    is_transfer_paid_order = fields.Boolean("Is Transfer Paid Order")
+
     @api.model
     def _run_payment_transfer_shipping(self):
         sale_transaction_id = self.env['sale.order'].sudo().search([
@@ -16,6 +17,7 @@ class SaleOrder(models.Model):
                                                                     ('transaction_ids','!=',False),
                                                                     ('is_settled','=',False),
                                                                     ])
+        sale_wire_transfer_paid_id = self.env['sale.order'].sudo()
         amount_transferred_history_obj = self.env['amount.transferred.history'].sudo()
         sale_transaction_state_id = self.env['sale.order'].sudo()
         for tran_order in sale_transaction_id:
@@ -25,14 +27,20 @@ class SaleOrder(models.Model):
                     transaction_state = False
                 if transaction_state:
                     sale_transaction_state_id |= tran_order
-                    
+
+                if tr_id.acquirer_id.provider == 'transfer':
+                    sale_wire_transfer_paid_id |= tran_order
+
         sale_invoice_id = self.env['sale.order'].sudo().search([
                                                               ('transaction_ids','=',False),
                                                               ('is_settled','=',False),
                                                               ('state','=','sale'),
                                                               ])
         sale_invoice_state_id = self.env['sale.order'].sudo()
-         
+
+        for paid_id in sale_wire_transfer_paid_id:
+          paid_id.is_transfer_paid_order = True
+          sale_invoice_id |= paid_id
         for inv_order in sale_invoice_id:
             invoice_state = True
             amount = 0.0
@@ -46,7 +54,6 @@ class SaleOrder(models.Model):
             if invoice_state:
                 if inv_order.amount_total <= amount:
                     sale_invoice_state_id |= inv_order
-                     
         sale_transaction = []
         sale_invoice = []
         for i in sale_transaction_state_id:
@@ -680,15 +687,29 @@ class SaleOrder(models.Model):
                 if product_extra_charge_ph:
                     lines_payment_acquirer = []
                     price_invoice_extra = (product_extra_charge_ph * percentage)/100
-                    credit_move_line_src_payment_acquirer = {
+
+                    tr_id = self.env['payment.transaction'].search([('state','=','pending'),('id','in',invoice_order.transaction_ids.ids)],limit=1)
+                    pay_acquirer_id = tr_id.acquirer_id.payment_acquirer_id.id
+                    if invoice_order.is_transfer_paid_order and pay_acquirer_id:
+                      credit_move_line_src_payment_acquirer = {
                                     'name':invoice_order.name + '/' + 'Credit' or '/',
                                     'debit':False,
                                     'credit':price_invoice_extra,
-                                    'account_id':invoice.payment_journal_id.default_credit_account_id.id,
+                                    'account_id':pay_acquirer_id,
                                     'currency_id':invoice_order.currency_id.id,
                                     'date':fields.Date().today(),
                                     'date_maturity':fields.Date().today(),
                                     }
+                    else:
+                      credit_move_line_src_payment_acquirer = {
+                                      'name':invoice_order.name + '/' + 'Credit' or '/',
+                                      'debit':False,
+                                      'credit':price_invoice_extra,
+                                      'account_id':invoice.payment_journal_id.default_credit_account_id.id,
+                                      'currency_id':invoice_order.currency_id.id,
+                                      'date':fields.Date().today(),
+                                      'date_maturity':fields.Date().today(),
+                                      }
                     debit_move_line_src_payment_acquirer = {
                                    'name':invoice_order.name + '/' + 'Debit' or '/',
                                    'debit':price_invoice_extra,
@@ -701,15 +722,23 @@ class SaleOrder(models.Model):
                     ctx ={}
                     lines_payment_acquirer.append((0,0,credit_move_line_src_payment_acquirer))
                     lines_payment_acquirer.append((0,0,debit_move_line_src_payment_acquirer))
-                    
                     #History Code===========================
-                    amount_transferred_history_obj.create({
-                                                   'account_received_id':invoice.payment_journal_id.default_credit_account_id.id,
+                    if invoice_order.is_transfer_paid_order and pay_acquirer_id:
+                      amount_transferred_history_obj.create({
+                                                   'account_received_id':pay_acquirer_id,
                                                    'order_id':invoice_order.id,
                                                    'partner_id':False,
                                                    'payment_reference':'acquirer',
                                                    'amount':price_invoice_extra,
                                                    })
+                    else:
+                      amount_transferred_history_obj.create({
+                                                     'account_received_id':invoice.payment_journal_id.default_credit_account_id.id,
+                                                     'order_id':invoice_order.id,
+                                                     'partner_id':False,
+                                                     'payment_reference':'acquirer',
+                                                     'amount':price_invoice_extra,
+                                                     })
                     move_vals_payment_acquirer = {
                          'ref':invoice_order.name,
                          'line_ids':lines_payment_acquirer,
