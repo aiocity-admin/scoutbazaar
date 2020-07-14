@@ -63,8 +63,7 @@ class SaleOrder(models.Model):
         AccountMove = self.env['account.move'].sudo()
         res_config = self.env['payment.handling.config'].sudo().search([],limit=1)
         handling_charge = res_config.handling_charge
-         
-#          Website Sale Order Create========================
+#          Website Sale Order Create======,==================
 
         for order in sale_transaction:
             line_location = order.order_line.filtered(lambda r:r.location_id)
@@ -722,7 +721,8 @@ class SaleOrder(models.Model):
                     ctx ={}
                     lines_payment_acquirer.append((0,0,credit_move_line_src_payment_acquirer))
                     lines_payment_acquirer.append((0,0,debit_move_line_src_payment_acquirer))
-                    #History Code===========================
+                    
+                    #History Code=================,==========
                     if invoice_order.is_transfer_paid_order and pay_acquirer_id:
                       amount_transferred_history_obj.create({
                                                    'account_received_id':pay_acquirer_id,
@@ -747,7 +747,7 @@ class SaleOrder(models.Model):
                          }
                     ctx['company_id'] = invoice_order.company_id.id
                     move_payment_acquirer = AccountMove.with_context(ctx).create(move_vals_payment_acquirer)
-                    move_payment_acquirer.post()
+                    move_payment_acquirer.post(),
                     
                 if vendor_delivery_group:
                     vendor_lines = []
@@ -923,4 +923,5 @@ class SaleOrder(models.Model):
                     ctx['company_id'] = invoice_order.company_id.id
                     move_payment_vendor_extra = AccountMove.with_context(ctx).create(move_vals_payment_vendor_extra)
                     move_payment_vendor_extra.post()
+#             5/0
             invoice_order.update({'is_settled':True})
