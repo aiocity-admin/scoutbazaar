@@ -11,6 +11,8 @@
 				<field name="partner_id"/>
 				<field name="payment_reference"/>
 				<field name="amount" widget="monetary" sum="Total"/>
+				<field name="foreign_currency_amount"/>
+				<field name="foreign_currency_id" invisible="1"/>
 				<field name="state"/>
 				<field name="currency_id" invisible="1"/>
 			</tree>
