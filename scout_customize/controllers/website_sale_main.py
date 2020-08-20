@@ -22,6 +22,32 @@ import json
 
 class WebsiteSaleScout(WebsiteSale):
     
+    #add additional text======================================
+    @http.route(['/set/additional/note'], type='json', auth="public", website=True)
+    def set_addition_text(self,note,order, **post):
+        sale_order = request.env['sale.order'].search([('id','=',int(order))])
+        if sale_order:
+            sale_order.note = note
+        return True
+    
+    @http.route(['/shop/payment'], type='http', auth="public", website=True)
+    def payment(self, **post):
+        res = super(WebsiteSaleScout,self).payment(**post)
+        sale_order = request.website.sale_get_order(force_create=True)
+        if not sale_order.order_line:
+            sale_order.is_local_currency = False
+        is_true = True
+        partner_country = sale_order.partner_id.country_id
+        for line in sale_order.order_line:
+            if not line.product_id.type == 'service' and not partner_country == line.location_id.nso_location_id.country_id:
+                is_true = False
+        if is_true:
+            sale_order.is_local_currency = True
+            price = sale_order.pricelist_id.currency_id._convert(sale_order.amount_total,sale_order.partner_id.currency_id,sale_order.company_id,fields.Date.today())
+            sale_order.local_currency = price
+        else:
+            sale_order.is_local_currency = False
+        return res
     
     #Storefront Shop Filters======================================
     def toggle_views(self):

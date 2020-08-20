@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <template id="website_payment_templates_add_additional_note" inherit_id="payment.payment_tokens_list">
+        <xpath expr="//div[hasclass('card')]" position="after">
+            <div class="mt-4">
+                <input name="additional_note_order" t-att-value="order.id" type="hidden"/>
+                <h5>Additional Note:</h5>
+                <textarea id="additional_note_area" class="form-control additional_note_area"><t t-esc="order.note"/></textarea>
+            </div>
+        </xpath>
+    </template>
+    
+    <template id="website_payment_templates_add_local_currency" inherit_id="website_sale.total">
+        <xpath expr="//tr[@id='order_total']" position="after">
+            <t t-if="website_sale_order.is_local_currency">
+                <tr id="local_currency">
+                  <td class="text-right"><strong>Local Currency:</strong></td>
+                  <td class="text-xl-right">
+                      <strong t-field="website_sale_order.local_currency" t-options='{"widget": "monetary", "display_currency": website_sale_order.partner_id.currency_id}'/>
+                  </td>
+                </tr>
+            </t>
+        </xpath>
+    </template>
+    
     <template id="product_compare_table_inherit" inherit_id="website_sale_comparison.product_compare">
         <xpath expr="//table[@id='o_comparelist_table']" position="replace">
             <table class="table table-bordered table-hover text-center mt16 table-comparator table-responsive" id="o_comparelist_table">
