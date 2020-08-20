@@ -90,6 +90,8 @@ class SaleOrderForm(models.Model):
     
     is_delivery_filter = fields.Boolean('Is Delivery Filter')
     all_delivery_filter = fields.Boolean('All Delivery Filter',compute="_all_delivery_order_filter")
+    local_currency = fields.Monetary(string='Local Currency', store=True)
+    is_local_currency = fields.Boolean('Is Local Currency')
     
     def _all_delivery_order_filter(self):
         for order in self:

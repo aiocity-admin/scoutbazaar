@@ -20,11 +20,26 @@ $(document).ready(function () {
 		}
 	});
 	
+//    add addition note==========
+    var pay_now_button = $('button#o_payment_form_pay')
+    var addition_note_text = $('#additional_note_area')
+    var addition_note_order = $('input[name="additional_note_order"]')
+	if(pay_now_button && addition_note_text && addition_note_order){
+		$(pay_now_button).click(function(){
+		    ajax.jsonRpc('/set/additional/note','call',{'note':$(addition_note_text).val(),'order':$(addition_note_order).val()}).then(function(){
+		    	
+		    })
+		});
+	}
+//    ajax.jsonRpc('/find/same_nso_product','call',{}).then(function(){
+//    })
+	
+	
 	var c_id = $('#keep_shop_all_category')
 	if (c_id){
 		c_id.click(function(){
 		    ajax.jsonRpc('/get/shop/url','call',{}).then(function(){
-		    
+		    	
 		    })
 		});
 	}
