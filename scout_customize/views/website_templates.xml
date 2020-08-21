@@ -16,7 +16,7 @@
                 <tr id="local_currency">
                   <td class="text-right"><strong>Local Currency:</strong></td>
                   <td class="text-xl-right">
-                      <strong t-field="website_sale_order.local_currency" t-options='{"widget": "monetary", "display_currency": website_sale_order.partner_id.currency_id}'/>
+                      <strong><t t-esc="str(website_sale_order.partner_id.country_id.currency_id.symbol) + ' '"/></strong><strong t-field="website_sale_order.local_currency"/>
                   </td>
                 </tr>
             </t>

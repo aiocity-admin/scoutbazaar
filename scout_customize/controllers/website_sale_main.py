@@ -30,6 +30,13 @@ class WebsiteSaleScout(WebsiteSale):
             sale_order.note = note
         return True
     
+    @http.route(['/shop/cart'], type='http', auth="public", website=True) 
+    def cart(self, access_token=None, revive='', **post):
+        res = super(WebsiteSaleScout, self).cart(**post)
+        sale_order = request.website.sale_get_order(force_create=True)
+        sale_order.is_local_currency = False
+        return res
+        
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
         res = super(WebsiteSaleScout,self).payment(**post)
@@ -43,7 +50,7 @@ class WebsiteSaleScout(WebsiteSale):
                 is_true = False
         if is_true:
             sale_order.is_local_currency = True
-            price = sale_order.pricelist_id.currency_id._convert(sale_order.amount_total,sale_order.partner_id.currency_id,sale_order.company_id,fields.Date.today())
+            price = sale_order.pricelist_id.currency_id._convert(sale_order.amount_total,sale_order.partner_id.country_id.currency_id,sale_order.company_id,fields.Date.today())
             sale_order.local_currency = price
         else:
             sale_order.is_local_currency = False
