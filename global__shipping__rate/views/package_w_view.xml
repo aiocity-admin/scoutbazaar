@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- window action -->
+    <!--
+            The following tag is an action definition for a "window action",
+            that is an action opening a view or a set of views
+        -->
+
+    <data>
+        <!--TREE VIEW-->
+        <record model="ir.ui.view" id="view_tree_package">
+            <field name="name">gb.package_weight.tree</field>
+            <field name="model">gb.package_weight</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="min_weight"/>
+                    <field name="max_weight"/>
+                    <field name="unit"/>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- FORM VIEW -->
+        <record model="ir.ui.view" id="view_tree_package">
+            <field name="name">gb.package_weight.tree.form</field>
+            <field name="model">gb.package_weight</field>
+            <field name="arch" type="xml">
+
+                <form string="Add Package Weight">
+                    <group string="Data">
+                        <field name="min_weight"/>
+                        <field name="max_weight"/>
+                        <field name="unit"/>
+                        <field name="name"/>
+                    </group>
+                </form>
+
+            </field>
+        </record>
+    </data>
+
+    <menuitem id="package_main_menu" name="Package Weight" sequence="3"/>
+
+    <menuitem id="package_sec_menu" name="Package 2" parent="package_main_menu"/>
+
+    <menuitem id="package_menu" name="Package 3" parent="package_sec_menu" action="action_package"/>
+
+    <!-- ACTION -->
+    <record model="ir.actions.act_window" id="action_package">
+        <field name="name">View Package</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">gb.package_weight</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form,tree</field>
+    </record>
+</odoo>
