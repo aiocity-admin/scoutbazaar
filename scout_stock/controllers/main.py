@@ -518,7 +518,7 @@ class WebsiteSaleCountrySelect(WebsiteSale):
                 temp_price = ((payment_processing_fee + res.get('price') + price_total + handling_price)/ (1 - transaction_value/100) - (payment_processing_fee + res.get('price') + price_total + handling_price))
                 delivery_price += round((handling_price + payment_processing_fee + temp_price + res.get('price')),2)
         return {'nso_delivery_price': order.currency_id.symbol + ' ' + str("%.2f" % round(delivery_price, 2))}
-    
+     
     @http.route(['/calculate/international_shipping'], type='json', auth="public", website=True)
     def calculate_international_shipping(self,**post):
         order = request.website.sale_get_order()
