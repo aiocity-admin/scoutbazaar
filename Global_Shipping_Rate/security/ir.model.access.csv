@@ -1,4 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_currency,currency,model_currency,,1,1,1,1
 access_shipping_rates,shipping_rates,model_shipping_rates,,1,1,1,1
 

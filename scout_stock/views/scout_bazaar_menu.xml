@@ -68,8 +68,6 @@
               parent="scout_bazaar_config_menu"
               />
               
-    
-	
 	<menuitem id="web_jt_config_menu"
               name="JT Configuration"
               sequence ="4"
@@ -83,7 +81,7 @@
               />
               
     	<menuitem id="web_gb_config_menu"
-              name="Global Shipping Rate"
+              name="Global Shipping Configuration"
               sequence ="6"
               parent="scout_bazaar_config_menu"
               />
@@ -93,5 +91,5 @@
 	<menuitem id="res_partner_town_menu" name="Barangay" parent="web_addresses_menu" action="jt_express.res_partner_town_action_view"/>
 	<menuitem id="servicable_areas_menu" name="JT Servicable Areas" parent="web_jt_config_menu" action="jt_express.jt_servicable_areas_action_view"/>
     <menuitem id="jt_shipping_menu" name="JT Shipping Rates" parent="web_jt_config_menu" action="jt_express.jt_shipping_rates_action_view"/> 
-    <menuitem id="jt_shipping_menu" name="Global shipping rates" parent="web_gb_config_menu" action="Global_Shipping_Rate.shipping_rates_menu_action"/>    
+    <menuitem id="jt_shipping_menu" name="Global shipping rate card" parent="web_gb_config_menu" action="global_shipping_rate.shipping_rates_menu_action"/>    
 </odoo>
