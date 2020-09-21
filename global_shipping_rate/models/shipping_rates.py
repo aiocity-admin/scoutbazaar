@@ -20,6 +20,5 @@ class ShippingRates(models.Model):
     @api.depends('name')
     def _compute_name(self):
         for ship_rate in self:
-            if self.source_country and self.destination_country:
-                self.name = str(self.source_country.name) + '-' + str(self.destination_country.name) + '(' +  str(self.min_weight) + '-' +  str(self.max_weight) + ')gm'
+                self.name = str(ship_rate.source_country.name) + '-' + str(ship_rate.destination_country.name) + '(' +  str(ship_rate.min_weight) + '-' +  str(ship_rate.max_weight) + ')gm'
     
