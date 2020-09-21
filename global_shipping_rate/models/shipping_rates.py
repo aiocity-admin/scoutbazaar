@@ -6,7 +6,6 @@ class ShippingRates(models.Model):
     _name = 'shipping_rates'  
     _description = 'Shipping rate contains all data related to shipping from source to destination'
      
-    name = fields.Char(string='Name', compute='_compute_name')
     source_country = fields.Many2one('res.country', string='Source Country')
     destination_country = fields.Many2one('res.country', string='Destination Country')
     delivery_carrier = fields.Selection(
@@ -16,9 +15,10 @@ class ShippingRates(models.Model):
     max_weight = fields.Float(string='Maximum Weight')
     is_active = fields.Boolean(default=False, string='Covid status / service available or not')
     rate = fields.Float('Rate', required=True)
+    name = fields.Char(string='Name', compute='_compute_name')
     
-    @api.depends('name')
+    @api.depends('name','source_country','destination_country','min_weight','max_weight')
     def _compute_name(self):
         for ship_rate in self:
-                self.name = str(ship_rate.source_country.name) + '-' + str(ship_rate.destination_country.name) + '(' +  str(ship_rate.min_weight) + '-' +  str(ship_rate.max_weight) + ')gm'
+                ship_rate.name = str(ship_rate.source_country.name) + '-' + str(ship_rate.destination_country.name) + '(' +  str(ship_rate.min_weight) + '-' +  str(ship_rate.max_weight) + ')'
     
