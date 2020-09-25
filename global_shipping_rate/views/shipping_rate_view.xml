@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="shipping_rates_menu_action" model="ir.actions.act_window">
+            <field name="name">Shipping Rates</field>
+            <field name="res_model">shipping_rates</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create The First Shipping Rate
+                </p>
+            </field>
+        </record>
+        <!-- <menuitem id="gb_menu" name="Global Shipping Rates" sequence="20"/>
+        <menuitem id="gb_shipping_rates_menu" parent="gb_menu" name="shipping_rates" action="shipping_rates_menu_action" sequence="9"/> -->
+
+    </data>
+</odoo>
