@@ -8,8 +8,7 @@
     "version" : "12.0.0.7",
     "author"  : "Geminate Consultancy Services",
     "website" : "http://www.geminatecs.com",
-    #global_shipping_rate
-    "depends" : ['scout_vendor','scout_customize','jt_express','delivery_ups','payment_paymaya','delivery_easypost'],
+    "depends" : ['scout_vendor','scout_customize','jt_express','delivery_ups','payment_paymaya','delivery_easypost','global_shipping_rate'],
     'data': ['security/ir.model.access.csv',
              'data/res_config_demo.xml',
              'views/scout_stock.xml',
