@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	
+	<record id="view_delivery_carrier_inherit_code" model="ir.ui.view">
+        <field name="name">delivery.carrier.form.inherit.code</field>
+        <field name="model">delivery.carrier</field>
+        <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+            	<field name="country_code" invisible="1"/>
+                <field name="delivery_code" attrs="{'invisible' : [('country_code','!=','PH')], 'required' : [('country_code','=','PH')]}"/>
+            	
+            	<field name="big_size_price" attrs="{'invisible': ['|', ('delivery_type', '!=', 'base_on_jt_configuration')]}"/>
+            </xpath>
+            
+            
+            <xpath expr="//div[@name='button_box']" position="replace">
+            	 <div class="oe_button_box" name="button_box">
+                    <button name="toggle_prod_environment" type="object" class="oe_stat_button" icon="fa-check-square" attrs="{'invisible': ['|','|', ('delivery_type', '=', 'fixed'), ('delivery_type', '=', 'base_on_rule'),('delivery_type', '=', 'base_on_jt_configuration')]}">
+                        <field name="prod_environment" widget="boolean_button" options='{"terminology": {
+                            "string_true": "Production Environment",
+                            "hover_true": "Switch to test environment",
+                            "string_false": "Test Environment",
+                            "hover_false": "Switch to production environment"
+                        }}'/>
+                    </button>
+                    <button class="oe_stat_button" name="website_publish_button" type="object" icon="fa-globe">
+                    	<field name="website_published" widget="website_button"/>
+                	</button>
+                    <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                        <field name="active" widget="boolean_button" options='{"terminology": "active"}'/>
+                    </button>
+                    <button name="toggle_debug" type="object" class="oe_stat_button" icon="fa-code" groups="base.group_no_one" attrs="{'invisible': ['|','|', ('delivery_type', '=', 'fixed'), ('delivery_type', '=', 'base_on_rule'),('delivery_type', '=', 'base_on_jt_configuration')]}">
+                        <field name="debug_logging" widget="boolean_button" options='{"terminology": {
+                            "string_true": "Debug requests",
+                            "hover_true": "Disable debug",
+                            "string_false": "No debug",
+                            "hover_false": "Enable debug"
+                        }}'/>
+                    </button>
+                </div>
+            </xpath>
+            
+            
+            <xpath expr="//field[@name='integration_level']" position="replace">
+            	<field name="integration_level" widget="radio" attrs="{'invisible': ['|','|', ('delivery_type', '=', 'fixed'), ('delivery_type', '=', 'base_on_rule'),('delivery_type', '=', 'base_on_jt_configuration')]}"/>
+            </xpath>
+        </field>
+    </record>
+    
+    
+    
+    
+    <record id="stock_location_form_view_state_inherit" model= "ir.ui.view">
+    	<field name="name">stock.location.form.inherit.state</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="state_country_code" invisible="1"/>
+            	<field name="state_id" attrs="{'required':[('state_country_code','=','PH')]}"/>
+            </xpath>
+         </field>
+    </record>
+    <record id="view_delivery_carrier_inherit" model="ir.ui.view">
+        <field name="name">delivery.carrier.form.inherit</field>
+        <field name="model">delivery.carrier</field>
+        <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="country_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
