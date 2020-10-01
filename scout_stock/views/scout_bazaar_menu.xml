@@ -93,8 +93,5 @@
 	<menuitem id="res_partner_town_menu" name="Barangay" parent="web_addresses_menu" action="jt_express.res_partner_town_action_view"/>
 	<menuitem id="servicable_areas_menu" name="JT Servicable Areas" parent="web_jt_config_menu" action="jt_express.jt_servicable_areas_action_view"/>
     <menuitem id="jt_shipping_menu" name="JT Shipping Rates" parent="web_jt_config_menu" action="jt_express.jt_shipping_rates_action_view"/>  
-    <menuitem id="gsr_card_menu" name="Global shipping rate card" parent="web_gsr_menu" action="global_shipping_rate.shipping_rates_menu_action"/>  
-    <menuitem id="gsr_c_card_menu" name="Global shipping Carrier" parent="web_gsr_menu" action="global_shipping_rate.view_delivery_carrier_inherit_code_gsr"/>  
-     <menuitem id="gsr_c_card_menu" name="Global shipping Carrier 1" parent="web_gsr_menu" action="global_shipping_rate.stock_location_form_view_state_inherit_gsr"/>    
-     <menuitem id="gsr_c_card_menu" name="Global shipping Carrier 2" parent="web_gsr_menu" action="global_shipping_rate.view_delivery_carrier_inherit_gsr"/>    
+    <menuitem id="gsr_card_menu" name="Global shipping rate card" parent="web_gsr_menu" action="global_shipping_rate.shipping_rates_menu_action"/>   
 </odoo>

@@ -30,7 +30,6 @@
     'data': [
         'security/ir.model.access.csv',
         'views/shipping_rate_view.xml',
-        'views/gsr_delivery_carrier_views.xml'
         'views/templates.xml'
     ],
     # only loaded in demonstration mode
