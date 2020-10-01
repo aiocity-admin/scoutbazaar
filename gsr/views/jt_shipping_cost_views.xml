@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+	<record id="jt_shipping_rates_tree_view" model="ir.ui.view">
+		<field name="name">jt.shipping.rates.tree</field>
+		<field name="model">jt.shipping.rates</field>
+		<field name="arch" type="xml">
+			<tree string="JT Shipping Rates">
+				<field name="name"/>
+				<field name="state_id" widget="selection"/>
+				<field name="rate"/>
+			</tree>
+		</field>
+	</record>
+	
+	
+	<record id="jt_shipping_rates_form_view" model="ir.ui.view">
+		<field name="name">jt.shipping.rates.form</field>
+		<field name="model">jt.shipping.rates</field>
+		<field name="arch" type="xml">
+			<form string="JT Shipping Rates">
+				<sheet>
+					<form string="JT Shipping Rates">
+						<div class="oe_title">
+	                        <h1>
+	                            <field name="name"/>
+	                        </h1>
+	                    </div>
+						<group>
+							<group>
+								<field name="min_weight"/>
+								<field name="max_weight"/>
+							</group>
+							
+							<group>
+								<field name="origin_id" widget="selection"/>
+								<field name="state_id" widget="selection"/>
+								<field name="rate"/>
+							</group>
+						</group>
+					</form>
+				</sheet>
+			</form>
+		</field>
+	</record>
+	
+	
+	<record id="jt_shipping_rates_action_view" model="ir.actions.act_window">
+		<field name="name">JT Shipping Rates</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">jt.shipping.rates</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="jt_shipping_rates_tree_view"/> 
+	</record>
+	          
+	
+</odoo>

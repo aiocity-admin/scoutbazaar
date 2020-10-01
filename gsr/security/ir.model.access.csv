@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_jt_shipping_rates,jt.shipping.rates,model_jt_shipping_rates,,1,1,1,1
+access_res_partner_district,res.partner.district,model_res_partner_district,,1,1,1,1
+access_res_partner_city,res.partner.city,model_res_partner_city,,1,1,1,1
+access_res_partner_town,res.partner.town,model_res_partner_town,,1,1,1,1
+access_jt_servicable_areas,jt.servicable.areas,model_jt_servicable_areas,,1,1,1,1

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding='utf-8'?>
+
+
+<odoo>
+	<record id="product_template_only_form_view_inhert_big_size" model="ir.ui.view">
+	        <field name="name">product.template.form.in</field>
+	        <field name="model">product.template</field>
+	        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+	        <field name="arch" type="xml">
+	            <xpath expr="//field[@name='purchase_ok']" position="before">
+		            <div>
+		                    <field name="is_big_size"/>
+		                    <label for="is_big_size" string="Is Big Size Product"/>
+		            </div>
+	            </xpath>
+	            
+	        </field>
+	        
+	</record>
+</odoo>
